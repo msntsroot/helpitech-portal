@@ -95,6 +95,7 @@ dialog .body{max-height:62vh;overflow:auto}
 .chat{display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:360px}
 .msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:8px}
 .m{max-width:85%;padding:10px 14px;border-radius:16px;white-space:normal}.m.u{align-self:flex-end;background:var(--pc);color:var(--on-pc)}.m.a{align-self:flex-start;background:var(--sf2)}
+.m .tw{margin:8px 0}.m table{min-width:0;font-size:13px}.m th,.m td{padding:6px 10px}.m .mt{margin-top:6px}
 .m ul{margin:4px 0;padding-left:18px}
 .cform{display:flex;gap:8px;margin-top:8px}.cform .tf{flex:1}
 /* charts */
@@ -914,16 +915,172 @@ Chat.providers.rules = {
     return "Não encontrei essa informação nos dados carregados. Tente: <i>situação do cliente X</i>, <i>contratos que vencem este mês</i>, <i>quem mais consumiu Suporte na última semana</i>, <i>oportunidades altas do cliente X</i>, <i>clientes inadimplentes</i>, <i>alertas de franquia</i>.";
   }
 };
-/* ponto de extensão para LLM: implementar answer(q, tools) e registrar em Chat.providers.llm */
-Chat.providers.llm = { name: "LLM (não configurado)", answer: null };
+/* LLM via Microsoft Foundry (Azure OpenAI chat completions). Config fica em chave própria do localStorage (fora de backups/exportações). */
+const AI_KEY = "helpitech.ai.v1";
+const AI = {
+  defaults: { enabled: false, endpoint: "", deployment: "", apiKey: "", apiVersion: "2024-10-21" },
+  get() { try { return Object.assign({}, AI.defaults, JSON.parse(localStorage.getItem(AI_KEY)) || {}); } catch (e) { return Object.assign({}, AI.defaults); } },
+  set(c) { localStorage.setItem(AI_KEY, JSON.stringify(c)); },
+  ready(c = AI.get()) { return !!(c.enabled && c.endpoint && c.deployment); },
+  url(c) {
+    const ep = c.endpoint.trim();
+    if (/\/chat\/completions/.test(ep)) return ep;
+    const origin = new URL(ep).origin;
+    return `${origin}/openai/deployments/${encodeURIComponent(c.deployment.trim())}/chat/completions?api-version=${encodeURIComponent(c.apiVersion || AI.defaults.apiVersion)}`;
+  },
+  system: "Você é o assistente do HelpiTech Portal, um portal interno de gestão de clientes, contratos, métricas de uso e oportunidades de uma empresa de serviços de TI. Responda sempre em português do Brasil, de forma objetiva.",
+  async chat(messages, { tools, c = AI.get() } = {}) {
+    const headers = { "Content-Type": "application/json" }; if (c.apiKey.trim()) headers["api-key"] = c.apiKey.trim();
+    const body = { model: c.deployment.trim(), messages }; if (tools?.length) Object.assign(body, { tools, tool_choice: "auto" });
+    const r = await fetch(AI.url(c), { method: "POST", headers, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error?.message || `HTTP ${r.status}`);
+    return j.choices?.[0]?.message || { content: "" };
+  },
+  async complete(messages, c = AI.get()) { return (await AI.chat(messages, { c })).content || ""; },
+  md(t) {
+    const inl = s => s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
+    const lines = U.esc(t).split("\n"), cells = l => l.trim().replace(/^\||\|$/g, "").split("|").map(x => inl(x.trim()));
+    let out = "", inList = false;
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      if (/^\s*\|.*\|\s*$/.test(l) && /^\s*\|?\s*:?-{2,}/.test(lines[i + 1] || "")) {
+        if (inList) { out += "</ul>"; inList = false; }
+        let tb = `<div class="tw"><table><thead><tr>${cells(l).map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>`; i += 2;
+        for (; i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i]); i++) tb += `<tr>${cells(lines[i]).map(c => `<td>${c}</td>`).join("")}</tr>`;
+        out += tb + "</tbody></table></div>"; i--; continue;
+      }
+      const li = l.match(/^\s*(?:[-*]|\d+[.)])\s+(.*)/);
+      if (li) { if (!inList) { out += "<ul>"; inList = true; } out += `<li>${inl(li[1])}</li>`; continue; }
+      if (inList) { out += "</ul>"; inList = false; }
+      const h = l.match(/^#{1,6}\s+(.*)/); out += h ? `<b>${inl(h[1])}</b><br>` : l.trim() ? inl(l) + "<br>" : "<br>";
+    }
+    return (inList ? out + "</ul>" : out).replace(/(<br>)+$/, "");
+  }
+};
+/* Tools do assistente: leem os dados locais respeitando o perfil (Acc) e sem PII (sem documento/contatos). */
+const AITools = {
+  r1: n => Math.round((Number(n) || 0) * 10) / 10,
+  period(dias) { const n = Math.min(365, Math.max(1, Math.round(+dias || 30))), t = Ctx.today(), r = { start: U.addDays(t, -(n - 1)), end: t }; return { r, prev: M.previous(r), label: `últimos ${n} dias (${U.fmtDate(r.start)} a ${U.fmtDate(r.end)})` }; },
+  resolve(ref) {
+    const list = Acc.customers(), q = U.norm(String(ref ?? "").trim()); if (!q) return { erro: "Informe o nome ou ID do cliente." };
+    const exact = list.find(c => U.norm(c.external_id) === q) || list.find(c => [c.trading_name, c.name].some(n => n && U.norm(n) === q)); if (exact) return { c: exact };
+    const part = list.filter(c => [c.trading_name, c.name].some(n => n && (U.norm(n).includes(q) || q.includes(U.norm(n)))));
+    if (part.length === 1) return { c: part[0] };
+    return part.length ? { erro: `Mais de um cliente corresponde a "${ref}". Especifique.`, candidatos: part.slice(0, 10).map(c => ({ id: c.external_id, nome: c.trading_name || c.name })) } : { erro: `Cliente "${ref}" não encontrado (ou fora do escopo do seu perfil).` };
+  },
+  base: c => ({ id: c.external_id, nome: c.name, nome_fantasia: c.trading_name || null, status: c.status, segmento: c.segment || null, porte: c.size || null, cidade: c.city || null, uf: c.state || null, cs_responsavel: c.cs_owner || null, chamados: c.amount_tickets ?? 0 }),
+  contractRow(k, ev, today, vals) {
+    const s = M.contractStatus(k, ev, today), ativo = M.isActive(k, today);
+    return Object.assign({ id: k.external_id, servico: Ctx.sname(String(k.service_id)), descricao: k.description || null, status: ativo ? "vigente" : (k.status === "cancelado" ? "cancelado" : k.end_date < today ? "encerrado" : k.start_date > today ? "futuro" : k.status), inicio: k.start_date, fim: k.end_date, dias_para_vencer: ativo ? U.days(today, k.end_date) : null, renovacao_automatica: !!k.auto_renew, franquia_horas: k.hours || 0, horas_usadas: AITools.r1(s.used), uso_franquia_pct: s.pct != null ? Math.round(s.pct * 100) : null, vigencia_decorrida_pct: Math.round(s.elapsed * 100), alerta: s.flag === "excesso" ? "excesso de franquia" : s.flag === "baixo" ? "baixo uso (risco de churn)" : s.flag === "atencao" ? "franquia acima de 80%" : null }, vals ? { valor: k.value || 0 } : {}, k.reason_disable ? { motivo_cancelamento: k.reason_disable } : {});
+  },
+  metrics(c, p) {
+    const today = Ctx.today(), vals = Acc.role().values, ks = Ctx.contractsIdx().get(c.external_id) || [], ev = Ctx.usageIdx().get(c.external_id) || [], act = ks.filter(k => M.isActive(k, today));
+    const cur = M.total(ev, p.r), prev = M.total(ev, p.prev), fr = U.sum(act, k => k.hours || 0), used = U.sum(act, k => M.contractStatus(k, ev, today).used);
+    const frProRata = U.sum(act, k => (k.hours || 0) * (Math.min(U.days(p.r.start, p.r.end) + 1, U.days(k.start_date, k.end_date) + 1) / (U.days(k.start_date, k.end_date) + 1)));
+    const opps = Acc.role().opps ? Ctx.opps().filter(o => o.customer_id === c.external_id && (o.status === "nova" || o.status === "em andamento")) : null;
+    return Object.assign({ cliente: c.trading_name || c.name, id: c.external_id, status: c.status, contratos_total: ks.length, contratos_vigentes: act.length, servicos_vigentes: [...new Set(act.map(k => Ctx.sname(String(k.service_id))))], franquia_vigente_horas: fr, horas_usadas_vigencia: AITools.r1(used), uso_franquia_vigencia_pct: fr ? Math.round(used / fr * 100) : null, consumo_periodo_horas: AITools.r1(cur), consumo_periodo_anterior_horas: AITools.r1(prev), variacao_consumo_pct: M.delta(cur, prev) == null ? null : Math.round(M.delta(cur, prev)), franquia_pro_rata_periodo_horas: AITools.r1(frProRata), uso_franquia_periodo_pct: frProRata ? Math.round(cur / frProRata * 100) : null, chamados: c.amount_tickets ?? 0, proximo_vencimento: act.length ? act.map(k => k.end_date).sort()[0] : null, alertas: act.map(k => ({ k, s: M.contractStatus(k, ev, today) })).filter(x => x.s.flag && x.s.flag !== "atencao").map(x => `${Ctx.sname(String(x.k.service_id))}: ${x.s.flag === "excesso" ? "excesso de franquia" : "baixo uso"}`) },
+      vals ? { valor_contratos_vigentes: U.sum(act, k => k.value || 0) } : {}, opps ? { oportunidades_abertas: opps.length, maior_score_oportunidade: opps.length ? Math.max(...opps.map(o => o.score)) : null } : {});
+  },
+  defs: [
+    { type: "function", function: { name: "listar_clientes", description: "Lista/busca clientes da carteira visível ao usuário, com filtros. Use para descobrir clientes, contar, filtrar por status, cidade, UF, segmento ou responsável de CS.", parameters: { type: "object", properties: { busca: { type: "string", description: "Trecho do nome/nome fantasia ou ID" }, status: { type: "string", enum: ["ativo", "inativo", "inadimplente"] }, uf: { type: "string", description: "Sigla do estado, ex.: SP" }, cidade: { type: "string" }, segmento: { type: "string" }, cs_responsavel: { type: "string" }, limite: { type: "integer", description: "Máximo de itens (padrão 50)" } } } } },
+    { type: "function", function: { name: "detalhes_cliente", description: "Dados cadastrais (sem PII), resumo de contratos, consumo no período, alertas e oportunidades abertas de UM cliente.", parameters: { type: "object", properties: { cliente: { type: "string", description: "Nome, nome fantasia ou ID do cliente" }, periodo_dias: { type: "integer", description: "Janela de consumo em dias (padrão 30)" } }, required: ["cliente"] } } },
+    { type: "function", function: { name: "relatorio_contratos", description: "Relatório detalhado dos contratos de UM cliente: serviço, vigência, dias para vencer, franquia, horas usadas, % de uso, alertas e valores (se o perfil permitir), com totais.", parameters: { type: "object", properties: { cliente: { type: "string", description: "Nome, nome fantasia ou ID do cliente" }, incluir_encerrados: { type: "boolean", description: "Incluir contratos encerrados/cancelados (padrão true)" } }, required: ["cliente"] } } },
+    { type: "function", function: { name: "comparar_clientes", description: "Compara 2 a 10 clientes lado a lado com métricas (contratos, franquia, consumo no período e variação vs período anterior, % de uso, chamados, valor, oportunidades) e rankings.", parameters: { type: "object", properties: { clientes: { type: "array", items: { type: "string" }, description: "Nomes ou IDs dos clientes" }, periodo_dias: { type: "integer", description: "Janela de consumo em dias (padrão 30)" } }, required: ["clientes"] } } },
+    { type: "function", function: { name: "ranking_clientes", description: "Ranqueia toda a carteira visível por uma métrica, para comparar clientes entre si (ex.: maiores consumidores, maior uso de franquia, maior valor, mais chamados).", parameters: { type: "object", properties: { metrica: { type: "string", enum: ["consumo_periodo_horas", "uso_franquia_periodo_pct", "uso_franquia_vigencia_pct", "valor_contratos_vigentes", "chamados", "contratos_vigentes", "variacao_consumo_pct", "oportunidades_abertas"] }, ordem: { type: "string", enum: ["desc", "asc"], description: "Padrão desc (maiores primeiro)" }, periodo_dias: { type: "integer", description: "Padrão 30" }, limite: { type: "integer", description: "Padrão 10" }, status: { type: "string", enum: ["ativo", "inativo", "inadimplente"] } }, required: ["metrica"] } } }
+  ],
+  fns: {
+    listar_clientes(a) {
+      if (!DB.list("customers").length) return { erro: "Não há dados carregados." };
+      const f = (v, q) => !q || U.norm(v).includes(U.norm(q)), idx = Ctx.contractsIdx(), today = Ctx.today();
+      const l = Acc.customers().filter(c => (!a.busca || f(c.name, a.busca) || f(c.trading_name, a.busca) || U.norm(c.external_id) === U.norm(a.busca)) && (!a.status || c.status === a.status) && (!a.uf || U.norm(c.state) === U.norm(a.uf)) && f(c.city, a.cidade) && f(c.segment, a.segmento) && f(c.cs_owner, a.cs_responsavel));
+      return { total: l.length, clientes: l.slice(0, Math.min(200, a.limite || 50)).map(c => Object.assign(AITools.base(c), { contratos_vigentes: (idx.get(c.external_id) || []).filter(k => M.isActive(k, today)).length })) };
+    },
+    detalhes_cliente(a) {
+      const x = AITools.resolve(a.cliente); if (!x.c) return x;
+      const p = AITools.period(a.periodo_dias), c = x.c, m = AITools.metrics(c, p);
+      const opps = Acc.role().opps ? Ctx.opps().filter(o => o.customer_id === c.external_id && (o.status === "nova" || o.status === "em andamento")).slice(0, 10).map(o => ({ servico: o.service, score: o.score, nivel: o.level, status: o.status, evidencia: PII.scrub(o.evidence?.[0]?.text || "").slice(0, 200) })) : "sem acesso (perfil)";
+      return { periodo: p.label, data_hoje: Ctx.today(), cadastro: AITools.base(c), metricas: m, oportunidades: opps };
+    },
+    relatorio_contratos(a) {
+      const x = AITools.resolve(a.cliente); if (!x.c) return x;
+      const c = x.c, today = Ctx.today(), vals = Acc.role().values, ev = Ctx.usageIdx().get(c.external_id) || [];
+      let rows = (Ctx.contractsIdx().get(c.external_id) || []).map(k => AITools.contractRow(k, ev, today, vals));
+      if (a.incluir_encerrados === false) rows = rows.filter(r => r.status === "vigente" || r.status === "futuro");
+      rows.sort((p, q) => (p.status === "vigente" ? 0 : 1) - (q.status === "vigente" ? 0 : 1) || q.fim.localeCompare(p.fim));
+      const v = rows.filter(r => r.status === "vigente");
+      return { cliente: c.trading_name || c.name, id: c.external_id, status_cliente: c.status, data_hoje: today, valores_visiveis: vals, totais: Object.assign({ contratos: rows.length, vigentes: v.length, franquia_vigente_horas: U.sum(v, r => r.franquia_horas), horas_usadas_vigentes: AITools.r1(U.sum(v, r => r.horas_usadas)), vencem_em_30_dias: v.filter(r => r.dias_para_vencer <= 30).length, com_alerta: rows.filter(r => r.alerta).length }, vals ? { valor_vigente: U.sum(v, r => r.valor), valor_total_historico: U.sum(rows, r => r.valor) } : {}), contratos: rows };
+    },
+    comparar_clientes(a) {
+      const refs = [...new Set((a.clientes || []).map(String))].slice(0, 10); if (refs.length < 2) return { erro: "Informe ao menos 2 clientes." };
+      const p = AITools.period(a.periodo_dias), res = refs.map(r => ({ r, x: AITools.resolve(r) })), ok = res.filter(z => z.x.c), ms = ok.map(z => AITools.metrics(z.x.c, p));
+      const rank = k => ms.filter(m => m[k] != null).sort((p, q) => q[k] - p[k]).map(m => `${m.cliente} (${m[k]})`);
+      const rk = { maior_consumo_periodo: rank("consumo_periodo_horas"), maior_uso_franquia_periodo: rank("uso_franquia_periodo_pct"), mais_chamados: rank("chamados") }; if (Acc.role().values) rk.maior_valor_vigente = rank("valor_contratos_vigentes");
+      return { periodo: p.label, data_hoje: Ctx.today(), clientes: ms, rankings: rk, nao_encontrados: res.filter(z => !z.x.c).map(z => ({ ref: z.r, erro: z.x.erro, candidatos: z.x.candidatos })) };
+    },
+    ranking_clientes(a) {
+      if (a.metrica === "valor_contratos_vigentes" && !Acc.role().values) return { erro: "Seu perfil não tem acesso a valores." };
+      if (a.metrica === "oportunidades_abertas" && !Acc.role().opps) return { erro: "Seu perfil não tem acesso a oportunidades." };
+      const p = AITools.period(a.periodo_dias), asc = a.ordem === "asc", k = a.metrica;
+      const ms = Acc.customers().filter(c => !a.status || c.status === a.status).map(c => AITools.metrics(c, p)).filter(m => m[k] != null).sort((x, y) => asc ? x[k] - y[k] : y[k] - x[k]);
+      return { metrica: k, ordem: asc ? "asc" : "desc", periodo: p.label, total_clientes: ms.length, media: ms.length ? AITools.r1(U.sum(ms, m => m[k]) / ms.length) : null, ranking: ms.slice(0, Math.min(50, a.limite || 10)).map((m, i) => ({ posicao: i + 1, cliente: m.cliente, id: m.id, status: m.status, valor_metrica: m[k], consumo_periodo_horas: m.consumo_periodo_horas, contratos_vigentes: m.contratos_vigentes })) };
+    }
+  },
+  run(name, argsJson) {
+    let a; try { a = JSON.parse(argsJson || "{}"); } catch (e) { return { erro: "Argumentos inválidos." }; }
+    const f = AITools.fns[name]; if (!f) return { erro: `Tool desconhecida: ${name}` };
+    try { return f(a); } catch (e) { return { erro: "Falha ao executar: " + e.message }; }
+  }
+};
+Chat.providers.llm = {
+  name: "Microsoft Foundry",
+  get answer() { return AI.ready() ? this._answer : null; },
+  sys() {
+    const r = Acc.role();
+    return `${AI.system}\nData de hoje: ${Ctx.today()}. Perfil do usuário: ${r.label}${Acc.cs() ? " (" + Acc.cs() + ")" : ""}; valores financeiros ${r.values ? "permitidos" : "NÃO permitidos"}; oportunidades ${r.opps ? "permitidas" : "NÃO permitidas"}.
+Você tem tools que consultam os dados locais do portal (clientes, contratos, consumo de horas, oportunidades). Regras:
+- Para qualquer pergunta sobre clientes, contratos, consumo, métricas ou comparações, USE as tools; nunca invente dados nem nomes. Se a tool retornar erro ou candidatos, informe/peça para especificar.
+- Relatórios de contratos: use relatorio_contratos e apresente tabela markdown (serviço, vigência, franquia, usadas, % uso, alerta${r.values ? ", valor" : ""}) + totais + pontos de atenção.
+- Comparações: use comparar_clientes (clientes específicos) ou ranking_clientes (carteira toda); apresente tabela markdown com as métricas lado a lado e um resumo com destaques e recomendações.
+- Valores em R$ no formato brasileiro; datas dd/mm/aaaa; informe o período considerado. Não exponha CPF/CNPJ/contatos.`;
+  },
+  async _answer(q, history = [], onStep) {
+    const msgs = [{ role: "system", content: this.sys() }, ...history.slice(-10).map(m => ({ role: m.r === "u" ? "user" : "assistant", content: m.raw ?? m.t })), { role: "user", content: q }], used = [];
+    for (let i = 0; i < 6; i++) {
+      const m = await AI.chat(msgs, { tools: AITools.defs });
+      if (!m.tool_calls?.length) return { raw: m.content || "", html: AI.md(m.content || "(resposta vazia)"), tools: used };
+      msgs.push({ role: "assistant", content: m.content || null, tool_calls: m.tool_calls });
+      for (const tc of m.tool_calls) {
+        let args = {}; try { args = JSON.parse(tc.function.arguments || "{}"); } catch (e) { }
+        used.push({ name: tc.function.name, args }); onStep?.(used);
+        msgs.push({ role: "tool", tool_call_id: tc.id, content: JSON.stringify(AITools.run(tc.function.name, tc.function.arguments)) });
+      }
+    }
+    throw new Error("Limite de chamadas de ferramentas atingido.");
+  }
+};
+Chat.toolsLabel = used => used.map(u => `${u.name}(${U.esc(Object.values(u.args).map(v => Array.isArray(v) ? v.join(", ") : v).join("; "))})`).join(" · ");
 const ChatLog = [];
 Pages.chat = el => {
-  el.innerHTML = `<h2 class="pt">Chat de consulta</h2><div class="card chat"><div class="msgs" id="msgs" aria-live="polite"></div>
-  <div class="row" id="sugg">${["Quais contratos vencem este mês?", "Quem mais consumiu na última semana?", "Quais oportunidades altas existem?", "Quais clientes estão inadimplentes?", "Alertas de franquia"].map(s => `<button class="chip" type="button" data-s="${U.esc(s)}">${U.esc(s)}</button>`).join("")}</div>
-  <form class="cform" id="cf"><label class="tf"><span>Pergunte sobre os dados carregados</span><input id="cq" autocomplete="off"></label><button class="btn" type="submit">${ic("send")} Enviar</button></form></div>
-  <p class="small muted">Respostas geradas por regras sobre os dados locais (${U.esc(Chat.providers.rules.name)}). Quando não há dado, o chat informa. Camada preparada para LLM (<code>Chat.providers.llm</code>).</p>`;
-  const box = $("#msgs"), draw = () => { box.innerHTML = ChatLog.length ? ChatLog.map(m => `<div class="m ${m.r}">${m.r === "u" ? U.esc(m.t) : m.t}</div>`).join("") : `<div class="m a">Olá! Posso responder sobre clientes, contratos, consumo e oportunidades — somente com base nos dados importados.</div>`; box.scrollTop = 1e9; };
-  const ask = q => { if (!q.trim()) return; ChatLog.push({ r: "u", t: q }); const prov = Chat.providers.llm.answer ? Chat.providers.llm : Chat.providers.rules; let a; try { a = prov.answer(q); } catch (e) { a = "Erro ao processar a consulta."; } ChatLog.push({ r: "a", t: a }); DB.audit("chat", q.slice(0, 120)); DB.save(); draw(); };
+  const aiOn = AI.ready(), aiCfg = AI.get();
+  el.innerHTML = `<h2 class="pt">Chat de consulta</h2><p class="small" id="aiStatus">${aiOn ? `🟢 IA ativa — Microsoft Foundry (<code>${U.esc(aiCfg.deployment)}</code>)` : `⚪ IA desativada — respondendo por regras locais.${aiCfg.endpoint ? " A configuração existe, mas “Usar IA no Chat de consulta” não está marcado." : ""} ${Acc.role().pages.includes("settings") ? `<a href="#settings" onclick="event.preventDefault();go('settings')">Configurar IA</a>` : "Peça a um administrador para configurar a IA."}`}</p><div class="card chat"><div class="msgs" id="msgs" aria-live="polite"></div>
+  <div class="row" id="sugg">${(AI.ready() ? ["Liste os clientes inadimplentes", "Relatório dos contratos da Fênix", "Compare Fênix, Jaguar e Lumen", "Ranking dos maiores consumidores nos últimos 30 dias", "Quais clientes estão com baixo uso de franquia?"] : ["Quais contratos vencem este mês?", "Quem mais consumiu na última semana?", "Quais oportunidades altas existem?", "Quais clientes estão inadimplentes?", "Alertas de franquia"]).map(s => `<button class="chip" type="button" data-s="${U.esc(s)}">${U.esc(s)}</button>`).join("")}</div>
+  <form class="cform" id="cf"><label class="tf"><span>${AI.ready() ? "Pergunte à IA" : "Pergunte sobre os dados carregados"}</span><input id="cq" autocomplete="off"></label><button class="btn" type="submit" id="cbtn">${ic("send")} Enviar</button></form></div>
+  <p class="small muted">${AI.ready() ? `Respostas geradas por IA (<b>${U.esc(Chat.providers.llm.name)}</b>, deployment <code>${U.esc(AI.get().deployment)}</code>). As perguntas, o histórico da conversa e os resultados das consultas (sem CPF/CNPJ/contatos, respeitando seu perfil) são enviados ao endpoint configurado.` : `Respostas geradas por regras sobre os dados locais (${U.esc(Chat.providers.rules.name)}). Quando não há dado, o chat informa. Para usar IA, configure o <b>Microsoft Foundry</b> em Configurações.`}</p>`;
+  const draw = () => { const box = $("#msgs"); if (!box) return; box.innerHTML = ChatLog.length ? ChatLog.map((m, i) => `<div class="m ${m.r}">${m.r === "u" ? U.esc(m.t) : m.t}${m.tools?.length ? `<div class="small muted mt">🔧 Dados consultados: ${Chat.toolsLabel(m.tools)}</div>` : ""}${m.raw && m.tools?.length ? `<button class="btn text sm" type="button" data-dl="${i}">${ic("download")} Baixar .md</button>` : ""}</div>`).join("") : `<div class="m a">${AI.ready() ? "Olá! Sou o assistente de IA do HelpiTech Portal. Posso consultar clientes, gerar relatórios de contratos e comparar clientes com métricas. Como posso ajudar?" : "Olá! Posso responder sobre clientes, contratos, consumo e oportunidades — somente com base nos dados importados."}</div>`; box.scrollTop = 1e9; $$("[data-dl]", box).forEach(b => b.onclick = () => { const m = ChatLog[+b.dataset.dl]; DB.audit("exportar", "resposta do chat (.md)"); DB.save(); U.download(`helpitech-chat-${U.today()}.md`, m.raw, "text/markdown"); }); };
+  if ($("#cbtn")) $("#cbtn").disabled = Chat.busy;
+  const ask = async q => {
+    if (!q.trim() || Chat.busy) return;
+    const llm = Chat.providers.llm.answer, history = ChatLog.filter(m => !m.pending && !m.err);
+    ChatLog.push({ r: "u", t: q });
+    if (!llm) { let a; try { a = Chat.providers.rules.answer(q); } catch (e) { a = "Erro ao processar a consulta."; } ChatLog.push({ r: "a", t: a }); DB.audit("chat", q.slice(0, 120)); DB.save(); draw(); return; }
+    Chat.busy = true; $("#cbtn").disabled = true;
+    const pend = { r: "a", t: "<i class=\"muted\">Pensando…</i>", pending: true }; ChatLog.push(pend); draw();
+    try { const a = await llm.call(Chat.providers.llm, q, history, used => { pend.t = `<i class="muted">Consultando dados: ${Chat.toolsLabel(used)}…</i>`; draw(); }); Object.assign(pend, { t: a.html, raw: a.raw, tools: a.tools, pending: false }); }
+    catch (e) { Object.assign(pend, { t: "Erro ao consultar a IA: " + U.esc(e.message || String(e)) + (e instanceof TypeError ? " (verifique endpoint, rede e CORS)" : ""), pending: false, err: true }); }
+    Chat.busy = false; if ($("#cbtn")) $("#cbtn").disabled = false;
+    DB.audit("chat-ia", q.slice(0, 120)); DB.save(); draw();
+  };
   $("#cf").onsubmit = e => { e.preventDefault(); ask($("#cq").value); $("#cq").value = ""; }; $$("[data-s]").forEach(b => b.onclick = () => ask(b.dataset.s)); draw();
 };
 
@@ -952,12 +1109,24 @@ Pages.audit = el => {
   mountTable($("#tbl"), "auditoria", { rows: () => DB.s.audit.slice().reverse(), pageSize: 20, cols: [{ k: "at", label: "Data/hora", val: r => new Date(r.at).toLocaleString("pt-BR"), sortVal: r => r.at }, { k: "role", label: "Perfil", val: r => r.role + (r.user ? " (" + r.user + ")" : "") }, { k: "a", label: "Ação", val: r => r.action }, { k: "d", label: "Detalhe", val: r => r.detail }] });
 };
 Pages.settings = el => {
-  const s = DB.s.settings;
+  const s = DB.s.settings, ai = AI.get();
   el.innerHTML = `<h2 class="pt">Configurações</h2><div class="grid g2"><div class="card"><h3>Análise de oportunidades</h3><div class="grid"><label class="tf"><span>Janela de e-mails (dias)</span><input type="number" id="win" min="1" max="365" value="${s.windowDays}"></label>
   <label class="tf"><span>Dicionário de sinais (JSON)</span><textarea id="dict" rows="12" spellcheck="false">${U.esc(JSON.stringify(s.dict, null, 2))}</textarea></label></div><div class="row" style="margin-top:8px"><button class="btn" id="svS">Salvar</button><button class="btn out" id="rstD">Restaurar padrão</button></div><p class="small muted">Alterações no dicionário valem para e-mails importados depois (o corpo não é guardado para reprocessar).</p></div>
   <div class="card"><h3>Dados locais</h3><div class="row"><button class="btn tonal" id="expAll">${ic("download")} Exportar tudo (JSON)</button><label class="btn tonal" tabindex="0">${ic("upload")} Restaurar backup<input type="file" id="rest" accept=".json" class="sr"></label></div>
   <div class="row" style="margin-top:12px"><button class="btn err" id="clr">${ic("del")} Limpar todos os dados</button></div>
-  <h3 style="margin-top:20px">Testes</h3><button class="btn out" id="tst">Executar autotestes</button><pre class="code" id="tout" style="margin-top:8px" hidden></pre></div></div>`;
+  <h3 style="margin-top:20px">Testes</h3><button class="btn out" id="tst">Executar autotestes</button><pre class="code" id="tout" style="margin-top:8px" hidden></pre></div>
+  <div class="card"><h3>IA — Microsoft Foundry (chat)</h3><div class="grid">
+  <label class="row"><input type="checkbox" id="aiOn" ${ai.enabled ? "checked" : ""}> Usar IA no Chat de consulta</label>
+  <label class="tf"><span>Endpoint (ex.: https://&lt;recurso&gt;.openai.azure.com ou https://&lt;recurso&gt;.services.ai.azure.com)</span><input id="aiEp" value="${U.esc(ai.endpoint)}" placeholder="https://meu-recurso.openai.azure.com" autocomplete="off"></label>
+  <label class="tf"><span>Deployment (nome do modelo implantado)</span><input id="aiDep" value="${U.esc(ai.deployment)}" placeholder="gpt-4o-mini" autocomplete="off"></label>
+  <label class="tf"><span>API key (em branco ao usar o proxy local com Entra ID)</span><input id="aiKey" type="password" value="${U.esc(ai.apiKey)}" autocomplete="off"></label>
+  <label class="tf"><span>API version</span><input id="aiVer" value="${U.esc(ai.apiVersion)}" autocomplete="off"></label></div>
+  <div class="row" style="margin-top:8px"><button class="btn" id="aiSv">Salvar</button><button class="btn out" id="aiTst">Testar conexão</button></div>
+  <p class="small muted" id="aiOut">A chave fica apenas neste navegador (localStorage, fora de backups/exportações). Ao ativar, as perguntas do chat são enviadas ao endpoint configurado. Ambiente de homologação: em produção a chamada deve passar por um backend (sem expor a chave).</p></div></div>`;
+  const aiRead = () => ({ enabled: $("#aiOn").checked, endpoint: $("#aiEp").value.trim(), deployment: $("#aiDep").value.trim(), apiKey: $("#aiKey").value.trim(), apiVersion: $("#aiVer").value.trim() || AI.defaults.apiVersion });
+  const aiValid = c => { try { new URL(c.endpoint); } catch (e) { return "Endpoint inválido."; } return !c.deployment ? "Informe o deployment." : !c.apiKey && !/\/chat\/completions/.test(c.endpoint) ? "Informe a API key (ou use o proxy local: http://localhost:8787/chat/completions)." : ""; };
+  $("#aiSv").onclick = () => { const c = aiRead(), err = aiValid(c); if (c.enabled && err) return toast(err); AI.set(c); DB.audit("config", "IA Foundry " + (c.enabled ? "ativada" : "desativada")); DB.save(); toast(c.enabled ? "Configuração de IA salva — IA ativa no Chat." : err ? "Configuração salva (IA desativada)." : "Configuração salva, mas a IA está DESATIVADA: marque “Usar IA no Chat de consulta” e salve novamente."); };
+  $("#aiTst").onclick = async () => { const c = aiRead(), err = aiValid(c), o = $("#aiOut"); if (err) return toast(err); o.textContent = "Testando…"; try { const t = await AI.complete([{ role: "user", content: "Responda apenas: OK" }], c); $("#aiOn").checked = true; o.textContent = "✔ Conexão OK. Resposta: " + t.slice(0, 120) + " — clique em Salvar para ativar no Chat."; } catch (e) { o.textContent = "✘ Falha: " + (e.message || e) + (e instanceof TypeError ? " (verifique endpoint, rede e CORS)" : ""); } };
   $("#svS").onclick = () => { try { const d = JSON.parse($("#dict").value); if (!Array.isArray(d.rules)) throw new Error("rules[] ausente"); s.dict = d; s.windowDays = Math.max(1, +$("#win").value || 30); DB.audit("config", "dicionário/janela"); DB.save(); toast("Configurações salvas."); } catch (e) { toast("JSON inválido: " + e.message); } };
   $("#rstD").onclick = () => { s.dict = JSON.parse(JSON.stringify(DEFAULT_DICT)); DB.save(); Pages.settings(el); };
   $("#expAll").onclick = () => { DB.audit("exportar", "backup completo"); DB.save(); U.download(`backup-helpitech-${U.today()}.json`, JSON.stringify(DB.s)); };
