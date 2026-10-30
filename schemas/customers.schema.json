@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Cliente",
+  "type": "object",
+  "required": [
+    "external_id",
+    "name",
+    "status"
+  ],
+  "properties": {
+    "external_id": {
+      "type": [
+        "string",
+        "integer"
+      ],
+      "description": "ID do cliente no sistema de origem (chave de upsert)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 2
+    },
+    "trading_name": {
+      "type": "string"
+    },
+    "document": {
+      "type": "string",
+      "description": "CNPJ ou CPF (com ou sem pontuação)"
+    },
+    "ie": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "ativo",
+        "inativo",
+        "inadimplente"
+      ]
+    },
+    "segment": {
+      "type": "string",
+      "description": "Ex.: Indústria, Varejo, Saúde"
+    },
+    "size": {
+      "enum": [
+        "micro",
+        "pequeno",
+        "medio",
+        "grande"
+      ]
+    },
+    "cs_owner": {
+      "type": "string",
+      "description": "Responsável de CS (define a visibilidade do perfil CS)"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "amount_tickets": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "contacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

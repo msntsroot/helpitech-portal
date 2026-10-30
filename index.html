@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HelpiTech Portal — Clientes, Métricas e Oportunidades (homologação)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#00696b;--on-p:#fff;--pc:#9cf1f2;--on-pc:#002020;
+  --s:#4a6363;--sc:#cce8e8;--on-sc:#051f1f;
+  --err:#ba1a1a;--on-err:#fff;--errc:#ffdad6;--warn:#8a5100;--warnc:#ffddb8;--ok:#176b3a;--okc:#b6f1c7;
+  --bg:#f4fafa;--sf:#f4fafa;--sf1:#eaf0f0;--sf2:#e4eaea;--sf3:#dee4e4;--on:#161d1d;--onv:#3f4948;--ol:#6f7979;--olv:#bec8c8;
+  --e1:0 1px 2px rgba(0,0,0,.3),0 1px 3px 1px rgba(0,0,0,.15);--e2:0 1px 2px rgba(0,0,0,.3),0 2px 6px 2px rgba(0,0,0,.15);
+  --c1:#00696b;--c2:#8a5100;--c3:#6750a4;--c4:#ba1a1a;
+  font-family:"Noto Sans",sans-serif;
+}
+:root[data-theme=dark]{
+  --p:#4cdadc;--on-p:#003737;--pc:#004f50;--on-pc:#9cf1f2;--s:#b0cccc;--sc:#324b4b;--on-sc:#cce8e8;
+  --err:#ffb4ab;--on-err:#690005;--errc:#93000a;--warn:#ffb867;--warnc:#693c00;--ok:#9adaad;--okc:#00522a;
+  --bg:#0e1514;--sf:#0e1514;--sf1:#161d1d;--sf2:#1a2121;--sf3:#252b2b;--on:#dde4e3;--onv:#bec8c8;--ol:#899392;--olv:#3f4948;
+  --c1:#4cdadc;--c2:#ffb867;--c3:#cfbcff;--c4:#ffb4ab;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:"Noto Sans",sans-serif;background:var(--bg);color:var(--on);font-size:14px;line-height:1.5}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+svg.i{width:24px;height:24px;fill:currentColor;flex:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--p);color:var(--on-p);padding:8px 16px;border-radius:8px;z-index:100}.skip:focus{left:8px}
+/* app bar */
+header.bar{position:fixed;top:0;left:0;right:0;height:64px;background:var(--sf2);display:flex;align-items:center;gap:8px;padding:0 12px;z-index:20}
+header.bar h1{font-size:20px;font-weight:500;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{width:48px;height:48px;border-radius:50%;border:0;background:transparent;display:inline-grid;place-items:center;cursor:pointer}
+.ib:hover{background:color-mix(in srgb,var(--on) 8%,transparent)}
+/* drawer */
+nav.drawer{position:fixed;top:64px;bottom:0;left:0;width:280px;background:var(--sf1);padding:12px;overflow:auto;z-index:15;transform:translateX(-100%);transition:transform .2s}
+nav.drawer.open{transform:none;box-shadow:var(--e2)}
+.scrim{position:fixed;inset:64px 0 0 0;background:rgba(0,0,0,.4);z-index:14;display:none}.scrim.on{display:block}
+nav.drawer a{display:flex;align-items:center;gap:12px;height:48px;padding:0 16px;border-radius:24px;color:var(--onv);text-decoration:none;font-weight:500;cursor:pointer}
+nav.drawer a:hover{background:color-mix(in srgb,var(--on) 8%,transparent)}
+nav.drawer a[aria-current=page]{background:var(--sc);color:var(--on-sc)}
+main{padding:80px 16px 96px;max-width:1280px;margin:0 auto}
+@media(min-width:960px){nav.drawer{transform:none;box-shadow:none}.scrim{display:none!important}main{margin-left:296px;margin-right:16px;max-width:none}.menu-btn{display:none}}
+h2.pt{font-size:28px;font-weight:400;margin:8px 0 16px}
+h3{font-size:16px;font-weight:600;margin:0 0 8px}
+.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.card{background:var(--sf1);border-radius:12px;padding:16px;box-shadow:var(--e1);min-width:0}
+.card.flat{box-shadow:none;border:1px solid var(--olv);background:transparent}
+.kpi .v{font-size:32px;font-weight:500;line-height:1.2}.kpi .l{color:var(--onv);font-size:13px}.kpi .s{font-size:12px;color:var(--onv)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.sp{flex:1}
+.muted{color:var(--onv)}.small{font-size:12px}
+/* buttons */
+.btn{height:40px;border-radius:20px;border:0;padding:0 20px;background:var(--p);color:var(--on-p);font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn:hover{filter:brightness(1.1);box-shadow:var(--e1)}
+.btn.tonal{background:var(--sc);color:var(--on-sc)}.btn.out{background:transparent;color:var(--p);border:1px solid var(--ol)}.btn.text{background:transparent;color:var(--p);padding:0 12px}
+.btn.err{background:var(--err);color:var(--on-err)}.btn.sm{height:32px;padding:0 12px;font-size:13px}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.btn svg.i{width:18px;height:18px}
+.fab{position:fixed;right:24px;bottom:24px;z-index:12;height:56px;border-radius:16px;padding:0 20px;box-shadow:var(--e2)}
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--ol);font-size:12px;font-weight:500;background:transparent;white-space:nowrap}
+.chip.ok{background:var(--okc);color:var(--ok);border-color:transparent}.chip.warn{background:var(--warnc);color:var(--warn);border-color:transparent}
+.chip.err{background:var(--errc);color:var(--err);border-color:transparent}.chip.info{background:var(--sc);color:var(--on-sc);border-color:transparent}
+button.chip{cursor:pointer}button.chip[aria-pressed=true]{background:var(--sc);color:var(--on-sc)}
+/* fields */
+.tf{position:relative;display:block}
+.tf input,.tf select,.tf textarea{width:100%;min-height:48px;padding:20px 12px 6px;background:var(--sf2);border:0;border-bottom:1px solid var(--ol);border-radius:4px 4px 0 0}
+.tf textarea{min-height:120px;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+.tf span{position:absolute;left:12px;top:4px;font-size:11px;color:var(--onv);pointer-events:none}
+.tf input:focus,.tf select:focus,.tf textarea:focus{outline:none;border-bottom:2px solid var(--p)}
+.tf.err input,.tf.err select{border-bottom:2px solid var(--err)}
+.chk{display:flex;gap:8px;align-items:center;min-height:48px}.chk input{width:20px;height:20px;accent-color:var(--p)}
+/* table */
+.tw{overflow:auto;border-radius:12px;border:1px solid var(--olv);background:var(--sf)}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--olv);vertical-align:middle}
+th{background:var(--sf2);font-weight:600;font-size:13px;white-space:nowrap;position:sticky;top:0}
+th button{all:unset;cursor:pointer;display:inline-flex;gap:4px;align-items:center}th button:focus-visible{outline:3px solid var(--p)}
+td.n,th.n{text-align:right}tr:hover td{background:color-mix(in srgb,var(--on) 4%,transparent)}
+.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:8px 0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}.toolbar .tf{min-width:180px}
+/* dialog + snackbar */
+dialog{border:0;border-radius:28px;background:var(--sf3);color:var(--on);padding:24px;max-width:min(720px,94vw);width:100%;box-shadow:var(--e2)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+dialog .full{grid-column:1/-1}.dlg-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+dialog .body{max-height:62vh;overflow:auto}
+#snack{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--on);color:var(--bg);padding:12px 16px;border-radius:8px;z-index:50;display:none;box-shadow:var(--e2);max-width:90vw}
+#snack.on{display:block}
+/* chat */
+.chat{display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:360px}
+.msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:8px}
+.m{max-width:85%;padding:10px 14px;border-radius:16px;white-space:normal}.m.u{align-self:flex-end;background:var(--pc);color:var(--on-pc)}.m.a{align-self:flex-start;background:var(--sf2)}
+.m ul{margin:4px 0;padding-left:18px}
+.cform{display:flex;gap:8px;margin-top:8px}.cform .tf{flex:1}
+/* charts */
+svg.ch{width:100%;height:auto;display:block}svg.ch text{fill:var(--onv);font-size:11px;font-family:inherit}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--onv);margin-top:4px;flex-wrap:wrap}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.prog{height:8px;border-radius:4px;background:var(--sf3);overflow:hidden;min-width:80px}.prog>div{height:100%;background:var(--p)}.prog.warn>div{background:var(--warn)}.prog.err>div{background:var(--err)}
+pre.code{background:var(--sf2);padding:12px;border-radius:8px;overflow:auto;font-size:12px;max-height:360px}
+.banner{background:var(--warnc);color:var(--warn);padding:8px 12px;border-radius:8px;margin-bottom:12px;font-size:13px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--olv);margin-bottom:12px;flex-wrap:wrap}
+.tabs button{all:unset;cursor:pointer;padding:10px 16px;font-weight:500;color:var(--onv);border-bottom:3px solid transparent}.tabs button[aria-selected=true]{color:var(--p);border-color:var(--p)}.tabs button:focus-visible{outline:3px solid var(--p)}
+ul.clean{list-style:none;padding:0;margin:0}ul.clean li{padding:8px 0;border-bottom:1px solid var(--olv)}
+@media(max-width:600px){h2.pt{font-size:22px}.kpi .v{font-size:26px}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Ir para o conteúdo</a>
+<header class="bar">
+  <button class="ib menu-btn" id="menuBtn" aria-label="Abrir menu de navegação"></button>
+  <h1 id="appTitle">HelpiTech Portal</h1>
+  <label class="tf" style="min-width:170px"><span>Perfil simulado</span><select id="roleSel"></select></label>
+  <label class="tf" id="csWrap" style="min-width:150px"><span>Analista de CS</span><select id="csSel"></select></label>
+  <button class="chip" id="maskBtn" aria-pressed="true" title="Mascarar dados pessoais (LGPD)">LGPD: mascarado</button>
+  <button class="ib" id="themeBtn" aria-label="Alternar tema claro/escuro"></button>
+</header>
+<nav class="drawer" id="drawer" aria-label="Navegação principal"></nav>
+<div class="scrim" id="scrim"></div>
+<main id="main" tabindex="-1"></main>
+<dialog id="dlg" aria-modal="true"></dialog>
+<div id="snack" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   0. UTILITÁRIOS (funções puras)
+   ============================================================ */
+const U = {
+  esc: s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])),
+  norm: s => String(s ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
+  pad: n => String(n).padStart(2, "0"),
+  iso(d) { return `${d.getFullYear()}-${U.pad(d.getMonth() + 1)}-${U.pad(d.getDate())}`; },
+  today() { return U.iso(new Date()); },
+  isDate(s) { if (!/^\d{4}-\d{2}-\d{2}$/.test(s || "")) return false; const d = new Date(s + "T00:00:00"); return !isNaN(d) && U.iso(d) === s; },
+  d(s) { return new Date(String(s).slice(0, 10) + "T00:00:00"); },
+  addDays(s, n) { const d = U.d(s); d.setDate(d.getDate() + n); return U.iso(d); },
+  days(a, b) { return Math.round((U.d(b) - U.d(a)) / 864e5); },
+  fmtDate: s => s ? String(s).slice(0, 10).split("-").reverse().join("/") : "—",
+  money: n => (Number(n) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+  num: (n, d = 1) => (Number(n) || 0).toLocaleString("pt-BR", { maximumFractionDigits: d }),
+  parseMoney(v) {
+    if (typeof v === "number") return v;
+    if (typeof v !== "string") return NaN;
+    let s = v.replace(/R\$|\s/g, "");
+    if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
+    return /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : NaN;
+  },
+  deepEq: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+  sum: (a, f) => a.reduce((t, x) => t + (f ? f(x) : x), 0),
+  group(arr, f) { const m = new Map(); for (const x of arr) { const k = f(x); (m.get(k) || m.set(k, []).get(k)).push(x); } return m; },
+  csv(rows, cols) {
+    const q = v => { const s = String(v ?? ""); return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    return "\ufeff" + [cols.map(c => q(c.label)), ...rows.map(r => cols.map(c => q(c.val(r))))].map(r => r.join(";")).join("\r\n");
+  },
+  download(name, text, type) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: type || "application/json" }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  },
+  mulberry(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+};
+const PII = {
+  doc: s => { const d = String(s || "").replace(/\D/g, ""); return d.length === 14 ? `${d.slice(0, 2)}.***.***/****-${d.slice(12)}` : d.length === 11 ? `***.***.${d.slice(6, 9)}-**` : s ? "***" : "—"; },
+  email: s => { const m = String(s || "").match(/^(.)[^@]*(@.+)$/); return m ? `${m[1]}***${m[2]}` : "—"; },
+  phone: s => { const d = String(s || "").replace(/\D/g, ""); return d.length >= 8 ? `(**) ****-${d.slice(-4)}` : "—"; },
+  scrub: t => String(t || "").replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "[e-mail]").replace(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, "[CPF]").replace(/\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b/g, "[CNPJ]").replace(/\(?\b\d{2}\)?\s?9?\d{4}-?\d{4}\b/g, "[tel]")
+};
+
+/* ============================================================
+   1. SCHEMAS (JSON Schema) + exemplos
+   ============================================================ */
+const SCHEMAS = {
+  customers: {
+    $schema: "http://json-schema.org/draft-07/schema#", title: "Cliente", type: "object", required: ["external_id", "name", "status"],
+    properties: {
+      external_id: { type: ["string", "integer"], description: "ID do cliente no sistema de origem (chave de upsert)" },
+      name: { type: "string", minLength: 2 }, trading_name: { type: "string" },
+      document: { type: "string", description: "CNPJ ou CPF (com ou sem pontuação)" }, ie: { type: "string" },
+      status: { enum: ["ativo", "inativo", "inadimplente"] },
+      segment: { type: "string", description: "Ex.: Indústria, Varejo, Saúde" }, size: { enum: ["micro", "pequeno", "medio", "grande"] },
+      cs_owner: { type: "string", description: "Responsável de CS (define a visibilidade do perfil CS)" },
+      city: { type: "string" }, state: { type: "string", pattern: "^[A-Z]{2}$" }, amount_tickets: { type: "integer", minimum: 0 },
+      contacts: { type: "array", items: { type: "object", required: ["name"], properties: { name: { type: "string" }, email: { type: "string", format: "email" }, phone: { type: "string" }, role: { type: "string" } } } }
+    }
+  },
+  services: {
+    $schema: "http://json-schema.org/draft-07/schema#", title: "Serviço do catálogo", type: "object", required: ["external_id", "name"],
+    properties: {
+      external_id: { type: ["string", "integer"] }, name: { type: "string", minLength: 2 }, description: { type: "string" },
+      price: { type: "number", minimum: 0, description: "Preço por unidade de medida (R$)" }, unit: { type: "string", description: "hora, mês, ano, projeto…" },
+      est_units_year: { type: "number", minimum: 0, description: "Unidades típicas por ano (estimativa de receita)" },
+      category: { type: "string" }, target_segments: { type: "array", items: { type: "string" }, description: "Vazio = relevante para todos" }
+    }
+  },
+  contracts: {
+    $schema: "http://json-schema.org/draft-07/schema#", title: "Contrato", type: "object", required: ["external_id", "customer_id", "service_id", "value", "start_date", "end_date"],
+    properties: {
+      external_id: { type: ["string", "integer"] }, customer_id: { type: ["string", "integer"] }, service_id: { type: ["string", "integer"] },
+      value: { type: "number", minimum: 0, description: "Valor em R$ (aceita \"4.000,00\" no formato legado)" },
+      hours: { type: "number", minimum: 0, description: "Franquia de horas da vigência" },
+      start_date: { type: "string", format: "date" }, end_date: { type: "string", format: "date" },
+      auto_renew: { type: "boolean" }, billing_day: { type: "integer", minimum: 1, maximum: 31 }, description: { type: "string" },
+      status: { enum: ["vigente", "encerrado", "cancelado"] }, reason_disable: { type: ["string", "null"] }
+    }
+  },
+  usage_events: {
+    $schema: "http://json-schema.org/draft-07/schema#", title: "Evento de consumo", type: "object", required: ["external_id", "customer_id", "date", "quantity"],
+    properties: {
+      external_id: { type: ["string", "integer"] }, customer_id: { type: ["string", "integer"] }, date: { type: "string", format: "date" },
+      quantity: { type: "number", minimum: 0, description: "Horas consumidas" }, service_id: { type: ["string", "integer"], description: "Opcional: se omitido, atribui ao contrato vigente" },
+      description: { type: "string" }
+    }
+  },
+  emails: {
+    $schema: "http://json-schema.org/draft-07/schema#", title: "E-mail do CS (anonimizado)", type: "object", required: ["external_id", "customer_id", "thread_id", "date", "from", "subject"],
+    description: "Informe body OU summary. O corpo NÃO é armazenado: só resumo, sinais e referência.",
+    properties: {
+      external_id: { type: ["string", "integer"], description: "ID/Message-ID do e-mail (referência)" }, customer_id: { type: ["string", "integer"] }, thread_id: { type: "string" },
+      date: { type: "string", format: "date" }, from: { type: "string" }, to: { type: "string" }, subject: { type: "string" },
+      body: { type: "string" }, summary: { type: "string" }, internal: { type: "boolean", description: "true = mensagem interna (ignorada)" }
+    }
+  }
+};
+const ENTITY_LABEL = { customers: "Clientes", services: "Serviços", contracts: "Contratos", usage_events: "Consumo", emails: "E-mails" };
+const IMPORT_ORDER = ["services", "customers", "contracts", "usage_events", "emails"];
+const EXAMPLES = {
+  customers: [{ external_id: "C-1001", name: "Exemplo Indústria Ltda", trading_name: "Exemplo", document: "11.222.333/0001-81", status: "ativo", segment: "Indústria", size: "medio", cs_owner: "Ana Souza", city: "São Paulo", state: "SP", amount_tickets: 12, contacts: [{ name: "Maria Contato", email: "maria@exemplo.com.br", phone: "11999990000", role: "TI" }] }],
+  services: [{ external_id: 5, name: "Monitoramento de Infraestrutura", description: "Monitoramento 24x7 de servidores e rede", price: 1800, unit: "mês", est_units_year: 12, category: "servico" }],
+  contracts: [{ external_id: "K-2001", customer_id: "C-1001", service_id: 4, value: 3500, hours: 100, start_date: "2026-04-01", end_date: "2027-03-28", auto_renew: true, billing_day: 1, description: "Bolsa anual", status: "vigente" }],
+  usage_events: [{ external_id: "U-1", customer_id: "C-1001", date: "2026-10-20", quantity: 3.5, service_id: 4, description: "Chamado #4521 — ajuste de VPN" }],
+  emails: [{ external_id: "msg-0001", customer_id: "C-1001", thread_id: "T-77", date: "2026-10-22", from: "maria@exemplo.com.br", subject: "Backup", body: "Tivemos queda de energia e perdemos arquivos. Precisamos de uma rotina de backup até dezembro.", internal: false }]
+};
+/* ============================================================
+   2. VALIDAÇÃO (puro) — mini JSON Schema + regras de negócio
+   ============================================================ */
+const V = {
+  typeOk(v, t) { return ({ string: typeof v === "string", number: typeof v === "number" && isFinite(v), integer: Number.isInteger(v), boolean: typeof v === "boolean", array: Array.isArray(v), object: v && typeof v === "object" && !Array.isArray(v), null: v === null })[t]; },
+  validate(v, sc, path = "") {
+    const e = [];
+    if (sc.type) { const ts = [].concat(sc.type); if (!ts.some(t => V.typeOk(v, t))) return [`${path || "registro"}: tipo esperado ${ts.join("|")}`]; }
+    if (sc.enum && !sc.enum.includes(v)) e.push(`${path}: valor deve ser um de ${sc.enum.join(", ")}`);
+    if (typeof v === "string") {
+      if (sc.minLength && v.length < sc.minLength) e.push(`${path}: mínimo ${sc.minLength} caracteres`);
+      if (sc.pattern && !new RegExp(sc.pattern).test(v)) e.push(`${path}: formato inválido (${sc.pattern})`);
+      if (sc.format === "date" && !U.isDate(v)) e.push(`${path}: data inválida, use AAAA-MM-DD`);
+      if (sc.format === "email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) e.push(`${path}: e-mail inválido`);
+    }
+    if (typeof v === "number") {
+      if (sc.minimum != null && v < sc.minimum) e.push(`${path}: mínimo ${sc.minimum}`);
+      if (sc.maximum != null && v > sc.maximum) e.push(`${path}: máximo ${sc.maximum}`);
+    }
+    if (Array.isArray(v) && sc.items) v.forEach((x, i) => e.push(...V.validate(x, sc.items, `${path}[${i}]`)));
+    if (sc.type && [].concat(sc.type).includes("object") && v && typeof v === "object" && !Array.isArray(v)) {
+      for (const r of sc.required || []) if (v[r] === undefined || v[r] === null || v[r] === "") e.push(`${path ? path + "." : ""}${r}: campo obrigatório`);
+      for (const [k, p] of Object.entries(sc.properties || {})) if (v[k] !== undefined && v[k] !== null) e.push(...V.validate(v[k], p, `${path ? path + "." : ""}${k}`));
+    }
+    return e;
+  },
+  business(entity, r, ctx) {
+    const e = [];
+    if (entity === "contracts") {
+      if (U.isDate(r.start_date) && U.isDate(r.end_date) && r.end_date < r.start_date) e.push("end_date: anterior a start_date");
+      if (r.customer_id != null && !ctx.customers.has(String(r.customer_id))) e.push(`customer_id: cliente ${r.customer_id} não encontrado`);
+      if (r.service_id != null && !ctx.services.has(String(r.service_id))) e.push(`service_id: serviço ${r.service_id} não encontrado`);
+    }
+    if (entity === "usage_events" || entity === "emails") {
+      if (r.customer_id != null && !ctx.customers.has(String(r.customer_id))) e.push(`customer_id: cliente ${r.customer_id} não encontrado`);
+    }
+    if (entity === "usage_events" && r.service_id != null && !ctx.services.has(String(r.service_id))) e.push(`service_id: serviço ${r.service_id} não encontrado`);
+    if (entity === "emails" && !r.body && !r.summary) e.push("body/summary: informe ao menos um");
+    if (entity === "customers" && r.document) { const d = String(r.document).replace(/\D/g, ""); if (d.length !== 11 && d.length !== 14) e.push("document: CPF (11) ou CNPJ (14) dígitos"); }
+    return e;
+  }
+};
+
+/* ============================================================
+   3. NORMALIZADORES — formato legado (sistema atual) → canônico
+   ============================================================ */
+const N = {
+  customer(r) {
+    if (!(r && typeof r === "object") || !("is_active" in r || "cnpj" in r || "opening_users" in r)) return r;
+    const addrs = Object.values(r.addresses || {}); const main = addrs.find(a => a.main) || addrs[0] || {};
+    const contacts = Object.values(r.contacts || {}).map(c => ({ name: c.name, email: (c.emails || [])[0], phone: (c.phones || [])[0], role: c.role })).filter(c => c.name);
+    const out = { external_id: r.id, name: r.name, trading_name: r.trading_name || undefined, document: r.cnpj || r.cpf || undefined, ie: r.ie || undefined, status: r.status || (r.is_active ? "ativo" : "inativo"), city: main.city, state: main.state, amount_tickets: r.amount_tickets, contacts };
+    for (const k of ["segment", "size", "cs_owner"]) if (r[k]) out[k] = r[k];
+    return out;
+  },
+  service(r) {
+    if (r && "id" in r && !("external_id" in r)) return { external_id: r.id, name: r.name, description: r.description, unit: r.unit || "contrato", category: "contrato" };
+    return r;
+  },
+  contract(r) {
+    if (!(r && r.store && r.type)) return r;
+    const ok = !r.disabled_at;
+    return { external_id: r.external_id || `L-${r.store.id}-${r.type.id}-${r.date_start}`, customer_id: r.store.id, service_id: r.type.id, value: U.parseMoney(r.value), hours: r.amount_hours, start_date: r.date_start, end_date: r.date_end, billing_day: r.billing_day, description: r.description || undefined, status: ok ? undefined : "cancelado", reason_disable: r.reason_disable || undefined };
+  },
+  clean(o) { const x = {}; for (const [k, v] of Object.entries(o || {})) if (v !== undefined && v !== null && v !== "") x[k] = v; return x; }
+};
+/* ============================================================
+   4. SINAIS E-MAIL — extração (puro, plugável por LLM)
+   ============================================================ */
+const DEFAULT_DICT = {
+  rules: [
+    { key: "mais-horas", service_id: "4", kind: "necessidade", weight: 1, terms: ["mais horas", "pacote de horas", "horas acabando", "horas acabaram", "estourou a franquia", "ampliar o pacote", "bolsa de horas"] },
+    { key: "suporte-sla", service_id: "2", kind: "dor", weight: 1, terms: ["sla", "suporte 24", "atendimento urgente", "chamado demorado", "demora no atendimento", "suporte mais rapido", "suporte continuo"] },
+    { key: "projeto-novo", service_id: "3", kind: "projeto", weight: 1, terms: ["novo sistema", "implantar", "implantacao", "desenvolvimento de", "novo projeto", "integracao com"] },
+    { key: "custo-fixo", service_id: "1", kind: "necessidade", weight: .8, terms: ["valor fixo", "previsibilidade", "custo mensal fixo", "mensalidade"] },
+    { key: "monitoramento", service_id: "5", kind: "dor", weight: 1, terms: ["fora do ar", "ficou fora", "indisponibilidade", "ninguem avisou", "monitoramento", "monitorar", "alertas de servidor", "lentidao"] },
+    { key: "backup", service_id: "6", kind: "dor", weight: 1, terms: ["backup", "perdemos dados", "perdemos arquivos", "restaurar", "ransomware", "recuperacao de desastre"] },
+    { key: "seguranca-lgpd", service_id: "7", kind: "necessidade", weight: 1, terms: ["lgpd", "auditoria", "seguranca da informacao", "vazamento", "phishing", "iso 27001", "adequacao"] },
+    { key: "nuvem", service_id: "8", kind: "projeto", weight: 1, terms: ["nuvem", "cloud", "migrar o servidor", "migracao para", "aws", "azure"] }
+  ],
+  complaint: ["reclam", "insatisf", "demora", "demorou", "fora do ar", "parou", "falha", "problema", "queda", "pessimo", "inaceitavel", "cancelar"],
+  positive: ["obrigad", "excelente", "parabens", "satisfeit", "otimo", "agradec"],
+  urgent: ["urgente", "o quanto antes", "ate dia", "prazo", "esta semana", "proxima semana", "imediat", "ate dezembro", "ate o fim do mes"],
+  competitor: ["concorrente", "outra empresa", "proposta de outro", "cotacao com", "orcamento de outra"],
+  irrelevant_subject: ["resposta automatica", "out of office", "fora do escritorio", "newsletter", "delivery status"],
+  internal_domains: ["helpitech.com.br"]
+};
+const Signals = {
+  snippet(text, idx, len) { const s = Math.max(0, idx - 60), e = Math.min(text.length, idx + len + 80); return (s ? "…" : "") + text.slice(s, e).replace(/\s+/g, " ").trim() + (e < text.length ? "…" : ""); },
+  extract(rawText, dict = DEFAULT_DICT) {
+    const text = PII.scrub(rawText), n = U.norm(text), hits = [];
+    for (const rule of dict.rules) for (const t of rule.terms) {
+      const i = n.indexOf(U.norm(t));
+      if (i >= 0) { hits.push({ rule: rule.key, service_id: String(rule.service_id), kind: rule.kind, term: t, weight: rule.weight || 1, snippet: Signals.snippet(text, i, t.length) }); break; }
+    }
+    const has = list => (list || []).filter(t => n.includes(U.norm(t)));
+    const comp = has(dict.competitor), neg = has(dict.complaint), pos = has(dict.positive), urg = has(dict.urgent);
+    const cm = text.match(/concorrente\s+([A-Z][\wÀ-ú]+)/);
+    return { hits, complaint: neg.length > 0, competitor: comp.length > 0 ? (cm ? cm[1] : "não identificado") : null, urgent: urg.length > 0, deadline: urg[0] || null, sentiment: neg.length > pos.length ? "negativo" : pos.length > neg.length ? "positivo" : "neutro" };
+  },
+  summarize(text) { const t = PII.scrub(text).replace(/\s+/g, " ").trim(); return t.length > 240 ? t.slice(0, 237) + "…" : t; },
+  email(raw, dict, today) {
+    const dom = (String(raw.from).split("@")[1] || "").toLowerCase();
+    const internal = raw.internal === true || (dict.internal_domains || []).includes(dom);
+    const text = (raw.subject || "") + ". " + (raw.body || raw.summary || "");
+    const sig = Signals.extract(text, dict);
+    const irrelevant = (dict.irrelevant_subject || []).some(t => U.norm(raw.subject).includes(U.norm(t)));
+    return { external_id: String(raw.external_id), customer_id: String(raw.customer_id), thread_id: String(raw.thread_id), date: raw.date, from_masked: PII.email(raw.from), subject: PII.scrub(raw.subject), summary: raw.summary ? PII.scrub(raw.summary) : Signals.summarize(raw.body || ""), signals: sig, ignored: internal ? "interno" : irrelevant ? "irrelevante" : null, ref: `${raw.thread_id}/${raw.external_id}` };
+  }
+};
+
+/* ============================================================
+   5. MÉTRICAS (puro)
+   ============================================================ */
+const M = {
+  range(kind, today, custom) {
+    if (kind === "custom" && custom && U.isDate(custom.from) && U.isDate(custom.to) && custom.from <= custom.to) return { start: custom.from, end: custom.to };
+    const n = kind === "7" ? 7 : kind === "15" ? 15 : 30;
+    return { start: U.addDays(today, -(n - 1)), end: today };
+  },
+  previous(r) { const len = U.days(r.start, r.end) + 1; return { start: U.addDays(r.start, -len), end: U.addDays(r.start, -1) }; },
+  inRange: (e, r) => e.date >= r.start && e.date <= r.end,
+  /* atribui o evento ao serviço: explícito > contrato vigente na data com franquia > "0" (não classificado) */
+  serviceOf(e, contractsOfCustomer) {
+    if (e.service_id) return String(e.service_id);
+    const c = (contractsOfCustomer || []).find(c => c.status !== "cancelado" && e.date >= c.start_date && e.date <= c.end_date);
+    return c ? String(c.service_id) : "0";
+  },
+  contractOf(e, cs) {
+    const list = (cs || []).filter(c => c.status !== "cancelado" && e.date >= c.start_date && e.date <= c.end_date);
+    return list.find(c => !e.service_id || String(c.service_id) === String(e.service_id)) || list[0] || null;
+  },
+  total: (events, r) => U.sum(events.filter(e => M.inRange(e, r)), e => e.quantity),
+  groupSum(events, r, keyFn) { const m = new Map(); for (const e of events) if (M.inRange(e, r)) { const k = keyFn(e); m.set(k, (m.get(k) || 0) + e.quantity); } return m; },
+  daily(events, r) { const len = U.days(r.start, r.end) + 1, out = Array(len).fill(0); for (const e of events) if (M.inRange(e, r)) out[U.days(r.start, e.date)] += e.quantity; return out; },
+  delta: (cur, prev) => prev > 0 ? (cur - prev) / prev * 100 : (cur > 0 ? null : 0),
+  /* consumo acumulado do contrato na vigência vs franquia; risco de churn (baixo uso) e excesso */
+  contractStatus(c, events, today, th = { warn: .8, lowRatio: .5, minElapsed: .25 }) {
+    const used = U.sum(events.filter(e => e.date >= c.start_date && e.date <= c.end_date && e.date <= today), e => e.quantity);
+    const total = Math.max(1, U.days(c.start_date, c.end_date) + 1), el = Math.min(total, Math.max(0, U.days(c.start_date, today) + 1));
+    const elapsed = el / total, pct = c.hours > 0 ? used / c.hours : null;
+    let flag = null;
+    if (c.hours > 0 && c.status !== "cancelado" && today >= c.start_date && today <= c.end_date) {
+      if (pct > 1) flag = "excesso"; else if (pct >= th.warn) flag = "atencao";
+      else if (elapsed >= th.minElapsed && pct < elapsed * th.lowRatio) flag = "baixo";
+    }
+    return { used, pct, elapsed, flag };
+  },
+  isActive: (c, today) => c.status !== "cancelado" && c.status !== "encerrado" && c.start_date <= today && c.end_date >= today,
+  expiring(contracts, today, days) { return contracts.filter(c => M.isActive(c, today)).map(c => ({ c, d: U.days(today, c.end_date) })).filter(x => x.d >= 0 && x.d <= days).sort((a, b) => a.d - b.d); }
+};
+/* ============================================================
+   6. ANÁLISE DE OPORTUNIDADES (puro)
+   ============================================================ */
+const Opp = {
+  level: s => s >= 70 ? "alta" : s >= 45 ? "media" : "baixa",
+  /* score 0-100 = evidência(30) + urgência(25) + aderência(25) + receita(20) */
+  score({ nEvid, latest, urgency, missing, value }, today) {
+    const rec = latest ? (U.days(latest, today) <= 7 ? 6 : U.days(latest, today) <= 15 ? 3 : 0) : 0;
+    const e = Math.min(30, nEvid * 10 + rec), u = Math.min(25, urgency), f = missing ? 25 : 12, r = Math.min(20, Math.round(20 * (value || 0) / 50000));
+    return { total: e + u + f + r, parts: { evidencia: e, urgencia: u, aderencia: f, receita: r } };
+  },
+  value(svc) { return svc ? (svc.price || 0) * (svc.est_units_year ?? 12) : 0; },
+  draft(o, svc, contact, cs) {
+    const ev = o.evidence[0];
+    return `Olá ${contact || "tudo bem"}, aqui é ${cs || "da equipe de Customer Success"} da HelpiTech.\n\n` +
+      `Revendo nosso relacionamento${ev ? ` (${U.fmtDate(ev.date)}: "${ev.text.slice(0, 140)}")` : ""}, acredito que ${svc ? svc.name : "uma evolução do seu contrato"} pode ajudar vocês nesse ponto.\n\n` +
+      `Posso agendar 20 minutos nesta semana para entender o cenário e apresentar uma proposta sob medida?\n\n[Rascunho para revisão do CS — não enviado automaticamente]`;
+  },
+  analyze({ customers, services, contracts, usage, emails, today, windowDays, dict }) {
+    const out = [], svcs = new Map(services.map(s => [String(s.external_id), s]));
+    const byC = U.group(contracts, c => c.customer_id), uByC = U.group(usage, e => e.customer_id), eByC = U.group(emails, e => e.customer_id);
+    const wStart = U.addDays(today, -windowDays);
+    const push = (cust, sid, origin, evidence, urgency, extra = {}) => {
+      const svc = svcs.get(String(sid)), cs = byC.get(cust.external_id) || [];
+      const active = new Set(cs.filter(c => M.isActive(c, today)).map(c => String(c.service_id)));
+      const missing = !active.has(String(sid)), value = Opp.value(svc);
+      const latest = evidence.map(e => e.date).sort().pop();
+      const sc = Opp.score({ nEvid: evidence.length, latest, urgency, missing, value }, today);
+      const contact = (cust.contacts || [])[0]?.name;
+      const o = { key: `${cust.external_id}|${sid}|${origin}`, customer_id: cust.external_id, customer: cust.trading_name || cust.name, cs_owner: cust.cs_owner || "", service_id: String(sid), service: svc?.name || `Serviço ${sid}`, origin, evidence, score: sc.total, parts: sc.parts, level: Opp.level(sc.total), value_est: value, missing, latest, ...extra };
+      o.next_action = origin === "email" ? (extra.urgent ? "Retornar em até 24h e agendar reunião de diagnóstico" : "Contato esta semana para validar a necessidade e apresentar proposta") : origin === "renovacao" ? "Iniciar tratativa de renovação e revisar franquia/valores" : origin === "franquia" ? "Propor ampliação de franquia/bolsa antes do estouro" : "Apresentar proposta de contrato para formalizar o atendimento";
+      o.draft = Opp.draft(o, svc, contact, cust.cs_owner);
+      out.push(o);
+    };
+    for (const cust of customers) {
+      if (cust.status === "inativo") continue;
+      const cs = byC.get(cust.external_id) || [], ev = uByC.get(cust.external_id) || [];
+      /* (a) e-mails: sinais → serviço do catálogo */
+      const win = (eByC.get(cust.external_id) || []).filter(e => !e.ignored && e.date >= wStart && e.date <= today);
+      const per = new Map();
+      for (const m of win) for (const h of m.signals.hits) (per.get(h.service_id) || per.set(h.service_id, []).get(h.service_id)).push({ m, h });
+      for (const [sid, list] of per) {
+        if (!svcs.has(sid)) continue;
+        const evidence = list.map(({ m, h }) => ({ type: "email", date: m.date, from: m.from_masked, ref: m.ref, subject: m.subject, text: h.snippet, signal: `${h.kind}: ${h.term}`, sentiment: m.signals.sentiment }));
+        const urgent = list.some(x => x.m.signals.urgent), complaint = list.some(x => x.m.signals.complaint), comp = list.map(x => x.m.signals.competitor).find(Boolean);
+        push(cust, sid, "email", evidence, (urgent ? 12 : 0) + (complaint ? 6 : 0) + (comp ? 7 : 0), { urgent, complaint, competitor: comp || null, deadline: list.map(x => x.m.signals.deadline).find(Boolean) || null });
+      }
+      /* (b) lacunas e dados do contrato */
+      for (const c of cs.filter(c => M.isActive(c, today))) {
+        const d = U.days(today, c.end_date), st = M.contractStatus(c, ev, today);
+        if (d <= 60 && !c.auto_renew) push(cust, c.service_id, "renovacao", [{ type: "contrato", date: today, text: `Contrato ${c.external_id} vence em ${d} dias (${U.fmtDate(c.end_date)})`, ref: c.external_id }], d <= 7 ? 25 : d <= 15 ? 20 : d <= 30 ? 14 : 6);
+        if (st.pct >= .8) push(cust, c.service_id, "franquia", [{ type: "uso", date: today, text: `Consumo de ${U.num(st.used)}h de ${c.hours}h (${U.num(st.pct * 100, 0)}%) na vigência`, ref: c.external_id }], st.pct > 1 ? 25 : 12);
+      }
+      const hasActive = cs.some(c => M.isActive(c, today));
+      if (!hasActive && (cust.amount_tickets || 0) >= 20 && svcs.has("4")) push(cust, "4", "semcontrato", [{ type: "uso", date: today, text: `${cust.amount_tickets} chamados registrados e nenhum contrato vigente`, ref: cust.external_id }], Math.min(12, Math.round(cust.amount_tickets / 5)));
+    }
+    return out.sort((a, b) => b.score - a.score);
+  }
+};
+/* ============================================================
+   7. DADOS — estado, persistência, auditoria, importação
+   ============================================================ */
+const KEY = "helpitech-portal-v1";
+const blank = () => ({ customers: {}, services: {}, contracts: {}, usage_events: {}, emails: {}, oppState: {}, imports: [], audit: [], settings: { theme: null, role: "admin", cs: "", windowDays: 30, mask: true, dict: DEFAULT_DICT, ackLgpd: false } });
+const DB = {
+  s: blank(), v: 0, memo: {},
+  load() { try { const j = JSON.parse(localStorage.getItem(KEY)); if (j) { DB.s = Object.assign(blank(), j); DB.s.settings = Object.assign(blank().settings, j.settings); } } catch (e) { console.warn("Falha ao ler dados locais", e); } },
+  save() { DB.v++; DB.memo = {}; clearTimeout(DB._t); DB._t = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(DB.s)); } catch (e) { toast("Armazenamento local cheio — exporte e limpe dados antigos."); } }, 150); },
+  list: ent => Object.values(DB.s[ent]),
+  cached(k, f) { return k in DB.memo ? DB.memo[k] : (DB.memo[k] = f()); },
+  audit(action, detail) { DB.s.audit.push({ at: new Date().toISOString(), role: DB.s.settings.role, user: DB.s.settings.role === "cs" ? DB.s.settings.cs : "", action, detail }); if (DB.s.audit.length > 3000) DB.s.audit.splice(0, DB.s.audit.length - 3000); },
+  history(rec, by, change) { rec._h = (rec._h || []).concat({ at: new Date().toISOString(), by, change }).slice(-30); },
+  reset() { DB.s = blank(); DB.save(); }
+};
+const Importer = {
+  parse(text) { try { return { json: JSON.parse(text) }; } catch (e) { return { error: "JSON inválido: " + e.message }; } },
+  /* detecta entidades em formato canônico ({customers:[...]}) ou legado (customers como objeto, contracts com store/type) */
+  detect(j) {
+    const out = [];
+    if (Array.isArray(j)) { const r = j[0] || {}; const ent = ("store" in r) ? "contracts" : ("is_active" in r || "cnpj" in r) ? "customers" : ("body" in r || "thread_id" in r) ? "emails" : ("quantity" in r) ? "usage_events" : ("customer_id" in r && "start_date" in r) ? "contracts" : ("price" in r || "unit" in r) ? "services" : ("status" in r || "name" in r) ? "customers" : null; return ent ? [[ent, j]] : []; }
+    if (j && j.entity && Array.isArray(j.records)) return [[j.entity, j.records]];
+    for (const ent of IMPORT_ORDER) if (j && j[ent] != null) out.push([ent, Array.isArray(j[ent]) ? j[ent] : Object.values(j[ent])]);
+    if (j && Array.isArray(j.contract_types)) out.push(["services", j.contract_types]);
+    return out.sort((a, b) => IMPORT_ORDER.indexOf(a[0]) - IMPORT_ORDER.indexOf(b[0]));
+  },
+  norm(ent, raw) { return ent === "customers" ? N.customer(raw) : ent === "services" ? N.service(raw) : ent === "contracts" ? N.contract(raw) : raw; },
+  /* dry-run: não altera estado */
+  plan(groups, state, dict) {
+    const ctx = { customers: new Set(Object.keys(state.customers)), services: new Set(Object.keys(state.services)) };
+    const today = U.today(), report = [];
+    for (const [ent, recs] of groups) {
+      const seen = new Set(), rows = [];
+      recs.forEach((raw, i) => {
+        let r = Importer.norm(ent, raw); r = r && typeof r === "object" && !Array.isArray(r) ? N.clean(r) : r;
+        const errs = V.validate(r, SCHEMAS[ent]);
+        const id = r && r.external_id != null ? String(r.external_id) : null;
+        if (!errs.length) errs.push(...V.business(ent, r, ctx));
+        if (id && seen.has(id)) errs.push("external_id duplicado no arquivo");
+        if (errs.length) { rows.push({ idx: i + 1, id, status: "erro", errors: errs }); return; }
+        seen.add(id);
+        let rec = ent === "customers" ? Object.assign(r, { external_id: id, status: r.status }) : Object.assign({}, r, { external_id: id });
+        if (ent === "contracts") { rec.customer_id = String(rec.customer_id); rec.service_id = String(rec.service_id); rec.status = rec.status || "vigente"; }
+        if (ent === "usage_events") { rec.customer_id = String(rec.customer_id); if (rec.service_id != null) rec.service_id = String(rec.service_id); }
+        if (ent === "emails") rec = Signals.email(r, dict, today);
+        const prev = state[ent][id];
+        const cmp = prev ? Object.assign({}, prev) : null; if (cmp) delete cmp._h;
+        const merged = prev ? Object.assign({}, prev, rec) : rec; const mcmp = Object.assign({}, merged); delete mcmp._h;
+        rows.push({ idx: i + 1, id, status: !prev ? "novo" : U.deepEq(cmp, mcmp) ? "igual" : "atualizado", errors: [], rec: merged });
+        if (ent === "customers") ctx.customers.add(id); if (ent === "services") ctx.services.add(id);
+      });
+      report.push({ entity: ent, rows });
+    }
+    return report;
+  },
+  apply(report, state, meta) {
+    const changes = []; let created = 0, updated = 0, same = 0, errors = 0;
+    for (const g of report) for (const r of g.rows) {
+      if (r.status === "erro") { errors++; continue; }
+      if (r.status === "igual") { same++; continue; }
+      const prev = state[g.entity][r.id] ? JSON.parse(JSON.stringify(state[g.entity][r.id])) : null;
+      if (prev && (g.entity === "customers" || g.entity === "contracts")) DB.history(r.rec, "importação", `Atualizado via ${meta.file}`);
+      state[g.entity][r.id] = r.rec; changes.push({ e: g.entity, id: r.id, prev });
+      prev ? updated++ : created++;
+    }
+    const h = { id: "imp-" + Date.now(), at: new Date().toISOString(), file: meta.file, role: meta.role, entities: report.map(g => `${ENTITY_LABEL[g.entity]}: ${g.rows.length}`).join(", "), created, updated, same, errors, changes, reverted: false };
+    state.imports.unshift(h); if (state.imports.length > 40) state.imports.length = 40;
+    return h;
+  },
+  revert(state, id) {
+    const h = state.imports.find(x => x.id === id); if (!h || h.reverted) return false;
+    for (const c of h.changes.slice().reverse()) { if (c.prev) state[c.e][c.id] = c.prev; else delete state[c.e][c.id]; }
+    h.reverted = true; return true;
+  }
+};
+/* ============================================================
+   8. ACESSO — perfis simulados, escopo e máscara
+   ============================================================ */
+const ROLES = {
+  admin: { label: "Administrador", pages: ["dashboard", "customers", "contracts", "services", "import", "metrics", "opps", "chat", "docs", "audit", "settings"], edit: true, values: true, opps: true, imp: ["customers", "services", "contracts", "usage_events", "emails"] },
+  comercial: { label: "Comercial", pages: ["dashboard", "customers", "contracts", "services", "metrics", "opps", "chat", "docs"], edit: true, values: true, opps: true, imp: [] },
+  suporte: { label: "Suporte", pages: ["dashboard", "customers", "contracts", "metrics", "chat", "docs"], edit: false, values: false, opps: false, imp: [] },
+  cs: { label: "Customer Success", pages: ["dashboard", "customers", "contracts", "metrics", "import", "opps", "chat", "docs"], edit: false, values: true, opps: true, imp: ["usage_events", "emails"] }
+};
+const PAGE_META = { dashboard: ["Dashboard", "dashboard"], customers: ["Clientes", "people"], contracts: ["Contratos", "doc"], services: ["Catálogo de serviços", "work"], import: ["Importar JSON", "upload"], metrics: ["Métricas de uso", "chart"], opps: ["Oportunidades", "bulb"], chat: ["Chat de consulta", "chat"], docs: ["Documentação", "book"], audit: ["Auditoria", "shield"], settings: ["Configurações", "gear"] };
+const Acc = {
+  role: () => ROLES[DB.s.settings.role],
+  cs: () => DB.s.settings.role === "cs" ? DB.s.settings.cs : null,
+  customers() { return DB.cached("cust:" + DB.s.settings.role + DB.s.settings.cs, () => { const cs = Acc.cs(); return DB.list("customers").filter(c => !cs || c.cs_owner === cs); }); },
+  ids() { return DB.cached("ids:" + DB.s.settings.role + DB.s.settings.cs, () => new Set(Acc.customers().map(c => c.external_id))); },
+  scoped: ent => DB.cached("sc:" + ent + DB.s.settings.role + DB.s.settings.cs, () => { const ids = Acc.ids(); return DB.list(ent).filter(r => ids.has(r.customer_id)); }),
+  masked: () => DB.s.settings.mask || DB.s.settings.role === "suporte",
+  doc: s => Acc.masked() ? PII.doc(s) : (s || "—"), email: s => Acc.masked() ? PII.email(s) : (s || "—"), phone: s => Acc.masked() ? PII.phone(s) : (s || "—")
+};
+const Ctx = {
+  today: () => U.today(),
+  dict: () => DB.s.settings.dict || DEFAULT_DICT,
+  cname: id => { const c = DB.s.customers[id]; return c ? (c.trading_name || c.name) : id; },
+  sname: id => id === "0" ? "Não classificado" : (DB.s.services[id]?.name || id),
+  opps() {
+    return DB.cached("opps" + DB.s.settings.role + DB.s.settings.cs, () => {
+      const base = Opp.analyze({ customers: Acc.customers(), services: DB.list("services"), contracts: Acc.scoped("contracts"), usage: Acc.scoped("usage_events"), emails: Acc.scoped("emails"), today: Ctx.today(), windowDays: DB.s.settings.windowDays, dict: Ctx.dict() });
+      return base.map(o => { const st = DB.s.oppState[o.key] || { status: "nova" }; const reopened = (st.status === "descartada" || st.status === "perdida") && o.latest && o.latest > st.at.slice(0, 10); return Object.assign(o, { status: st.status, reason: st.reason || "", reopened }); });
+    });
+  },
+  usageIdx: () => DB.cached("uidx" + DB.s.settings.role + DB.s.settings.cs, () => U.group(Acc.scoped("usage_events"), e => e.customer_id)),
+  contractsIdx: () => DB.cached("cidx" + DB.s.settings.role + DB.s.settings.cs, () => U.group(Acc.scoped("contracts"), c => c.customer_id))
+};
+
+/* ============================================================
+   9. UI — componentes Material
+   ============================================================ */
+const ICONS = { menu: "M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z", add: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z", close: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z", edit: "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z", del: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z", search: "M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z", download: "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z", upload: "M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z", dashboard: "M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z", people: "M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z", doc: "M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z", work: "M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 0h-4V4h4v2z", chat: "M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z", chart: "M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z", bulb: "M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z", book: "M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z", shield: "M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z", gear: "M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6a3.6 3.6 0 110-7.2 3.6 3.6 0 010 7.2z", theme: "M12 3a9 9 0 100 18 9 9 0 000-18zm0 16V5a7 7 0 010 14z", mail: "M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z", send: "M2 21l21-9L2 3v7l15 2-15 2z" };
+const ic = n => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`;
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+function toast(msg) { const s = $("#snack"); s.textContent = msg; s.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => s.classList.remove("on"), 4200); }
+function openDialog(html, onClose) { const d = $("#dlg"); d.innerHTML = html; d.onclose = onClose || null; if (!d.open) d.showModal(); $$("[data-close]", d).forEach(b => b.onclick = () => d.close()); return d; }
+function confirmDlg(msg, ok) { const d = openDialog(`<h3>Confirmar</h3><p>${U.esc(msg)}</p><div class="dlg-actions"><button class="btn text" data-close>Cancelar</button><button class="btn err" id="okBtn">Confirmar</button></div>`); $("#okBtn").onclick = () => { d.close(); ok(); }; }
+const chip = (t, k = "") => `<span class="chip ${k}">${U.esc(t)}</span>`;
+const statusChip = s => chip(s === "ativo" ? "Ativo" : s === "inativo" ? "Inativo" : "Inadimplente", s === "ativo" ? "ok" : s === "inativo" ? "" : "err");
+const levelChip = l => chip(l === "alta" ? "Alta" : l === "media" ? "Média" : "Baixa", l === "alta" ? "err" : l === "media" ? "warn" : "info");
+const progress = (p, cls) => `<div class="prog ${cls || (p > 1 ? "err" : p >= .8 ? "warn" : "")}" role="progressbar" aria-valuenow="${Math.round(p * 100)}" aria-valuemin="0" aria-valuemax="100"><div style="width:${Math.min(100, p * 100)}%"></div></div>`;
+
+/* Formulário genérico em diálogo */
+function formDialog({ title, fields, values = {}, onSave, wide }) {
+  const f = (x) => {
+    const v = values[x.k] ?? "", id = "f_" + x.k, req = x.required ? "required" : "";
+    if (x.type === "select") return `<label class="tf ${x.full ? "full" : ""}"><span>${x.label}${x.required ? " *" : ""}</span><select id="${id}" ${req}>${x.options.map(o => { const [ov, ol] = Array.isArray(o) ? o : [o, o]; return `<option value="${U.esc(ov)}" ${String(ov) === String(v) ? "selected" : ""}>${U.esc(ol)}</option>`; }).join("")}</select></label>`;
+    if (x.type === "checkbox") return `<label class="chk ${x.full ? "full" : ""}"><input type="checkbox" id="${id}" ${v ? "checked" : ""}> ${x.label}</label>`;
+    return `<label class="tf ${x.full ? "full" : ""}"><span>${x.label}${x.required ? " *" : ""}</span><input id="${id}" type="${x.type || "text"}" ${x.step ? `step="${x.step}"` : ""} value="${U.esc(v)}" ${req}></label>`;
+  };
+  const d = openDialog(`<form method="dialog" id="frm"><h3>${U.esc(title)}</h3><div class="fields">${fields.map(f).join("")}</div><div class="banner" id="frmErr" hidden></div><div class="dlg-actions"><button type="button" class="btn text" data-close>Cancelar</button><button class="btn" type="submit">Salvar</button></div></form>`);
+  $("#frm").onsubmit = ev => {
+    ev.preventDefault(); const out = {};
+    for (const x of fields) { const el = $("#f_" + x.k); out[x.k] = x.type === "checkbox" ? el.checked : x.type === "number" ? (el.value === "" ? undefined : Number(el.value)) : el.value.trim(); }
+    const err = onSave(out);
+    if (err) { const b = $("#frmErr"); b.hidden = false; b.textContent = err; } else d.close();
+  };
+}
+/* Tabela com busca, filtros, ordenação, paginação e exportação */
+const TV = {};
+function mountTable(el, id, cfg) {
+  const st = TV[id] = TV[id] || { q: "", page: 0, sort: cfg.sort || null, dir: 1, f: {} };
+  el.innerHTML = `<div class="toolbar"><label class="tf"><span>Buscar</span><input type="search" data-q value="${U.esc(st.q)}"></label>` +
+    (cfg.filters || []).map(f => `<label class="tf"><span>${f.label}</span><select data-f="${f.k}">${f.options.map(o => { const [v, l] = Array.isArray(o) ? o : [o, o || "Todos"]; return `<option value="${U.esc(v)}" ${st.f[f.k] === v ? "selected" : ""}>${U.esc(l)}</option>`; }).join("")}</select></label>`).join("") +
+    `<span class="sp"></span><button class="btn out sm" data-exp="csv">${ic("download")} CSV</button><button class="btn out sm" data-exp="json">${ic("download")} JSON</button></div><div data-area></div>`;
+  const area = $("[data-area]", el);
+  const rowsNow = () => {
+    let rows = typeof cfg.rows === "function" ? cfg.rows() : cfg.rows; const q = U.norm(st.q);
+    if (q) rows = rows.filter(r => cfg.cols.some(c => U.norm(c.val(r)).includes(q)));
+    for (const f of cfg.filters || []) if (st.f[f.k]) rows = rows.filter(r => f.test(r, st.f[f.k]));
+    if (st.sort) { const c = cfg.cols.find(c => c.k === st.sort); rows = rows.slice().sort((a, b) => { const x = c.sortVal ? c.sortVal(a) : c.val(a), y = c.sortVal ? c.sortVal(b) : c.val(b); return (typeof x === "number" ? x - y : String(x).localeCompare(String(y), "pt-BR")) * st.dir; }); }
+    return rows;
+  };
+  const draw = () => {
+    const rows = rowsNow(), ps = cfg.pageSize || 15, pages = Math.max(1, Math.ceil(rows.length / ps)); st.page = Math.min(st.page, pages - 1);
+    const slice = rows.slice(st.page * ps, st.page * ps + ps);
+    area.innerHTML = `<div class="tw"><table><thead><tr>${cfg.cols.map(c => `<th class="${c.num ? "n" : ""}" aria-sort="${st.sort === c.k ? (st.dir > 0 ? "ascending" : "descending") : "none"}"><button data-sort="${c.k}">${U.esc(c.label)}${st.sort === c.k ? (st.dir > 0 ? " ▲" : " ▼") : ""}</button></th>`).join("")}${cfg.actions ? "<th>Ações</th>" : ""}</tr></thead><tbody>` +
+      (slice.length ? slice.map(r => `<tr>${cfg.cols.map(c => `<td class="${c.num ? "n" : ""}">${c.html ? c.html(r) : U.esc(c.val(r))}</td>`).join("")}${cfg.actions ? `<td><div class="row">${cfg.actions(r)}</div></td>` : ""}</tr>`).join("") : `<tr><td colspan="${cfg.cols.length + 1}" class="muted">${cfg.empty || "Nenhum registro encontrado."}</td></tr>`) +
+      `</tbody></table></div><div class="pager"><span class="muted small">${rows.length} registro(s)</span><span class="sp"></span><button class="btn text sm" data-pg="-1" ${st.page === 0 ? "disabled" : ""}>Anterior</button><span class="small">${st.page + 1} / ${pages}</span><button class="btn text sm" data-pg="1" ${st.page >= pages - 1 ? "disabled" : ""}>Próxima</button></div>`;
+    $$("[data-sort]", area).forEach(b => b.onclick = () => { const k = b.dataset.sort; st.dir = st.sort === k ? -st.dir : 1; st.sort = k; draw(); });
+    $$("[data-pg]", area).forEach(b => b.onclick = () => { st.page += +b.dataset.pg; draw(); });
+    $$("[data-act]", area).forEach(b => b.onclick = () => cfg.onAction(b.dataset.act, b.dataset.id));
+  };
+  $("[data-q]", el).oninput = e => { st.q = e.target.value; st.page = 0; draw(); };
+  $$("[data-f]", el).forEach(s => s.onchange = () => { st.f[s.dataset.f] = s.value; st.page = 0; draw(); });
+  $$("[data-exp]", el).forEach(b => b.onclick = () => {
+    const rows = rowsNow(), nm = `${id}-${U.today()}`;
+    DB.audit("exportar", `${id} (${b.dataset.exp}, ${rows.length} registros)`); DB.save();
+    if (b.dataset.exp === "csv") U.download(nm + ".csv", U.csv(rows, cfg.cols), "text/csv;charset=utf-8");
+    else U.download(nm + ".json", JSON.stringify(rows.map(r => Object.fromEntries(cfg.cols.map(c => [c.label, c.val(r)]))), null, 2));
+  });
+  draw();
+}
+/* Gráficos SVG */
+const Charts = {
+  bars(items, { unit = "h", w = 560, h = 240, colors } = {}) {
+    if (!items.length) return `<p class="muted">Sem dados no período.</p>`;
+    const max = Math.max(...items.map(i => i.v), 1), ml = 120, bh = Math.min(26, (h - 20) / items.length - 6), H = items.length * (bh + 8) + 8;
+    return `<svg class="ch" viewBox="0 0 ${w} ${H}" role="img" aria-label="Gráfico de barras">${items.map((it, i) => { const y = 4 + i * (bh + 8), bw = (w - ml - 60) * it.v / max; return `<text x="${ml - 6}" y="${y + bh / 2 + 4}" text-anchor="end">${U.esc(it.l.slice(0, 18))}</text><rect x="${ml}" y="${y}" width="${Math.max(1, bw)}" height="${bh}" rx="4" fill="${it.c || (colors && colors[i % colors.length]) || "var(--c1)"}"><title>${U.esc(it.l)}: ${U.num(it.v)}${unit}</title></rect><text x="${ml + bw + 6}" y="${y + bh / 2 + 4}">${U.num(it.v)}${unit}</text>`; }).join("")}</svg>`;
+  },
+  lines(series, labels, { w = 560, h = 220 } = {}) {
+    const all = series.flatMap(s => s.data), max = Math.max(...all, 1), n = Math.max(...series.map(s => s.data.length), 2), pl = 36, pb = 22, pt = 8;
+    const x = i => pl + (w - pl - 8) * i / (n - 1), y = v => pt + (h - pt - pb) * (1 - v / max);
+    const grid = [0, .5, 1].map(f => `<line x1="${pl}" x2="${w - 8}" y1="${y(max * f)}" y2="${y(max * f)}" stroke="var(--olv)"/><text x="${pl - 4}" y="${y(max * f) + 4}" text-anchor="end">${U.num(max * f, 0)}</text>`).join("");
+    return `<svg class="ch" viewBox="0 0 ${w} ${h}" role="img" aria-label="Gráfico de linhas">${grid}${series.map(s => `<polyline fill="none" stroke="${s.c}" stroke-width="2.5" ${s.dash ? 'stroke-dasharray="5 4"' : ""} points="${s.data.map((v, i) => `${x(i)},${y(v)}`).join(" ")}"/>`).join("")}<text x="${pl}" y="${h - 4}">${labels[0]}</text><text x="${w - 8}" y="${h - 4}" text-anchor="end">${labels[1]}</text></svg>` + `<div class="legend">${series.map(s => `<span><i style="background:${s.c}"></i>${s.l}</span>`).join("")}</div>`;
+  },
+  columns(items, { w = 560, h = 200 } = {}) {
+    const max = Math.max(...items.map(i => i.v), 1), bw = (w - 20) / items.length, ph = h - 56;
+    return `<svg class="ch" viewBox="0 0 ${w} ${h}" role="img" aria-label="Gráfico de colunas">${items.map((it, i) => { const bh = ph * it.v / max; return `<rect x="${10 + i * bw + 6}" y="${24 + ph - bh}" width="${bw - 12}" height="${Math.max(1, bh)}" rx="4" fill="var(--c1)"><title>${U.esc(it.l)}: ${U.num(it.v)}h</title></rect><text x="${10 + i * bw + bw / 2}" y="${h - 8}" text-anchor="middle">${U.esc(it.l)}</text><text x="${10 + i * bw + bw / 2}" y="${20 + ph - bh}" text-anchor="middle">${U.num(it.v, 0)}</text>`; }).join("")}</svg>`;
+  }
+};
+/* ============================================================
+   10. PÁGINAS
+   ============================================================ */
+const Pages = {};
+const empty = () => `<div class="card"><h3>Nenhum dado carregado</h3><p class="muted">Este ambiente de homologação começa vazio. Carregue os dados de exemplo ou importe seus JSONs.</p><div class="row"><button class="btn" data-go="import">${ic("upload")} Importar JSON</button><button class="btn tonal" id="loadSample">Carregar dados de exemplo</button></div></div>`;
+function bindEmpty() { const b = $("#loadSample"); if (b) b.onclick = loadSample; $$("[data-go]").forEach(x => x.onclick = () => go(x.dataset.go)); }
+
+Pages.dashboard = el => {
+  const custs = Acc.customers(), today = Ctx.today();
+  if (!DB.list("customers").length) { el.innerHTML = `<h2 class="pt">Dashboard</h2>` + empty(); return bindEmpty(); }
+  const cons = Acc.scoped("contracts"), act = cons.filter(c => M.isActive(c, today)), usage = Acc.scoped("usage_events");
+  const r30 = M.range("30", today), exp = d => M.expiring(cons, today, d).length;
+  const alerts = act.map(c => ({ c, s: M.contractStatus(c, usage.filter(e => e.customer_id === c.customer_id), today) })).filter(x => x.s.flag && x.s.flag !== "atencao");
+  const opps = Acc.role().opps ? Ctx.opps().filter(o => o.status === "nova" || o.status === "em andamento") : [];
+  const months = []; for (let i = 5; i >= 0; i--) { const d = U.d(today); d.setDate(1); d.setMonth(d.getMonth() - i); const k = U.iso(d).slice(0, 7); months.push({ l: k.slice(5) + "/" + k.slice(2, 4), v: U.sum(usage.filter(e => e.date.startsWith(k)), e => e.quantity) }); }
+  const k = (v, l, s) => `<div class="card kpi"><div class="v">${v}</div><div class="l">${l}</div><div class="s">${s || ""}</div></div>`;
+  el.innerHTML = `<h2 class="pt">Dashboard</h2>${Acc.cs() ? `<div class="banner">Exibindo apenas clientes de <b>${U.esc(Acc.cs())}</b>.</div>` : ""}
+  <div class="grid g4">${k(custs.filter(c => c.status === "ativo").length, "Clientes ativos", `${custs.filter(c => c.status === "inadimplente").length} inadimplentes · ${custs.filter(c => c.status === "inativo").length} inativos`)}
+  ${k(act.length, "Contratos vigentes", `${cons.length} no total`)}
+  ${k(exp(30), "Vencendo em 30 dias", `${exp(15)} em 15 dias · ${exp(7)} em 7 dias`)}
+  ${k(U.num(M.total(usage, r30)) + " h", "Consumo (30 dias)", `Total histórico: ${U.num(U.sum(usage, e => e.quantity), 0)} h`)}
+  ${Acc.role().opps ? k(opps.filter(o => o.level === "alta").length, "Oportunidades altas", `${opps.length} abertas`) : ""}
+  ${k(alerts.length, "Alertas de uso", "excesso de franquia ou baixo uso")}</div>
+  <div class="grid g2" style="margin-top:16px"><div class="card"><h3>Consumo mensal (horas)</h3>${Charts.columns(months)}</div>
+  <div class="card"><h3>Contratos vencendo (30 dias)</h3>${M.expiring(cons, today, 30).length ? `<ul class="clean">${M.expiring(cons, today, 30).slice(0, 8).map(x => `<li><b>${U.esc(Ctx.cname(x.c.customer_id))}</b> — ${U.esc(Ctx.sname(x.c.service_id))}<br><span class="muted small">vence em ${x.d} dia(s) · ${U.fmtDate(x.c.end_date)}</span> ${x.d <= 7 ? chip("7 dias", "err") : x.d <= 15 ? chip("15 dias", "warn") : chip("30 dias", "info")}</li>`).join("")}</ul>` : `<p class="muted">Nenhum contrato vence nos próximos 30 dias.</p>`}</div>
+  <div class="card"><h3>Alertas de uso</h3>${alerts.length ? `<ul class="clean">${alerts.slice(0, 8).map(a => `<li><b>${U.esc(Ctx.cname(a.c.customer_id))}</b> — ${U.esc(Ctx.sname(a.c.service_id))} ${a.s.flag === "excesso" ? chip("Excesso de franquia", "err") : chip("Baixo uso (risco de churn)", "warn")}<br><span class="muted small">${U.num(a.s.used)}h de ${a.c.hours}h (${U.num(a.s.pct * 100, 0)}%) · ${U.num(a.s.elapsed * 100, 0)}% da vigência decorrida</span></li>`).join("")}</ul>` : `<p class="muted">Sem alertas.</p>`}</div>
+  ${Acc.role().opps ? `<div class="card"><h3>Principais oportunidades</h3>${opps.length ? `<ul class="clean">${opps.slice(0, 6).map(o => `<li>${levelChip(o.level)} <b>${U.esc(o.customer)}</b> → ${U.esc(o.service)}<br><span class="muted small">${U.esc(o.evidence[0].text.slice(0, 110))}</span></li>`).join("")}</ul>` : `<p class="muted">Sem oportunidades identificadas.</p>`}</div>` : ""}</div>`;
+};
+
+function custForm(rec) {
+  const first = (rec?.contacts || [])[0] || {};
+  const cs = [...new Set(DB.list("customers").map(c => c.cs_owner).filter(Boolean))];
+  formDialog({
+    title: rec ? "Editar cliente" : "Novo cliente", values: { ...rec, ...Object.fromEntries(Object.entries(first).map(([k, v]) => ["c_" + k, v])), external_id: rec?.external_id || "C-" + Date.now().toString(36).toUpperCase() },
+    fields: [{ k: "external_id", label: "ID externo", required: true }, { k: "name", label: "Razão social", required: true, full: true }, { k: "trading_name", label: "Nome fantasia" }, { k: "document", label: "CNPJ/CPF" }, { k: "ie", label: "Inscrição estadual" },
+      { k: "status", label: "Status", type: "select", options: ["ativo", "inativo", "inadimplente"] }, { k: "segment", label: "Segmento" }, { k: "size", label: "Porte", type: "select", options: ["", "micro", "pequeno", "medio", "grande"] },
+      { k: "cs_owner", label: "Responsável de CS" }, { k: "city", label: "Cidade" }, { k: "state", label: "UF" },
+      { k: "c_name", label: "Contato — nome" }, { k: "c_email", label: "Contato — e-mail", type: "email" }, { k: "c_phone", label: "Contato — telefone" }, { k: "c_role", label: "Contato — cargo" }],
+    onSave(v) {
+      const r = N.clean({ external_id: v.external_id, name: v.name, trading_name: v.trading_name, document: v.document, ie: v.ie, status: v.status, segment: v.segment, size: v.size, cs_owner: v.cs_owner, city: v.city, state: v.state?.toUpperCase(), contacts: v.c_name ? [N.clean({ name: v.c_name, email: v.c_email, phone: v.c_phone, role: v.c_role })] : [] });
+      if (rec) { r.amount_tickets = rec.amount_tickets; r.contacts = r.contacts.length ? r.contacts.concat((rec.contacts || []).slice(1)) : (rec.contacts || []); }
+      const errs = [...V.validate(r, SCHEMAS.customers), ...V.business("customers", r, {})]; if (errs.length) return errs.join("; ");
+      if (!rec && DB.s.customers[r.external_id]) return "ID externo já existe.";
+      const next = Object.assign({}, rec || {}, r); if (rec) { const ch = Object.keys(r).filter(k => !U.deepEq(rec[k], r[k])); DB.history(next, DB.s.settings.role, "Editado: " + ch.join(", ")); } else DB.history(next, DB.s.settings.role, "Criado");
+      DB.s.customers[r.external_id] = next; DB.audit(rec ? "editar_cliente" : "criar_cliente", r.external_id); DB.save(); toast("Cliente salvo."); go("customers");
+    }
+  });
+}
+function custDetail(id) {
+  const c = DB.s.customers[id], today = Ctx.today(), cons = (Ctx.contractsIdx().get(id) || []), ev = Ctx.usageIdx().get(id) || [];
+  const have = new Set(cons.filter(x => M.isActive(x, today)).map(x => x.service_id)), segOk = s => !(s.target_segments || []).length || s.target_segments.includes(c.segment);
+  const gaps = DB.list("services").filter(s => !have.has(String(s.external_id)) && segOk(s));
+  const opps = Acc.role().opps ? Ctx.opps().filter(o => o.customer_id === id) : [];
+  DB.audit("ver_cliente", id); DB.save();
+  openDialog(`<h3>${U.esc(c.name)} ${statusChip(c.status)}</h3><div class="body">
+  <p class="muted">ID ${U.esc(id)} · ${U.esc(Acc.doc(c.document))} · ${U.esc(c.city || "—")}/${U.esc(c.state || "—")} · CS: ${U.esc(c.cs_owner || "—")} · ${c.amount_tickets ?? 0} chamados</p>
+  <h3>Contatos</h3><ul class="clean">${(c.contacts || []).map(x => `<li>${U.esc(x.name)} (${U.esc(x.role || "—")}) · ${U.esc(Acc.email(x.email))} · ${U.esc(Acc.phone(x.phone))}</li>`).join("") || "<li class='muted'>Sem contatos</li>"}</ul>
+  <h3 style="margin-top:12px">Contratos</h3><ul class="clean">${cons.map(x => { const s = M.contractStatus(x, ev, today); return `<li>${U.esc(Ctx.sname(x.service_id))} · ${U.fmtDate(x.start_date)} → ${U.fmtDate(x.end_date)} ${M.isActive(x, today) ? chip("Vigente", "ok") : chip(x.status === "cancelado" ? "Cancelado" : "Encerrado")} ${s.pct != null ? `<br>${progress(s.pct)}<span class="small muted">${U.num(s.used)}h / ${x.hours}h</span>` : ""}</li>`; }).join("") || "<li class='muted'>Sem contratos</li>"}</ul>
+  <h3 style="margin-top:12px">Lacunas (serviços não contratados)</h3><p>${gaps.map(g => chip(g.name, "info")).join(" ") || "<span class='muted'>Nenhuma</span>"}</p>
+  ${Acc.role().opps ? `<h3>Oportunidades</h3>${opps.length ? `<ul class="clean">${opps.map(o => `<li>${levelChip(o.level)} ${U.esc(o.service)} — ${U.esc(o.evidence[0].text.slice(0, 100))}</li>`).join("")}</ul>` : "<p class='muted'>Sem oportunidades identificadas.</p>"}` : ""}
+  <h3>Histórico de alterações</h3><ul class="clean">${(c._h || []).slice().reverse().map(h => `<li class="small">${new Date(h.at).toLocaleString("pt-BR")} · ${U.esc(h.by)} · ${U.esc(h.change)}</li>`).join("") || "<li class='muted small'>Sem alterações registradas</li>"}</ul></div>
+  <div class="dlg-actions"><button class="btn text" data-close>Fechar</button></div>`);
+}
+Pages.customers = el => {
+  const can = Acc.role().edit;
+  el.innerHTML = `<h2 class="pt">Clientes</h2>${DB.list("customers").length ? "" : empty()}<div id="tbl"></div>${can ? `<button class="btn fab" id="newC">${ic("add")} Novo cliente</button>` : ""}`; bindEmpty();
+  const segs = [...new Set(Acc.customers().map(c => c.segment).filter(Boolean))];
+  mountTable($("#tbl"), "clientes", {
+    rows: () => Acc.customers(), sort: "name",
+    cols: [{ k: "id", label: "ID", val: r => r.external_id }, { k: "name", label: "Cliente", val: r => r.trading_name ? `${r.trading_name} — ${r.name}` : r.name }, { k: "doc", label: "Documento", val: r => Acc.doc(r.document) },
+      { k: "status", label: "Status", val: r => r.status, html: r => statusChip(r.status) }, { k: "seg", label: "Segmento", val: r => r.segment || "" }, { k: "cs", label: "CS", val: r => r.cs_owner || "" },
+      { k: "ct", label: "Contratos vigentes", num: true, val: r => (Ctx.contractsIdx().get(r.external_id) || []).filter(c => M.isActive(c, Ctx.today())).length }, { k: "tk", label: "Chamados", num: true, val: r => r.amount_tickets ?? 0 }],
+    filters: [{ k: "status", label: "Status", options: [["", "Todos"], "ativo", "inativo", "inadimplente"], test: (r, v) => r.status === v }, { k: "seg", label: "Segmento", options: [["", "Todos"], ...segs], test: (r, v) => r.segment === v }],
+    actions: r => `<button class="btn text sm" data-act="view" data-id="${U.esc(r.external_id)}">Detalhes</button>${can ? `<button class="ib" style="width:36px;height:36px" aria-label="Editar ${U.esc(r.name)}" data-act="edit" data-id="${U.esc(r.external_id)}">${ic("edit")}</button><button class="ib" style="width:36px;height:36px" aria-label="Excluir ${U.esc(r.name)}" data-act="del" data-id="${U.esc(r.external_id)}">${ic("del")}</button>` : ""}`,
+    onAction(a, id) { if (a === "view") custDetail(id); if (a === "edit") custForm(DB.s.customers[id]); if (a === "del") confirmDlg("Excluir o cliente e seus contratos, consumo e e-mails?", () => { delete DB.s.customers[id]; for (const e of ["contracts", "usage_events", "emails"]) for (const [k, v] of Object.entries(DB.s[e])) if (v.customer_id === id) delete DB.s[e][k]; DB.audit("excluir_cliente", id); DB.save(); toast("Cliente excluído."); go("customers"); }); }
+  });
+  if (can) $("#newC").onclick = () => custForm(null);
+};
+function contractForm(rec) {
+  const custs = DB.list("customers").map(c => [c.external_id, `${c.trading_name || c.name} (${c.external_id})`]), svcs = DB.list("services").map(s => [s.external_id, s.name]);
+  if (!custs.length || !svcs.length) return toast("Cadastre clientes e serviços antes de criar contratos.");
+  formDialog({
+    title: rec ? "Editar contrato" : "Novo contrato", values: rec || { external_id: "K-" + Date.now().toString(36).toUpperCase(), status: "vigente", start_date: Ctx.today() },
+    fields: [{ k: "external_id", label: "ID externo", required: true }, { k: "customer_id", label: "Cliente", type: "select", options: custs, required: true }, { k: "service_id", label: "Serviço", type: "select", options: svcs, required: true },
+      { k: "value", label: "Valor (R$)", type: "number", step: "0.01", required: true }, { k: "hours", label: "Franquia (horas)", type: "number", step: "0.5" }, { k: "start_date", label: "Início", type: "date", required: true }, { k: "end_date", label: "Fim", type: "date", required: true },
+      { k: "status", label: "Situação", type: "select", options: ["vigente", "encerrado", "cancelado"] }, { k: "billing_day", label: "Dia de faturamento", type: "number" }, { k: "description", label: "Descrição", full: true }, { k: "auto_renew", label: "Renovação automática", type: "checkbox", full: true }],
+    onSave(v) {
+      const r = N.clean(v); r.auto_renew = !!v.auto_renew; const ctx = { customers: new Set(Object.keys(DB.s.customers)), services: new Set(Object.keys(DB.s.services)) };
+      const errs = [...V.validate(r, SCHEMAS.contracts), ...V.business("contracts", r, ctx)]; if (errs.length) return errs.join("; ");
+      if (!rec && DB.s.contracts[r.external_id]) return "ID externo já existe.";
+      const next = Object.assign({}, rec || {}, r); DB.history(next, DB.s.settings.role, rec ? "Editado: " + Object.keys(r).filter(k => !U.deepEq(rec[k], r[k])).join(", ") : "Criado");
+      DB.s.contracts[r.external_id] = next; DB.audit(rec ? "editar_contrato" : "criar_contrato", r.external_id); DB.save(); toast("Contrato salvo."); go("contracts");
+    }
+  });
+}
+Pages.contracts = el => {
+  const can = Acc.role().edit, vals = Acc.role().values, today = Ctx.today();
+  el.innerHTML = `<h2 class="pt">Contratos</h2>${DB.list("contracts").length ? "" : empty()}<div id="tbl"></div>${can ? `<button class="btn fab" id="newK">${ic("add")} Novo contrato</button>` : ""}`; bindEmpty();
+  const label = c => M.isActive(c, today) ? (U.days(today, c.end_date) <= 30 ? `Vence em ${U.days(today, c.end_date)}d` : "Vigente") : c.status === "cancelado" ? "Cancelado" : "Encerrado";
+  mountTable($("#tbl"), "contratos", {
+    rows: () => Acc.scoped("contracts"), sort: "end",
+    cols: [{ k: "cust", label: "Cliente", val: r => Ctx.cname(r.customer_id) }, { k: "svc", label: "Serviço", val: r => Ctx.sname(r.service_id) },
+      ...(vals ? [{ k: "val", label: "Valor", num: true, val: r => U.money(r.value), sortVal: r => r.value }] : []),
+      { k: "h", label: "Franquia", num: true, val: r => r.hours ?? "", sortVal: r => r.hours || 0 }, { k: "use", label: "Consumo na vigência", val: r => { const s = M.contractStatus(r, Ctx.usageIdx().get(r.customer_id) || [], today); return s.pct == null ? "—" : U.num(s.pct * 100, 0) + "%"; }, html: r => { const s = M.contractStatus(r, Ctx.usageIdx().get(r.customer_id) || [], today); return s.pct == null ? "—" : progress(s.pct) + `<span class="small">${U.num(s.pct * 100, 0)}%</span>`; }, sortVal: r => M.contractStatus(r, Ctx.usageIdx().get(r.customer_id) || [], today).pct || 0 },
+      { k: "st", label: "Início", val: r => U.fmtDate(r.start_date), sortVal: r => r.start_date }, { k: "end", label: "Fim", val: r => U.fmtDate(r.end_date), sortVal: r => r.end_date },
+      { k: "sit", label: "Situação", val: label, html: r => { const l = label(r), d = M.isActive(r, today) ? U.days(today, r.end_date) : 999; return chip(l, d <= 7 ? "err" : d <= 15 ? "warn" : d <= 30 ? "info" : l === "Vigente" ? "ok" : ""); } }],
+    filters: [{ k: "sit", label: "Situação", options: [["", "Todas"], ["vig", "Vigentes"], ["30", "Vencendo ≤30d"], ["15", "Vencendo ≤15d"], ["7", "Vencendo ≤7d"], ["enc", "Encerrados/cancelados"]], test: (r, v) => v === "vig" ? M.isActive(r, today) : v === "enc" ? !M.isActive(r, today) : M.isActive(r, today) && U.days(today, r.end_date) <= +v },
+      { k: "svc", label: "Serviço", options: [["", "Todos"], ...DB.list("services").map(s => [String(s.external_id), s.name])], test: (r, v) => r.service_id === v }],
+    actions: r => can ? `<button class="ib" style="width:36px;height:36px" aria-label="Editar contrato" data-act="edit" data-id="${U.esc(r.external_id)}">${ic("edit")}</button><button class="ib" style="width:36px;height:36px" aria-label="Histórico" data-act="hist" data-id="${U.esc(r.external_id)}">${ic("doc")}</button><button class="ib" style="width:36px;height:36px" aria-label="Excluir contrato" data-act="del" data-id="${U.esc(r.external_id)}">${ic("del")}</button>` : `<button class="btn text sm" data-act="hist" data-id="${U.esc(r.external_id)}">Histórico</button>`,
+    onAction(a, id) { const c = DB.s.contracts[id]; if (a === "edit") contractForm(c); if (a === "hist") openDialog(`<h3>Histórico — ${U.esc(id)}</h3><div class="body"><ul class="clean">${(c._h || []).slice().reverse().map(h => `<li class="small">${new Date(h.at).toLocaleString("pt-BR")} · ${U.esc(h.by)} · ${U.esc(h.change)}</li>`).join("") || "<li class='muted'>Sem alterações registradas</li>"}</ul></div><div class="dlg-actions"><button class="btn text" data-close>Fechar</button></div>`); if (a === "del") confirmDlg("Excluir este contrato?", () => { delete DB.s.contracts[id]; DB.audit("excluir_contrato", id); DB.save(); go("contracts"); }); }
+  });
+  if (can) $("#newK").onclick = () => contractForm(null);
+};
+Pages.services = el => {
+  const can = Acc.role().edit;
+  el.innerHTML = `<h2 class="pt">Catálogo de serviços</h2><div class="banner">Serviços 5–8 e preços dos dados de exemplo são <b>fictícios</b> — substitua pelo catálogo real (importe ou edite).</div><div id="tbl"></div>${can ? `<button class="btn fab" id="newS">${ic("add")} Novo serviço</button>` : ""}`;
+  const form = rec => formDialog({
+    title: rec ? "Editar serviço" : "Novo serviço", values: rec || { external_id: String(Math.max(0, ...DB.list("services").map(s => +s.external_id || 0)) + 1), unit: "mês", est_units_year: 12 },
+    fields: [{ k: "external_id", label: "ID externo", required: true }, { k: "name", label: "Nome", required: true }, { k: "description", label: "Descrição", full: true }, { k: "price", label: "Preço (R$)", type: "number", step: "0.01" }, { k: "unit", label: "Unidade de medida" }, { k: "est_units_year", label: "Unidades/ano (estimativa)", type: "number" }, { k: "category", label: "Categoria" }],
+    onSave(v) { const r = N.clean(v); const errs = V.validate(r, SCHEMAS.services); if (errs.length) return errs.join("; "); if (!rec && DB.s.services[r.external_id]) return "ID já existe."; DB.s.services[r.external_id] = Object.assign({}, rec || {}, r); DB.audit(rec ? "editar_servico" : "criar_servico", r.external_id); DB.save(); go("services"); }
+  });
+  mountTable($("#tbl"), "servicos", {
+    rows: () => DB.list("services"), sort: "id",
+    cols: [{ k: "id", label: "ID", val: r => r.external_id }, { k: "n", label: "Serviço", val: r => r.name }, { k: "d", label: "Descrição", val: r => r.description || "" }, { k: "p", label: "Preço", num: true, val: r => r.price != null ? U.money(r.price) : "—", sortVal: r => r.price || 0 }, { k: "u", label: "Unidade", val: r => r.unit || "" }, { k: "cl", label: "Contratos vigentes", num: true, val: r => DB.list("contracts").filter(c => c.service_id === String(r.external_id) && M.isActive(c, Ctx.today())).length }],
+    actions: r => can ? `<button class="ib" style="width:36px;height:36px" aria-label="Editar" data-act="edit" data-id="${U.esc(r.external_id)}">${ic("edit")}</button><button class="ib" style="width:36px;height:36px" aria-label="Excluir" data-act="del" data-id="${U.esc(r.external_id)}">${ic("del")}</button>` : "",
+    onAction(a, id) { if (a === "edit") form(DB.s.services[id]); if (a === "del") confirmDlg("Excluir serviço do catálogo?", () => { delete DB.s.services[id]; DB.audit("excluir_servico", id); DB.save(); go("services"); }); }
+  });
+  if (can) $("#newS").onclick = () => form(null);
+};
+
+/* Importação */
+const ImpState = { text: "", file: "colado", report: null };
+Pages.import = el => {
+  const allowed = Acc.role().imp;
+  el.innerHTML = `<h2 class="pt">Importar JSON</h2>
+  <div class="grid g2"><div class="card"><h3>1. Informe o JSON</h3><p class="muted small">Aceita o formato canônico (documentado em <a href="#" data-go="docs">Documentação</a>) e o formato atual do sistema (clientes, contratos e tipos de contrato). Entidades permitidas ao seu perfil: <b>${allowed.map(e => ENTITY_LABEL[e]).join(", ") || "nenhuma"}</b>.</p>
+  <label class="tf"><span>Cole o JSON aqui</span><textarea id="jtxt" rows="8" spellcheck="false">${U.esc(ImpState.text)}</textarea></label>
+  <div class="row" style="margin-top:8px"><label class="btn tonal" tabindex="0">${ic("upload")} Enviar arquivo<input type="file" id="jfile" accept=".json,.txt,application/json,text/plain" class="sr" multiple></label><button class="btn" id="vBtn">Validar (dry-run)</button></div></div>
+  <div class="card"><h3>Modelos de exemplo</h3><p class="muted small">Baixe, edite e reimporte. O mesmo <code>external_id</code> atualiza o registro (upsert), sem duplicar.</p><div class="row">${Object.keys(EXAMPLES).map(e => `<button class="btn out sm" data-ex="${e}">${ic("download")} ${ENTITY_LABEL[e]}</button>`).join("")}<button class="btn out sm" data-ex="bundle">${ic("download")} Pacote completo</button></div>
+  <p style="margin-top:16px"><button class="btn tonal" id="loadSample">Carregar dados de exemplo (formato atual + consumo + e-mails)</button></p></div></div>
+  <div id="rep" style="margin-top:16px"></div><div class="card" style="margin-top:16px"><h3>Histórico de importações</h3><div id="hist"></div></div>`;
+  $$("[data-go]").forEach(x => x.onclick = e => { e.preventDefault(); go(x.dataset.go); }); $("#loadSample").onclick = loadSample;
+  $("#jtxt").oninput = e => { ImpState.text = e.target.value; ImpState.file = "colado"; };
+  $("#jfile").onchange = async e => { const fs = [...e.target.files]; if (!fs.length) return; const parts = []; for (const f of fs) { const t = await f.text(); const p = Importer.parse(t); if (p.error) { toast(f.name + ": " + p.error); continue; } parts.push(p.json); } ImpState.file = fs.map(f => f.name).join(", "); ImpState.text = parts.length === 1 ? JSON.stringify(parts[0]).length > 400000 ? JSON.stringify(parts[0]) : JSON.stringify(parts[0], null, 1) : JSON.stringify({ __multi: parts }); $("#jtxt").value = ImpState.text.length > 400000 ? ImpState.text.slice(0, 400000) + "…" : ImpState.text; if (ImpState.text.length > 400000) ImpState._big = ImpState.text; run(); };
+  $$("[data-ex]").forEach(b => b.onclick = () => { const k = b.dataset.ex; U.download(k === "bundle" ? "exemplo-pacote.json" : `exemplo-${k}.json`, JSON.stringify(k === "bundle" ? EXAMPLES : { [k]: EXAMPLES[k] }, null, 2)); });
+  const run = () => {
+    const text = ImpState._big && $("#jtxt").value.endsWith("…") ? ImpState._big : $("#jtxt").value; ImpState.text = text;
+    const p = Importer.parse(text); if (p.error) { $("#rep").innerHTML = `<div class="card"><div class="banner">${U.esc(p.error)}</div></div>`; return; }
+    const jsons = p.json.__multi || [p.json]; let groups = jsons.flatMap(j => Importer.detect(j)); groups.sort((a, b) => IMPORT_ORDER.indexOf(a[0]) - IMPORT_ORDER.indexOf(b[0]));
+    if (!groups.length) { $("#rep").innerHTML = `<div class="card"><div class="banner">Nenhuma entidade reconhecida. Use chaves: ${IMPORT_ORDER.join(", ")}.</div></div>`; return; }
+    const denied = groups.filter(g => !allowed.includes(g[0])); groups = groups.filter(g => allowed.includes(g[0]));
+    ImpState.report = Importer.plan(groups, DB.s, Ctx.dict()); renderReport(denied);
+  };
+  const renderReport = denied => {
+    const rep = ImpState.report, tot = s => U.sum(rep, g => g.rows.filter(r => r.status === s).length), errs = tot("erro"), ok = tot("novo") + tot("atualizado");
+    $("#rep").innerHTML = `<div class="card"><h3>2. Relatório de validação</h3>${denied.length ? `<div class="banner">Ignorado por permissão do perfil: ${denied.map(g => ENTITY_LABEL[g[0]]).join(", ")}</div>` : ""}
+    <div class="row">${chip(tot("novo") + " novos", "ok")}${chip(tot("atualizado") + " atualizados", "info")}${chip(tot("igual") + " inalterados")}${chip(errs + " com erro", errs ? "err" : "")}<span class="sp"></span>
+    <button class="btn" id="applyBtn" ${ok ? "" : "disabled"}>Importar ${ok} registro(s) válido(s)</button></div>
+    <p class="small muted">Dry-run: nada foi gravado. Registros com erro são ignorados; os válidos são importados (upsert por external_id).</p>
+    ${rep.map(g => `<h3 style="margin-top:12px">${ENTITY_LABEL[g.entity]} (${g.rows.length})</h3><div class="tw"><table><thead><tr><th>#</th><th>ID externo</th><th>Resultado</th><th>Detalhes</th></tr></thead><tbody>${g.rows.filter(r => r.status === "erro").concat(g.rows.filter(r => r.status !== "erro").slice(0, 50)).slice(0, 200).map(r => `<tr><td>${r.idx}</td><td>${U.esc(r.id ?? "—")}</td><td>${chip(r.status, r.status === "erro" ? "err" : r.status === "novo" ? "ok" : r.status === "igual" ? "" : "info")}</td><td class="small">${r.errors.map(U.esc).join("<br>")}${g.entity === "emails" && r.rec ? `${r.rec.ignored ? chip("ignorado: " + r.rec.ignored, "warn") : chip(r.rec.signals.hits.length + " sinal(is)", "info")}` : ""}</td></tr>`).join("")}</tbody></table></div>`).join("")}</div>`;
+    $("#applyBtn").onclick = () => { const h = Importer.apply(rep, DB.s, { file: ImpState.file, role: DB.s.settings.role }); DB.audit("importar", `${h.file}: +${h.created} ~${h.updated} =${h.same} ✗${h.errors}`); DB.save(); toast(`Importado: ${h.created} novos, ${h.updated} atualizados, ${h.errors} erros.`); ImpState.report = null; Pages.import(el); };
+  };
+  $("#vBtn").onclick = run;
+  const hist = DB.s.imports;
+  $("#hist").innerHTML = hist.length ? `<div class="tw"><table><thead><tr><th>Data</th><th>Arquivo</th><th>Entidades</th><th>Novos</th><th>Atual.</th><th>Erros</th><th></th></tr></thead><tbody>${hist.map(h => `<tr><td>${new Date(h.at).toLocaleString("pt-BR")}</td><td>${U.esc(h.file)}</td><td class="small">${U.esc(h.entities)}</td><td>${h.created}</td><td>${h.updated}</td><td>${h.errors}</td><td>${h.reverted ? chip("revertida") : `<button class="btn out sm" data-rev="${h.id}">Reverter</button>`}</td></tr>`).join("")}</tbody></table></div>` : `<p class="muted">Nenhuma importação realizada.</p>`;
+  $$("[data-rev]").forEach(b => b.onclick = () => confirmDlg("Reverter esta importação? Registros criados serão removidos e os atualizados voltarão ao valor anterior.", () => { Importer.revert(DB.s, b.dataset.rev); DB.audit("reverter_importacao", b.dataset.rev); DB.save(); toast("Importação revertida."); Pages.import(el); }));
+};
+
+/* Métricas */
+const MS = { kind: "30", from: "", to: "", by: "customer" };
+Pages.metrics = el => {
+  const today = Ctx.today(), usage = Acc.scoped("usage_events");
+  if (!usage.length) { el.innerHTML = `<h2 class="pt">Métricas de uso</h2>` + empty(); return bindEmpty(); }
+  const rng = M.range(MS.kind, today, { from: MS.from, to: MS.to }), prev = M.previous(rng), cidx = Ctx.contractsIdx();
+  const svcKey = e => M.serviceOf(e, cidx.get(e.customer_id));
+  const cur = M.groupSum(usage, rng, e => MS.by === "customer" ? e.customer_id : svcKey(e)), pv = M.groupSum(usage, prev, e => MS.by === "customer" ? e.customer_id : svcKey(e));
+  const keys = [...new Set([...cur.keys(), ...pv.keys()])];
+  const fr = id => { const cs = (cidx.get(id) || []).filter(c => M.isActive(c, today) && c.hours > 0), days = U.days(rng.start, rng.end) + 1; return U.sum(cs, c => c.hours / (U.days(c.start_date, c.end_date) + 1) * days); };
+  const rows = keys.map(k => ({ k, name: MS.by === "customer" ? Ctx.cname(k) : Ctx.sname(k), cur: cur.get(k) || 0, prev: pv.get(k) || 0, fr: MS.by === "customer" ? fr(k) : null })).sort((a, b) => b.cur - a.cur);
+  const total = U.sum(rows, r => r.cur), totalPrev = U.sum(rows, r => r.prev), dl = M.delta(total, totalPrev);
+  const dtxt = d => d == null ? "novo" : (d >= 0 ? "+" : "") + U.num(d, 0) + "%";
+  const alerts = Acc.scoped("contracts").filter(c => M.isActive(c, today)).map(c => ({ c, s: M.contractStatus(c, Ctx.usageIdx().get(c.customer_id) || [], today) })).filter(x => x.s.flag);
+  const dCur = M.daily(usage, rng), dPrev = M.daily(usage, prev), bucket = a => { const n = Math.min(a.length, 30), sz = a.length / n; return Array.from({ length: n }, (_, i) => U.sum(a.slice(Math.floor(i * sz), Math.floor((i + 1) * sz)))); };
+  el.innerHTML = `<h2 class="pt">Métricas de uso</h2>
+  <div class="card"><div class="toolbar" style="margin:0"><label class="tf"><span>Período</span><select id="mk"><option value="7">Semanal (7 dias)</option><option value="15">Quinzenal (15 dias)</option><option value="30">Mensal (30 dias)</option><option value="custom">Personalizado</option></select></label>
+  <label class="tf" ${MS.kind === "custom" ? "" : "hidden"}><span>De</span><input type="date" id="mf" value="${MS.from || rng.start}"></label><label class="tf" ${MS.kind === "custom" ? "" : "hidden"}><span>Até</span><input type="date" id="mt" value="${MS.to || rng.end}"></label>
+  <label class="tf"><span>Agrupar por</span><select id="mb"><option value="customer">Cliente</option><option value="service">Serviço</option></select></label>
+  <span class="muted small">${U.fmtDate(rng.start)} a ${U.fmtDate(rng.end)} · anterior: ${U.fmtDate(prev.start)} a ${U.fmtDate(prev.end)}</span></div></div>
+  <div class="grid g4" style="margin-top:16px"><div class="card kpi"><div class="v">${U.num(total)} h</div><div class="l">Consumo no período</div></div><div class="card kpi"><div class="v">${U.num(totalPrev)} h</div><div class="l">Período anterior</div><div class="s">${dtxt(dl)}</div></div>
+  <div class="card kpi"><div class="v">${alerts.filter(a => a.s.flag === "excesso").length}</div><div class="l">Contratos em excesso de franquia</div></div><div class="card kpi"><div class="v">${alerts.filter(a => a.s.flag === "baixo").length}</div><div class="l">Contratos com baixo uso (churn)</div></div></div>
+  <div class="grid g2" style="margin-top:16px"><div class="card"><h3>Maiores consumidores — ${MS.by === "customer" ? "clientes" : "serviços"}</h3>${Charts.bars(rows.slice(0, 8).map(r => ({ l: r.name, v: r.cur })))}</div>
+  <div class="card"><h3>Evolução: período atual × anterior</h3>${Charts.lines([{ l: "Atual", data: bucket(dCur), c: "var(--c1)" }, { l: "Anterior", data: bucket(dPrev), c: "var(--c2)", dash: true }], ["início", "fim"])}</div></div>
+  <div class="card" style="margin-top:16px"><h3>Ranking e comparativos</h3><div id="rk"></div></div>
+  <div class="grid g2" style="margin-top:16px"><div class="card"><h3>Menores consumidores</h3><ul class="clean">${rows.slice(-5).reverse().map(r => `<li>${U.esc(r.name)} — <b>${U.num(r.cur)} h</b> <span class="muted small">(anterior ${U.num(r.prev)} h)</span></li>`).join("")}</ul><p class="small muted">Inclui apenas entidades com consumo no período atual ou anterior.</p></div>
+  <div class="card"><h3>Alertas</h3>${alerts.length ? `<ul class="clean">${alerts.slice(0, 12).map(a => `<li><b>${U.esc(Ctx.cname(a.c.customer_id))}</b> · ${U.esc(Ctx.sname(a.c.service_id))} ${a.s.flag === "excesso" ? chip("Excesso de franquia", "err") : a.s.flag === "baixo" ? chip("Baixo uso — risco de churn", "warn") : chip("≥80% da franquia", "info")}<br><span class="small muted">${U.num(a.s.used)}h/${a.c.hours}h (${U.num(a.s.pct * 100, 0)}%) · vigência ${U.num(a.s.elapsed * 100, 0)}% decorrida</span></li>`).join("")}</ul>` : `<p class="muted">Sem alertas.</p>`}</div></div>`;
+  $("#mk").value = MS.kind; $("#mb").value = MS.by;
+  $("#mk").onchange = e => { MS.kind = e.target.value; Pages.metrics(el); }; $("#mb").onchange = e => { MS.by = e.target.value; Pages.metrics(el); };
+  if ($("#mf")) { $("#mf").onchange = e => { MS.from = e.target.value; Pages.metrics(el); }; $("#mt").onchange = e => { MS.to = e.target.value; Pages.metrics(el); }; }
+  mountTable($("#rk"), "metricas", { rows: () => rows, sort: "cur", pageSize: 10, cols: [{ k: "name", label: MS.by === "customer" ? "Cliente" : "Serviço", val: r => r.name }, { k: "cur", label: "Período atual (h)", num: true, val: r => +r.cur.toFixed(1) }, { k: "prev", label: "Anterior (h)", num: true, val: r => +r.prev.toFixed(1) }, { k: "d", label: "Variação", num: true, val: r => dtxt(M.delta(r.cur, r.prev)), sortVal: r => M.delta(r.cur, r.prev) ?? 1e9 }, ...(MS.by === "customer" ? [{ k: "fr", label: "Franquia pro-rata (h)", num: true, val: r => r.fr ? +r.fr.toFixed(1) : "—", sortVal: r => r.fr || 0 }, { k: "pct", label: "% da franquia", num: true, val: r => r.fr ? U.num(r.cur / r.fr * 100, 0) + "%" : "—", sortVal: r => r.fr ? r.cur / r.fr : 0 }] : [])] });
+};
+
+/* Oportunidades */
+const STATUSES = ["nova", "em andamento", "ganha", "perdida", "descartada"];
+function setOpp(o, status, reason) { DB.s.oppState[o.key] = { status, reason: reason || "", at: new Date().toISOString(), by: DB.s.settings.role }; DB.audit("oportunidade_" + status, `${o.key}${reason ? " — " + reason : ""}`); DB.save(); }
+function oppDetail(key) {
+  const o = Ctx.opps().find(x => x.key === key); if (!o) return;
+  openDialog(`<h3>${levelChip(o.level)} ${U.esc(o.customer)} → ${U.esc(o.service)}</h3><div class="body">
+  <p>Score <b>${o.score}</b>/100 · evidência ${o.parts.evidencia}/30 · urgência ${o.parts.urgencia}/25 · aderência ${o.parts.aderencia}/25 · receita ${o.parts.receita}/20</p>
+  <p>${o.missing ? chip("Serviço não contratado", "warn") : chip("Upsell em serviço contratado", "info")} ${o.urgent ? chip("Urgente", "err") : ""} ${o.complaint ? chip("Reclamação", "err") : ""} ${o.competitor ? chip("Concorrente: " + o.competitor, "warn") : ""} ${Acc.role().values ? chip("Receita estimada: " + U.money(o.value_est) + "/ano") : ""}</p>
+  <h3>Evidências</h3><ul class="clean">${o.evidence.map(e => `<li><span class="small muted">${U.fmtDate(e.date)} · ${U.esc(e.type)}${e.from ? " · " + U.esc(e.from) : ""} · ref ${U.esc(e.ref)}${e.signal ? " · " + U.esc(e.signal) : ""}</span><br>"${U.esc(e.text)}"</li>`).join("")}</ul>
+  <h3 style="margin-top:12px">Próxima ação</h3><p>${U.esc(o.next_action)}</p><h3>Rascunho de abordagem (não enviado)</h3><pre class="code" style="white-space:pre-wrap">${U.esc(o.draft)}</pre></div>
+  <div class="dlg-actions"><button class="btn out" id="cpDraft">Copiar rascunho</button><button class="btn text" data-close>Fechar</button></div>`);
+  $("#cpDraft").onclick = () => { navigator.clipboard?.writeText(o.draft); toast("Rascunho copiado."); };
+}
+function reportDlg() {
+  const opps = Ctx.opps(), today = Ctx.today(), wk = U.addDays(today, -7), open = opps.filter(o => o.status === "nova" || o.status === "em andamento"), q = Opp.quality(opps);
+  const txt = `# Relatório semanal de oportunidades — ${U.fmtDate(wk)} a ${U.fmtDate(today)}\n${Acc.cs() ? "CS: " + Acc.cs() + "\n" : ""}\n## Resumo\n- Abertas: ${open.length} (altas: ${open.filter(o => o.level === "alta").length}, médias: ${open.filter(o => o.level === "media").length}, baixas: ${open.filter(o => o.level === "baixa").length})\n- Novas com evidência na semana: ${open.filter(o => o.latest >= wk).length}\n- Pipeline estimado: ${U.money(U.sum(open, o => o.value_est))}/ano\n- Aceitas pelo CS: ${U.num(q.accept * 100, 0)}% · Conversão: ${U.num(q.conv * 100, 0)}% · Receita ganha estimada: ${U.money(q.won)}\n\n## Principais oportunidades\n` +
+    (open.slice(0, 10).map((o, i) => `${i + 1}. [${o.level.toUpperCase()} ${o.score}] ${o.customer} → ${o.service}\n   Evidência (${U.fmtDate(o.evidence[0].date)}): "${o.evidence[0].text.slice(0, 140)}"\n   Próxima ação: ${o.next_action}`).join("\n") || "Sem oportunidades identificadas.") + "\n";
+  DB.audit("relatorio_semanal", "gerado"); DB.save();
+  openDialog(`<h3>Relatório semanal</h3><pre class="code" style="white-space:pre-wrap">${U.esc(txt)}</pre><div class="dlg-actions"><button class="btn out" id="rpDl">Baixar .md</button><button class="btn text" data-close>Fechar</button></div>`);
+  $("#rpDl").onclick = () => U.download(`relatorio-semanal-${today}.md`, txt, "text/markdown");
+}
+Opp.quality = opps => { const dec = opps.filter(o => o.status !== "nova"), won = opps.filter(o => o.status === "ganha"), lost = opps.filter(o => o.status === "perdida"); return { total: opps.length, accept: dec.length ? dec.filter(o => o.status === "em andamento" || o.status === "ganha").length / dec.length : 0, conv: won.length + lost.length ? won.length / (won.length + lost.length) : 0, won: U.sum(won, o => o.value_est), pipeline: U.sum(opps.filter(o => o.status === "em andamento"), o => o.value_est) }; };
+Pages.opps = el => {
+  if (!DB.list("customers").length) { el.innerHTML = `<h2 class="pt">Oportunidades</h2>` + empty(); return bindEmpty(); }
+  const all = Ctx.opps(), q = Opp.quality(all), vals = Acc.role().values;
+  const emails = Acc.scoped("emails"), inWin = emails.filter(e => !e.ignored && e.date >= U.addDays(Ctx.today(), -DB.s.settings.windowDays)).length;
+  el.innerHTML = `<h2 class="pt">Oportunidades</h2>${Acc.cs() ? `<div class="banner">Exibindo apenas clientes de <b>${U.esc(Acc.cs())}</b>.</div>` : ""}
+  <div class="grid g4"><div class="card kpi"><div class="v">${all.filter(o => o.status === "nova" || o.status === "em andamento").length}</div><div class="l">Oportunidades abertas</div><div class="s">${all.filter(o => o.level === "alta" && o.status === "nova").length} altas novas</div></div>
+  <div class="card kpi"><div class="v">${U.num(q.accept * 100, 0)}%</div><div class="l">Aceitas pelo CS</div></div><div class="card kpi"><div class="v">${U.num(q.conv * 100, 0)}%</div><div class="l">Conversão (ganhas/decididas)</div></div>
+  <div class="card kpi"><div class="v">${vals ? U.money(q.won) : "—"}</div><div class="l">Receita ganha estimada</div><div class="s">Pipeline: ${vals ? U.money(q.pipeline) : "—"}</div></div></div>
+  <p class="muted small">Janela de e-mails: últimos ${DB.s.settings.windowDays} dias · ${inWin} e-mail(s) relevantes analisados. Só cria oportunidade com evidência real; o agente apenas sugere (nada é enviado ou alterado).</p>
+  <div class="row" style="margin:8px 0"><button class="btn tonal" id="rpt">Gerar relatório semanal</button><button class="btn out" id="expO">${ic("download")} Exportar JSON estruturado</button></div><div id="tbl"></div>`;
+  $("#rpt").onclick = reportDlg;
+  $("#expO").onclick = () => { const data = { generated_at: new Date().toISOString(), window_days: DB.s.settings.windowDays, schema: "opportunity-output-v1", opportunities: Ctx.opps().map(o => ({ id: o.key, customer_id: o.customer_id, customer: o.customer, cs_owner: o.cs_owner, service_id: o.service_id, service: o.service, origin: o.origin, score: o.score, level: o.level, score_parts: o.parts, status: o.status, discard_reason: o.reason || null, value_estimate_year: o.value_est, evidence: o.evidence, next_action: o.next_action, draft: o.draft })) }; DB.audit("exportar", "oportunidades json"); DB.save(); U.download(`oportunidades-${U.today()}.json`, JSON.stringify(data, null, 2)); };
+  const svcOpts = [["", "Todos"], ...DB.list("services").map(s => [String(s.external_id), s.name])], csOpts = [["", "Todos"], ...[...new Set(DB.list("customers").map(c => c.cs_owner).filter(Boolean))]];
+  mountTable($("#tbl"), "oportunidades", {
+    rows: () => Ctx.opps().filter(o => o.status !== "descartada" || TV.oportunidades?.f.status === "descartada"), sort: "score", pageSize: 10, empty: "Sem oportunidades identificadas.",
+    cols: [{ k: "score", label: "Score", num: true, val: r => r.score, html: r => `${levelChip(r.level)} ${r.score}` }, { k: "c", label: "Cliente", val: r => r.customer }, { k: "s", label: "Serviço sugerido", val: r => r.service }, { k: "o", label: "Origem", val: r => r.origin },
+      { k: "e", label: "Evidência", val: r => `${U.fmtDate(r.evidence[0].date)} — ${r.evidence[0].text}`, html: r => `<span class="small">${U.esc(U.fmtDate(r.evidence[0].date))} — ${U.esc(r.evidence[0].text.slice(0, 90))}${r.reopened ? " " + chip("nova evidência", "warn") : ""}</span>` },
+      ...(vals ? [{ k: "v", label: "Valor est./ano", num: true, val: r => U.money(r.value_est), sortVal: r => r.value_est }] : []), { k: "cs", label: "CS", val: r => r.cs_owner }, { k: "st", label: "Status", val: r => r.status + (r.reason ? ` (${r.reason})` : ""), html: r => chip(r.status, r.status === "ganha" ? "ok" : r.status === "perdida" || r.status === "descartada" ? "err" : r.status === "em andamento" ? "info" : "warn") }],
+    filters: [{ k: "level", label: "Score", options: [["", "Todos"], ["alta", "Alta"], ["media", "Média"], ["baixa", "Baixa"]], test: (r, v) => r.level === v }, { k: "svc", label: "Serviço", options: svcOpts, test: (r, v) => r.service_id === v }, { k: "status", label: "Status", options: [["", "Abertas e decididas"], ...STATUSES], test: (r, v) => r.status === v }, { k: "cs", label: "CS", options: csOpts, test: (r, v) => r.cs_owner === v }, { k: "origin", label: "Origem", options: [["", "Todas"], "email", "renovacao", "franquia", "semcontrato"], test: (r, v) => r.origin === v }],
+    actions: r => `<button class="btn text sm" data-act="det" data-id="${U.esc(r.key)}">Detalhes</button><label class="tf" style="min-width:130px"><span class="sr">Status</span><select data-act="st" data-id="${U.esc(r.key)}" style="padding:8px">${STATUSES.map(s => `<option ${s === r.status ? "selected" : ""}>${s}</option>`).join("")}</select></label>`,
+    onAction(a, id) {
+      if (a === "det") return oppDetail(id);
+    }
+  });
+  $("#tbl").addEventListener("change", ev => {
+    const sel = ev.target.closest("select[data-act=st]"); if (!sel) return; const o = Ctx.opps().find(x => x.key === sel.dataset.id), v = sel.value;
+    if (v === "descartada" || v === "perdida") { formDialog({ title: `Motivo — ${v}`, fields: [{ k: "reason", label: "Motivo", required: true, full: true }], onSave: f => { if (!f.reason) return "Informe o motivo."; setOpp(o, v, f.reason); Pages.opps(el); } }); $("#dlg").onclose = () => Pages.opps(el); }
+    else { setOpp(o, v); Pages.opps(el); }
+  });
+};
+
+/* Chat */
+const Chat = {
+  providers: {},
+  period(n) { const t = Ctx.today(); if (/semana/.test(n)) return { r: M.range("7", t), l: "últimos 7 dias" }; if (/quinzen/.test(n)) return { r: M.range("15", t), l: "últimos 15 dias" }; const d = n.match(/(\d+)\s*dias/); if (d) return { r: { start: U.addDays(t, -(+d[1] - 1)), end: t }, l: `últimos ${d[1]} dias` }; if (/mes/.test(n)) return { r: M.range("30", t), l: "últimos 30 dias" }; return { r: M.range("30", t), l: "últimos 30 dias (padrão)" }; },
+  findCustomer(n) {
+    const list = Acc.customers().map(c => ({ c, names: [c.trading_name, c.name].filter(Boolean).map(U.norm) }));
+    const hit = list.filter(x => x.names.some(nm => n.includes(nm))).sort((a, b) => Math.max(...b.names.map(s => s.length)) - Math.max(...a.names.map(s => s.length)))[0];
+    if (hit) return hit.c;
+    const id = n.match(/\b(?:cliente|id)\s*#?\s*([a-z0-9-]+)\b/); return id && Acc.customers().find(c => U.norm(c.external_id) === id[1]) || null;
+  },
+  findService(n) { return DB.list("services").filter(s => n.includes(U.norm(s.name))).sort((a, b) => b.name.length - a.name.length)[0] || null; },
+  list: (items, f) => `<ul>${items.map(i => `<li>${f(i)}</li>`).join("")}</ul>`
+};
+Chat.providers.rules = {
+  name: "Regras locais",
+  answer(q) {
+    const n = U.norm(q), today = Ctx.today(), cust = Chat.findCustomer(n), svc = Chat.findService(n), usage = Acc.scoped("usage_events"), cons = Acc.scoped("contracts"), vals = Acc.role().values;
+    if (!DB.list("customers").length) return "Não há dados carregados. Importe JSONs ou carregue os dados de exemplo.";
+    if (/oportunidad/.test(n)) {
+      if (!Acc.role().opps) return "Seu perfil não tem acesso às oportunidades.";
+      const lvl = /alta/.test(n) ? "alta" : /media/.test(n) ? "media" : /baixa/.test(n) ? "baixa" : null; let l = Ctx.opps().filter(o => o.status === "nova" || o.status === "em andamento"); if (cust) l = l.filter(o => o.customer_id === cust.external_id); if (lvl) l = l.filter(o => o.level === lvl);
+      return l.length ? `Encontrei <b>${l.length}</b> oportunidade(s)${cust ? " para " + U.esc(Ctx.cname(cust.external_id)) : ""}${lvl ? " de score " + lvl : ""}:` + Chat.list(l.slice(0, 8), o => `<b>${U.esc(o.customer)}</b> → ${U.esc(o.service)} (${o.score}) — ${U.esc(o.evidence[0].text.slice(0, 100))}`) : `Sem oportunidades identificadas${cust ? " para " + U.esc(Ctx.cname(cust.external_id)) : ""} com esses critérios.`;
+    }
+    if (/(vence|vencem|vencimento|vencendo|expira)/.test(n)) {
+      const mes = /(este|esse|neste|deste)\s+mes/.test(n), dd = n.match(/(\d+)\s*dias/), d = dd ? +dd[1] : /semana/.test(n) ? 7 : 30;
+      let l = cons.filter(c => M.isActive(c, today)).map(c => ({ c, d: U.days(today, c.end_date) })); if (mes) l = l.filter(x => x.c.end_date.slice(0, 7) === today.slice(0, 7) && x.d >= 0); else l = l.filter(x => x.d <= d && x.d >= 0); if (cust) l = l.filter(x => x.c.customer_id === cust.external_id); l.sort((a, b) => a.d - b.d);
+      return l.length ? `<b>${l.length}</b> contrato(s) vencem ${mes ? "este mês" : "em até " + d + " dias"}:` + Chat.list(l.slice(0, 12), x => `${U.esc(Ctx.cname(x.c.customer_id))} — ${U.esc(Ctx.sname(x.c.service_id))}: ${U.fmtDate(x.c.end_date)} (${x.d} dia(s))`) : `Nenhum contrato vence ${mes ? "este mês" : "em até " + d + " dias"}.`;
+    }
+    if (/(mais consum|maior(es)? consum|maiores consumidores|quem mais|menos consum|menor(es)? consum|quem menos)/.test(n)) {
+      const p = Chat.period(n), low = /menos|menor/.test(n), cidx = Ctx.contractsIdx();
+      let ev = usage; if (svc) ev = ev.filter(e => M.serviceOf(e, cidx.get(e.customer_id)) === String(svc.external_id));
+      const m = [...M.groupSum(ev, p.r, e => e.customer_id)].sort((a, b) => low ? a[1] - b[1] : b[1] - a[1]).slice(0, 5);
+      return m.length ? `${low ? "Menores" : "Maiores"} consumidores${svc ? " de <b>" + U.esc(svc.name) + "</b>" : ""} nos ${p.l}:` + Chat.list(m, ([id, v]) => `${U.esc(Ctx.cname(id))}: <b>${U.num(v)} h</b>`) : `Não há consumo registrado${svc ? " para " + U.esc(svc.name) : ""} nos ${p.l}.`;
+    }
+    if (/(inadimplent|inativ|ativos)/.test(n) && !cust) { const st = /inadimplent/.test(n) ? "inadimplente" : /inativ/.test(n) ? "inativo" : "ativo", l = Acc.customers().filter(c => c.status === st); return `<b>${l.length}</b> cliente(s) ${st}(s)` + (l.length ? ":" + Chat.list(l.slice(0, 12), c => U.esc(c.trading_name || c.name)) : "."); }
+    if (/(alerta|excesso|franquia|churn|baixo uso)/.test(n)) {
+      const l = cons.filter(c => M.isActive(c, today)).map(c => ({ c, s: M.contractStatus(c, Ctx.usageIdx().get(c.customer_id) || [], today) })).filter(x => x.s.flag && x.s.flag !== "atencao" && (!cust || x.c.customer_id === cust.external_id));
+      return l.length ? "Alertas de uso:" + Chat.list(l.slice(0, 12), x => `${U.esc(Ctx.cname(x.c.customer_id))} — ${U.esc(Ctx.sname(x.c.service_id))}: ${x.s.flag === "excesso" ? "excesso de franquia" : "baixo uso (risco de churn)"} (${U.num(x.s.pct * 100, 0)}% de ${x.c.hours}h)`) : "Nenhum alerta de uso nos dados carregados.";
+    }
+    if (cust) {
+      const cc = cons.filter(c => c.customer_id === cust.external_id), act = cc.filter(c => M.isActive(c, today)), ev = Ctx.usageIdx().get(cust.external_id) || [], r30 = M.range("30", today);
+      return `<b>${U.esc(cust.name)}</b> — status <b>${cust.status}</b>${cust.cs_owner ? ", CS " + U.esc(cust.cs_owner) : ""}.<ul><li>Contratos vigentes: ${act.length} de ${cc.length}${act.length ? " (" + act.map(c => U.esc(Ctx.sname(c.service_id)) + ", até " + U.fmtDate(c.end_date) + (vals ? ", " + U.money(c.value) : "")).join("; ") + ")" : ""}</li><li>Consumo nos últimos 30 dias: ${U.num(M.total(ev, r30))} h</li><li>Chamados registrados: ${cust.amount_tickets ?? 0}</li>${act.map(c => { const s = M.contractStatus(c, ev, today); return s.pct != null ? `<li>${U.esc(Ctx.sname(c.service_id))}: ${U.num(s.used)}h de ${c.hours}h (${U.num(s.pct * 100, 0)}%)${s.flag === "excesso" ? " — <b>excesso</b>" : s.flag === "baixo" ? " — <b>baixo uso</b>" : ""}</li>` : ""; }).join("")}</ul>`;
+    }
+    if (/(quantos|total).*(cliente)/.test(n)) return `Há <b>${Acc.customers().length}</b> cliente(s) visíveis ao seu perfil.`;
+    if (/(consumo|horas)/.test(n)) { const p = Chat.period(n); return `Consumo total nos ${p.l}: <b>${U.num(M.total(usage, p.r))} h</b>.`; }
+    return "Não encontrei essa informação nos dados carregados. Tente: <i>situação do cliente X</i>, <i>contratos que vencem este mês</i>, <i>quem mais consumiu Bolsa de Horas na última semana</i>, <i>oportunidades altas do cliente X</i>, <i>clientes inadimplentes</i>, <i>alertas de franquia</i>.";
+  }
+};
+/* ponto de extensão para LLM: implementar answer(q, tools) e registrar em Chat.providers.llm */
+Chat.providers.llm = { name: "LLM (não configurado)", answer: null };
+const ChatLog = [];
+Pages.chat = el => {
+  el.innerHTML = `<h2 class="pt">Chat de consulta</h2><div class="card chat"><div class="msgs" id="msgs" aria-live="polite"></div>
+  <div class="row" id="sugg">${["Quais contratos vencem este mês?", "Quem mais consumiu na última semana?", "Quais oportunidades altas existem?", "Quais clientes estão inadimplentes?", "Alertas de franquia"].map(s => `<button class="chip" type="button" data-s="${U.esc(s)}">${U.esc(s)}</button>`).join("")}</div>
+  <form class="cform" id="cf"><label class="tf"><span>Pergunte sobre os dados carregados</span><input id="cq" autocomplete="off"></label><button class="btn" type="submit">${ic("send")} Enviar</button></form></div>
+  <p class="small muted">Respostas geradas por regras sobre os dados locais (${U.esc(Chat.providers.rules.name)}). Quando não há dado, o chat informa. Camada preparada para LLM (<code>Chat.providers.llm</code>).</p>`;
+  const box = $("#msgs"), draw = () => { box.innerHTML = ChatLog.length ? ChatLog.map(m => `<div class="m ${m.r}">${m.r === "u" ? U.esc(m.t) : m.t}</div>`).join("") : `<div class="m a">Olá! Posso responder sobre clientes, contratos, consumo e oportunidades — somente com base nos dados importados.</div>`; box.scrollTop = 1e9; };
+  const ask = q => { if (!q.trim()) return; ChatLog.push({ r: "u", t: q }); const prov = Chat.providers.llm.answer ? Chat.providers.llm : Chat.providers.rules; let a; try { a = prov.answer(q); } catch (e) { a = "Erro ao processar a consulta."; } ChatLog.push({ r: "a", t: a }); DB.audit("chat", q.slice(0, 120)); DB.save(); draw(); };
+  $("#cf").onsubmit = e => { e.preventDefault(); ask($("#cq").value); $("#cq").value = ""; }; $$("[data-s]").forEach(b => b.onclick = () => ask(b.dataset.s)); draw();
+};
+
+/* Documentação */
+Pages.docs = el => {
+  const ent = Object.keys(SCHEMAS);
+  el.innerHTML = `<h2 class="pt">Documentação</h2><div class="tabs" role="tablist">${["Como usar", "Schemas e exemplos", "Sinais e pontuação", "Limitações e evolução"].map((t, i) => `<button role="tab" aria-selected="${i === 0}" data-tab="${i}">${t}</button>`).join("")}</div>
+  <div data-p="0" class="card"><h3>Como importar</h3><ol><li>Em <b>Importar JSON</b>, cole o conteúdo ou envie o(s) arquivo(s). Aceita o formato canônico e o formato atual (clientes/contratos/tipos de contrato).</li><li>Clique em <b>Validar (dry-run)</b>: o relatório mostra, por registro, novo/atualizado/inalterado/erro, sem gravar.</li><li>Clique em <b>Importar</b>. Reimportar o mesmo <code>external_id</code> atualiza (upsert) e nunca duplica.</li><li>Use <b>Reverter</b> no histórico para desfazer uma importação.</li></ol>
+  <p>Ordem recomendada: serviços → clientes → contratos → consumo → e-mails (contratos/consumo/e-mails exigem que cliente e serviço já existam).</p><p><b>LGPD:</b> dados ficam somente neste navegador (localStorage). Documentos e contatos são mascarados por padrão; o corpo dos e-mails <b>não é armazenado</b> — apenas resumo (sem e-mails/CPF/CNPJ/telefones), sinais e referência. Ações são registradas em Auditoria.</p>
+  <p><b>Perfis:</b> Admin (tudo) · Comercial (edita cadastros e vê oportunidades) · Suporte (somente leitura, sem valores/oportunidades, sempre mascarado) · CS (vê apenas clientes em que <code>cs_owner</code> = seu nome; importa consumo e e-mails).</p></div>
+  <div data-p="1" class="card" hidden><div class="row"><label class="tf"><span>Entidade</span><select id="se">${ent.map(e => `<option value="${e}">${ENTITY_LABEL[e]}</option>`).join("")}</select></label><button class="btn out sm" id="dlS">${ic("download")} Baixar schema</button><button class="btn out sm" id="dlE">${ic("download")} Baixar exemplo</button><button class="btn out sm" id="dlO">${ic("download")} Exemplo de saída de oportunidades</button></div><h3 style="margin-top:12px">JSON Schema</h3><pre class="code" id="sp"></pre><h3>Exemplo</h3><pre class="code" id="ep"></pre></div>
+  <div data-p="2" class="card" hidden><h3>Dicionário de sinais → serviço (editável em Configurações)</h3><div class="tw"><table><thead><tr><th>Regra</th><th>Serviço</th><th>Tipo</th><th>Termos</th></tr></thead><tbody>${Ctx.dict().rules.map(r => `<tr><td>${U.esc(r.key)}</td><td>${U.esc(Ctx.sname(String(r.service_id)))}</td><td>${U.esc(r.kind)}</td><td class="small">${r.terms.map(U.esc).join(", ")}</td></tr>`).join("")}</tbody></table></div>
+  <h3 style="margin-top:16px">Pontuação (0–100)</h3><ul><li><b>Evidência (0–30):</b> 10 por evidência distinta + bônus de recência (≤7 dias: +6; ≤15: +3).</li><li><b>Urgência (0–25):</b> e-mail: prazo/urgência +12, reclamação +6, concorrente +7; contrato: vencimento ≤7d 25, ≤15d 20, ≤30d 14, ≤60d 6; franquia: &gt;100% 25, ≥80% 12.</li><li><b>Aderência (0–25):</b> serviço ainda não contratado 25; upsell em serviço contratado 12.</li><li><b>Receita (0–20):</b> preço × unidades/ano do catálogo, proporcional a R$ 50 mil.</li><li><b>Nível:</b> Alta ≥70 · Média ≥45 · Baixa &lt;45.</li></ul>
+  <h3>Origens de oportunidade</h3><p><b>email</b> (sinal no e-mail → serviço), <b>renovacao</b> (vence ≤60 dias sem renovação automática), <b>franquia</b> (consumo ≥80%), <b>semcontrato</b> (≥20 chamados sem contrato vigente).</p>
+  <p>Guardrails: sem evidência não há oportunidade; e-mails internos/automáticos são ignorados; descartadas/perdidas só reaparecem com <i>nova evidência</i> posterior; nada é enviado nem alterado automaticamente.</p></div>
+  <div data-p="3" class="card" hidden><h3>Limitações desta fase</h3><ul><li>Persistência em localStorage (~5 MB): suporta alguns milhares de registros; consumo/e-mails grandes exigem IndexedDB/backend.</li><li>Sem API, sem e-mail direto, perfis simulados (não é segurança real).</li><li>Análise por palavras-chave (sem compreensão semântica); catálogo 5–8 de exemplo é fictício.</li><li>Franquia de horas é por vigência do contrato; sem rateio entre contratos simultâneos do mesmo cliente.</li></ul>
+  <h3>Plano de evolução</h3><ol><li><b>Backend + API REST</b> (Node/.NET + PostgreSQL): mesmas entidades/IDs externos; endpoints <code>/customers, /contracts, /services, /usage-events, /emails, /opportunities</code>; módulos <code>DB</code>, <code>Importer</code>, <code>V</code>, <code>M</code>, <code>Opp</code> migram quase sem mudança.</li><li><b>Webhooks e sincronização</b> com o helpdesk (chamados/horas) substituindo a importação manual.</li><li><b>Autenticação real</b> (OIDC/SSO), RBAC no servidor e auditoria imutável.</li><li><b>Conectores de e-mail</b> (Microsoft Graph/Gmail via OAuth), com minimização e retenção configurável.</li><li><b>LLM</b>: implementar <code>Chat.providers.llm</code> e um extrator de sinais com saída JSON validada pelos schemas, sempre citando evidências e mantendo human-in-the-loop.</li></ol></div>`;
+  $$("[data-tab]").forEach(b => b.onclick = () => { $$("[data-tab]").forEach(x => x.setAttribute("aria-selected", x === b)); $$("[data-p]").forEach(p => p.hidden = p.dataset.p !== b.dataset.tab); });
+  const upd = () => { const e = $("#se").value; $("#sp").textContent = JSON.stringify(SCHEMAS[e], null, 2); $("#ep").textContent = JSON.stringify({ [e]: EXAMPLES[e] }, null, 2); }; $("#se").onchange = upd; upd();
+  $("#dlS").onclick = () => U.download(`schema-${$("#se").value}.json`, JSON.stringify(SCHEMAS[$("#se").value], null, 2));
+  $("#dlE").onclick = () => U.download(`exemplo-${$("#se").value}.json`, JSON.stringify({ [$("#se").value]: EXAMPLES[$("#se").value] }, null, 2));
+  $("#dlO").onclick = () => U.download("exemplo-saida-oportunidades.json", JSON.stringify({ schema: "opportunity-output-v1", generated_at: "2026-10-30T12:00:00Z", window_days: 30, opportunities: [{ id: "C-1001|6|email", customer_id: "C-1001", customer: "Exemplo", cs_owner: "Ana Souza", service_id: "6", service: "Backup Gerenciado", origin: "email", score: 78, level: "alta", score_parts: { evidencia: 16, urgencia: 19, aderencia: 25, receita: 18 }, status: "nova", discard_reason: null, value_estimate_year: 21600, evidence: [{ type: "email", date: "2026-10-22", from: "m***@exemplo.com.br", ref: "T-77/msg-0001", text: "…perdemos arquivos. Precisamos de uma rotina de backup até dezembro.", signal: "dor: backup" }], next_action: "Retornar em até 24h e agendar reunião de diagnóstico", draft: "Olá Maria, …" }] }, null, 2));
+};
+Pages.audit = el => {
+  el.innerHTML = `<h2 class="pt">Log de auditoria</h2><div id="tbl"></div>`;
+  mountTable($("#tbl"), "auditoria", { rows: () => DB.s.audit.slice().reverse(), pageSize: 20, cols: [{ k: "at", label: "Data/hora", val: r => new Date(r.at).toLocaleString("pt-BR"), sortVal: r => r.at }, { k: "role", label: "Perfil", val: r => r.role + (r.user ? " (" + r.user + ")" : "") }, { k: "a", label: "Ação", val: r => r.action }, { k: "d", label: "Detalhe", val: r => r.detail }] });
+};
+Pages.settings = el => {
+  const s = DB.s.settings;
+  el.innerHTML = `<h2 class="pt">Configurações</h2><div class="grid g2"><div class="card"><h3>Análise de oportunidades</h3><div class="grid"><label class="tf"><span>Janela de e-mails (dias)</span><input type="number" id="win" min="1" max="365" value="${s.windowDays}"></label>
+  <label class="tf"><span>Dicionário de sinais (JSON)</span><textarea id="dict" rows="12" spellcheck="false">${U.esc(JSON.stringify(s.dict, null, 2))}</textarea></label></div><div class="row" style="margin-top:8px"><button class="btn" id="svS">Salvar</button><button class="btn out" id="rstD">Restaurar padrão</button></div><p class="small muted">Alterações no dicionário valem para e-mails importados depois (o corpo não é guardado para reprocessar).</p></div>
+  <div class="card"><h3>Dados locais</h3><div class="row"><button class="btn tonal" id="expAll">${ic("download")} Exportar tudo (JSON)</button><label class="btn tonal" tabindex="0">${ic("upload")} Restaurar backup<input type="file" id="rest" accept=".json" class="sr"></label></div>
+  <div class="row" style="margin-top:12px"><button class="btn err" id="clr">${ic("del")} Limpar todos os dados</button></div>
+  <h3 style="margin-top:20px">Testes</h3><button class="btn out" id="tst">Executar autotestes</button><pre class="code" id="tout" style="margin-top:8px" hidden></pre></div></div>`;
+  $("#svS").onclick = () => { try { const d = JSON.parse($("#dict").value); if (!Array.isArray(d.rules)) throw new Error("rules[] ausente"); s.dict = d; s.windowDays = Math.max(1, +$("#win").value || 30); DB.audit("config", "dicionário/janela"); DB.save(); toast("Configurações salvas."); } catch (e) { toast("JSON inválido: " + e.message); } };
+  $("#rstD").onclick = () => { s.dict = JSON.parse(JSON.stringify(DEFAULT_DICT)); DB.save(); Pages.settings(el); };
+  $("#expAll").onclick = () => { DB.audit("exportar", "backup completo"); DB.save(); U.download(`backup-helpitech-${U.today()}.json`, JSON.stringify(DB.s)); };
+  $("#rest").onchange = async e => { try { const j = JSON.parse(await e.target.files[0].text()); DB.s = Object.assign(blank(), j); DB.audit("restaurar", "backup"); DB.save(); toast("Backup restaurado."); go("dashboard"); } catch (x) { toast("Backup inválido."); } };
+  $("#clr").onclick = () => confirmDlg("Apagar TODOS os dados locais (clientes, contratos, consumo, e-mails, auditoria)?", () => { const th = s.theme; DB.reset(); DB.s.settings.theme = th; DB.save(); toast("Dados apagados."); go("dashboard"); });
+  $("#tst").onclick = () => { const r = SelfTest.run(); const o = $("#tout"); o.hidden = false; o.textContent = r.map(x => (x.ok ? "✔ " : "✘ ") + x.name + (x.ok ? "" : " — " + x.err)).join("\n"); };
+};
+/* ============================================================
+   11. DADOS DE EXEMPLO (formato atual + consumo e e-mails sintéticos)
+   ============================================================ */
+const SAMPLE_LEGACY = {"customers":{"customers":{"103":{"id":103,"name":"ACME Indústria Ltda","trading_name":"ACME","cpf":null,"cnpj":"18.159.083/0001-01","rg":null,"ie":"661318609","additional_information":null,"addresses":{"500":{"id":500,"cep":"01310-100","address":"Av. Paulista","number":"1950","complement":"conj 52","neighborhood":"Bela Vista","city":"São Paulo","state":"SP","main":1,"label":"Matriz - Av. Paulista - 1950"}},"contacts":{"70":{"id":70,"name":"Carlos Costa","emails":["carlos.costa@acme.com.br"],"phones":["11990996030"],"role":"Compras"}},"opening_users":{"900":{"id":900,"name":"Bruno Silva","email":"bruno.silva@acme.com.br","phone":"11324628194"}},"amount_tickets":35,"have_contract":false,"photo":false,"is_active":true},"112":{"id":112,"name":"Brasil Tech Soluções","trading_name":"Brasil Tech","cpf":null,"cnpj":"81.909.378/0001-65","rg":null,"ie":"797543231","additional_information":"Cliente prioritário","addresses":{"501":{"id":501,"cep":"01302-000","address":"Rua da Consolação","number":"1085","complement":"andar 4","neighborhood":"Consolação","city":"São Paulo","state":"SP","main":1,"label":"Matriz - Rua da Consolação - 1085"}},"contacts":{"71":{"id":71,"name":"Camila Santos","emails":["camila.santos@brasiltech.com.br"],"phones":["11957491186"],"role":"Financeiro"}},"opening_users":{"901":{"id":901,"name":"Juliana Souza","email":"juliana.souza@brasiltech.com.br","phone":"11352760189"}},"amount_tickets":50,"have_contract":false,"photo":false,"is_active":true},"120":{"id":120,"name":"Delta Logística","trading_name":"Delta","cpf":null,"cnpj":"11.471.049/0001-74","rg":null,"ie":"650752917","additional_information":null,"addresses":{"502":{"id":502,"cep":"22021-001","address":"Av. Atlântica","number":"456","complement":"sala 3","neighborhood":"Copacabana","city":"Rio de Janeiro","state":"RJ","main":1,"label":"Matriz - Av. Atlântica - 456"}},"contacts":{"72":{"id":72,"name":"Juliana Almeida","emails":["juliana.almeida@delta.com.br"],"phones":["11923667127"],"role":"Suporte"}},"opening_users":{"902":{"id":902,"name":"Camila Almeida","email":"camila.almeida@delta.com.br","phone":"11384268465"}},"amount_tickets":43,"have_contract":false,"photo":false,"is_active":false},"123":{"id":123,"name":"Estrela Comércio","trading_name":"Estrela","cpf":null,"cnpj":"30.792.440/0001-26","rg":null,"ie":"859952890","additional_information":"Atendimento somente em horário comercial","addresses":{"503":{"id":503,"cep":"30130-003","address":"Av. Afonso Pena","number":"1852","complement":"andar 4","neighborhood":"Centro","city":"Belo Horizonte","state":"MG","main":1,"label":"Matriz - Av. Afonso Pena - 1852"}},"contacts":{"73":{"id":73,"name":"Maria Oliveira","emails":["maria.oliveira@estrela.com.br"],"phones":["11966617603"],"role":"TI"}},"opening_users":{"903":{"id":903,"name":"Carlos Santos","email":"carlos.santos@estrela.com.br","phone":"11337215901"}},"amount_tickets":0,"have_contract":true,"photo":false,"is_active":true},"131":{"id":131,"name":"Fênix Informática","trading_name":"Fênix","cpf":"962.459.571-17","cnpj":null,"rg":"77.741.215-4","ie":null,"additional_information":"Atendimento somente em horário comercial","addresses":{"504":{"id":504,"cep":"80020-310","address":"Rua XV de Novembro","number":"1707","complement":"conj 52","neighborhood":"Centro","city":"Curitiba","state":"PR","main":1,"label":"Matriz - Rua XV de Novembro - 1707"}},"contacts":{"74":{"id":74,"name":"Camila Silva","emails":["camila.silva@fenix.com.br"],"phones":["11980385280"],"role":"Compras"}},"opening_users":{"904":{"id":904,"name":"Maria Santos","email":"maria.santos@fenix.com.br","phone":"11341485253"}},"amount_tickets":34,"have_contract":true,"photo":false,"is_active":true},"141":{"id":141,"name":"Global Alimentos","trading_name":"Global","cpf":null,"cnpj":"33.875.004/0001-74","rg":null,"ie":"395755131","additional_information":null,"addresses":{"505":{"id":505,"cep":"90110-150","address":"Av. Borges de Medeiros","number":"972","complement":"conj 52","neighborhood":"Praia de Belas","city":"Porto Alegre","state":"RS","main":1,"label":"Matriz - Av. Borges de Medeiros - 972"}},"contacts":{"75":{"id":75,"name":"Ana Santos","emails":["ana.santos@global.com.br"],"phones":["11953799075"],"role":"TI"}},"opening_users":{"905":{"id":905,"name":"Ana Costa","email":"ana.costa@global.com.br","phone":"11316372651"}},"amount_tickets":51,"have_contract":false,"photo":false,"is_active":true},"146":{"id":146,"name":"Horizonte Engenharia","trading_name":"Horizonte","cpf":null,"cnpj":"22.029.729/0001-97","rg":null,"ie":"528820018","additional_information":null,"addresses":{"506":{"id":506,"cep":"01310-100","address":"Av. Paulista","number":"898","complement":"conj 52","neighborhood":"Bela Vista","city":"São Paulo","state":"SP","main":1,"label":"Matriz - Av. Paulista - 898"}},"contacts":{"76":{"id":76,"name":"Lucas Souza","emails":["lucas.souza@horizonte.com.br"],"phones":["11930434839"],"role":"Diretoria"}},"opening_users":{"906":{"id":906,"name":"Patrícia Oliveira","email":"patricia.oliveira@horizonte.com.br","phone":"11348620579"}},"amount_tickets":52,"have_contract":false,"photo":false,"is_active":true},"154":{"id":154,"name":"Ipê Consultoria","trading_name":"Ipê","cpf":null,"cnpj":"72.902.227/0001-91","rg":null,"ie":"805888718","additional_information":null,"addresses":{"507":{"id":507,"cep":"01302-000","address":"Rua da Consolação","number":"518","complement":"conj 52","neighborhood":"Consolação","city":"São Paulo","state":"SP","main":1,"label":"Matriz - Rua da Consolação - 518"}},"contacts":{"77":{"id":77,"name":"Carlos Oliveira","emails":["carlos.oliveira@ipe.com.br"],"phones":["11940187801"],"role":"Suporte"}},"opening_users":{"907":{"id":907,"name":"Rafael Silva","email":"rafael.silva@ipe.com.br","phone":"11359898347"}},"amount_tickets":32,"have_contract":true,"photo":false,"is_active":true},"158":{"id":158,"name":"Jaguar Motors","trading_name":"Jaguar","cpf":null,"cnpj":"72.616.751/0001-36","rg":null,"ie":"134125242","additional_information":"Atendimento somente em horário comercial","addresses":{"508":{"id":508,"cep":"22021-001","address":"Av. Atlântica","number":"459","complement":null,"neighborhood":"Copacabana","city":"Rio de Janeiro","state":"RJ","main":1,"label":"Matriz - Av. Atlântica - 459"}},"contacts":{"78":{"id":78,"name":"Patrícia Lima","emails":["patricia.lima@jaguar.com.br"],"phones":["11967232686"],"role":"Diretoria"}},"opening_users":{"908":{"id":908,"name":"Rafael Santos","email":"rafael.santos@jaguar.com.br","phone":"11363551505"}},"amount_tickets":35,"have_contract":true,"photo":false,"is_active":true},"167":{"id":167,"name":"Kappa Farmacêutica","trading_name":"Kappa","cpf":"131.144.024-26","cnpj":null,"rg":"46.288.975-1","ie":null,"additional_information":"Cliente prioritário","addresses":{"509":{"id":509,"cep":"30130-003","address":"Av. Afonso Pena","number":"127","complement":"conj 52","neighborhood":"Centro","city":"Belo Horizonte","state":"MG","main":1,"label":"Matriz - Av. Afonso Pena - 127"}},"contacts":{"79":{"id":79,"name":"Juliana Lima","emails":["juliana.lima@kappa.com.br"],"phones":["11961401419"],"role":"Financeiro"}},"opening_users":{"909":{"id":909,"name":"Rafael Souza","email":"rafael.souza@kappa.com.br","phone":"11314170586"}},"amount_tickets":59,"have_contract":false,"photo":false,"is_active":true},"171":{"id":171,"name":"Lumen Energia","trading_name":"Lumen","cpf":null,"cnpj":"40.234.483/0001-47","rg":null,"ie":"824504000","additional_information":null,"addresses":{"510":{"id":510,"cep":"80020-310","address":"Rua XV de Novembro","number":"1063","complement":"andar 4","neighborhood":"Centro","city":"Curitiba","state":"PR","main":1,"label":"Matriz - Rua XV de Novembro - 1063"}},"contacts":{"80":{"id":80,"name":"Rafael Santos","emails":["rafael.santos@lumen.com.br"],"phones":["11937167868"],"role":"Diretoria"}},"opening_users":{"910":{"id":910,"name":"Maria Oliveira","email":"maria.oliveira@lumen.com.br","phone":"11333532650"}},"amount_tickets":53,"have_contract":true,"photo":false,"is_active":true},"183":{"id":183,"name":"Mercúrio Têxtil","trading_name":"Mercúrio","cpf":null,"cnpj":"16.849.340/0001-72","rg":null,"ie":"247045585","additional_information":null,"addresses":{"511":{"id":511,"cep":"90110-150","address":"Av. Borges de Medeiros","number":"80","complement":"sala 3","neighborhood":"Praia de Belas","city":"Porto Alegre","state":"RS","main":1,"label":"Matriz - Av. Borges de Medeiros - 80"}},"contacts":{"81":{"id":81,"name":"Pedro Costa","emails":["pedro.costa@mercurio.com.br"],"phones":["11935205617"],"role":"Diretoria"}},"opening_users":{"911":{"id":911,"name":"Carlos Silva","email":"carlos.silva@mercurio.com.br","phone":"11383380141"}},"amount_tickets":9,"have_contract":true,"photo":false,"is_active":true},"185":{"id":185,"name":"Nova Era Educação","trading_name":"Nova Era","cpf":null,"cnpj":"19.829.657/0001-24","rg":null,"ie":"920868288","additional_information":null,"addresses":{"512":{"id":512,"cep":"01310-100","address":"Av. Paulista","number":"1702","complement":"conj 52","neighborhood":"Bela Vista","city":"São Paulo","state":"SP","main":1,"label":"Matriz - Av. Paulista - 1702"}},"contacts":{"82":{"id":82,"name":"Pedro Lima","emails":["pedro.lima@novaera.com.br"],"phones":["11910025167"],"role":"Compras"}},"opening_users":{"912":{"id":912,"name":"Bruno Santos","email":"bruno.santos@novaera.com.br","phone":"11300837407"}},"amount_tickets":51,"have_contract":true,"photo":false,"is_active":false},"196":{"id":196,"name":"Ouro Verde Agro","trading_name":"Ouro Verde","cpf":null,"cnpj":"41.433.377/0001-61","rg":null,"ie":"740931925","additional_information":"Cliente prioritário","addresses":{"513":{"id":513,"cep":"01302-000","address":"Rua da Consolação","number":"1344","complement":"sala 3","neighborhood":"Consolação","city":"São Paulo","state":"SP","main":1,"label":"Matriz - Rua da Consolação - 1344"}},"contacts":{"83":{"id":83,"name":"Maria Souza","emails":["maria.souza@ouroverde.com.br"],"phones":["11999207074"],"role":"TI"}},"opening_users":{"913":{"id":913,"name":"Patrícia Almeida","email":"patricia.almeida@ouroverde.com.br","phone":"11337484777"}},"amount_tickets":49,"have_contract":true,"photo":false,"is_active":false},"200":{"id":200,"name":"Pioneira Construções","trading_name":"Pioneira","cpf":"471.874.633-19","cnpj":null,"rg":"12.845.298-4","ie":null,"additional_information":null,"addresses":{"514":{"id":514,"cep":"22021-001","address":"Av. Atlântica","number":"1450","complement":"sala 3","neighborhood":"Copacabana","city":"Rio de Janeiro","state":"RJ","main":1,"label":"Matriz - Av. Atlântica - 1450"}},"contacts":{"84":{"id":84,"name":"Pedro Souza","emails":["pedro.souza@pioneira.com.br"],"phones":["11937760207"],"role":"Suporte"}},"opening_users":{"914":{"id":914,"name":"Fernanda Silva","email":"fernanda.silva@pioneira.com.br","phone":"11364265651"}},"amount_tickets":53,"have_contract":true,"photo":false,"is_active":true},"208":{"id":208,"name":"Quasar Telecom","trading_name":"Quasar","cpf":null,"cnpj":"44.516.691/0001-56","rg":null,"ie":"404104234","additional_information":"Atendimento somente em horário comercial","addresses":{"515":{"id":515,"cep":"30130-003","address":"Av. Afonso Pena","number":"1056","complement":"sala 3","neighborhood":"Centro","city":"Belo Horizonte","state":"MG","main":1,"label":"Matriz - Av. Afonso Pena - 1056"}},"contacts":{"85":{"id":85,"name":"Lucas Souza","emails":["lucas.souza@quasar.com.br"],"phones":["11935606883"],"role":"TI"}},"opening_users":{"915":{"id":915,"name":"Ana Silva","email":"ana.silva@quasar.com.br","phone":"11306792470"}},"amount_tickets":58,"have_contract":false,"photo":false,"is_active":true},"216":{"id":216,"name":"Rota Transportes","trading_name":"Rota","cpf":null,"cnpj":"44.634.786/0001-12","rg":null,"ie":"213878375","additional_information":"Atendimento somente em horário comercial","addresses":{"516":{"id":516,"cep":"80020-310","address":"Rua XV de Novembro","number":"885","complement":"conj 52","neighborhood":"Centro","city":"Curitiba","state":"PR","main":1,"label":"Matriz - Rua XV de Novembro - 885"}},"contacts":{"86":{"id":86,"name":"Lucas Pereira","emails":["lucas.pereira@rota.com.br"],"phones":["11983312581"],"role":"Diretoria"}},"opening_users":{"916":{"id":916,"name":"Pedro Lima","email":"pedro.lima@rota.com.br","phone":"11335493066"}},"amount_tickets":26,"have_contract":false,"photo":false,"is_active":true},"222":{"id":222,"name":"Solaris Imobiliária","trading_name":"Solaris","cpf":null,"cnpj":"95.288.314/0001-36","rg":null,"ie":"676402067","additional_information":"Atendimento somente em horário comercial","addresses":{"517":{"id":517,"cep":"90110-150","address":"Av. Borges de Medeiros","number":"10","complement":null,"neighborhood":"Praia de Belas","city":"Porto Alegre","state":"RS","main":1,"label":"Matriz - Av. Borges de Medeiros - 10"}},"contacts":{"87":{"id":87,"name":"Juliana Silva","emails":["juliana.silva@solaris.com.br"],"phones":["11968773132"],"role":"Financeiro"}},"opening_users":{"917":{"id":917,"name":"Fernanda Lima","email":"fernanda.lima@solaris.com.br","phone":"11381718002"}},"amount_tickets":14,"have_contract":true,"photo":false,"is_active":true},"232":{"id":232,"name":"Titan Metalúrgica","trading_name":"Titan","cpf":null,"cnpj":"86.111.489/0001-36","rg":null,"ie":"439008474","additional_information":"Cliente prioritário","addresses":{"518":{"id":518,"cep":"01310-100","address":"Av. Paulista","number":"1330","complement":"conj 52","neighborhood":"Bela Vista","city":"São Paulo","state":"SP","main":1,"label":"Matriz - Av. Paulista - 1330"}},"contacts":{"88":{"id":88,"name":"Pedro Oliveira","emails":["pedro.oliveira@titan.com.br"],"phones":["11978383064"],"role":"TI"}},"opening_users":{"918":{"id":918,"name":"Bruno Lima","email":"bruno.lima@titan.com.br","phone":"11303761436"}},"amount_tickets":59,"have_contract":true,"photo":false,"is_active":true},"239":{"id":239,"name":"Vértice Seguros","trading_name":"Vértice","cpf":"304.813.734-33","cnpj":null,"rg":"73.441.979-2","ie":null,"additional_information":null,"addresses":{"519":{"id":519,"cep":"01302-000","address":"Rua da Consolação","number":"1003","complement":"andar 4","neighborhood":"Consolação","city":"São Paulo","state":"SP","main":1,"label":"Matriz - Rua da Consolação - 1003"}},"contacts":{"89":{"id":89,"name":"Juliana Costa","emails":["juliana.costa@vertice.com.br"],"phones":["11909260309"],"role":"Financeiro"}},"opening_users":{"919":{"id":919,"name":"Juliana Costa","email":"juliana.costa@vertice.com.br","phone":"11360026751"}},"amount_tickets":5,"have_contract":false,"photo":false,"is_active":true}}},"contracts":{"contracts":[{"store":{"id":123,"name":"Estrela"},"type":{"id":3,"name":"Projeto"},"amount_hours":80,"value":"4.000,00","billing_day":5,"pay_day":10,"date_start":"2025-02-01","date_end":"2026-01-28","billing_submission":1,"description":"Pacote de horas de desenvolvimento","created_at":"2025-01-05 09:34:51","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":131,"name":"Fênix"},"type":{"id":4,"name":"Bolsa de Horas"},"amount_hours":100,"value":"3.500,00","billing_day":1,"pay_day":10,"date_start":"2026-04-01","date_end":"2027-03-28","billing_submission":0,"description":"Contrato anual","created_at":"2026-03-07 11:38:01","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":131,"name":"Fênix"},"type":{"id":3,"name":"Projeto"},"amount_hours":60,"value":"2.100,00","billing_day":10,"pay_day":25,"date_start":"2026-05-01","date_end":"2027-04-28","billing_submission":0,"description":"Contrato anual","created_at":"2026-04-15 12:26:35","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":154,"name":"Ipê"},"type":{"id":2,"name":"Suporte Anual"},"amount_hours":60,"value":"1.800,00","billing_day":1,"pay_day":25,"date_start":"2025-05-01","date_end":"2026-04-28","billing_submission":0,"description":"Pacote de horas de desenvolvimento","created_at":"2025-04-13 09:01:54","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":158,"name":"Jaguar"},"type":{"id":4,"name":"Bolsa de Horas"},"amount_hours":40,"value":"2.000,00","billing_day":15,"pay_day":10,"date_start":"2025-01-01","date_end":"2025-12-31","billing_submission":0,"description":"Pacote de horas de desenvolvimento","created_at":"2024-12-11 09:19:21","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":158,"name":"Jaguar"},"type":{"id":4,"name":"Bolsa de Horas"},"amount_hours":80,"value":"2.400,00","billing_day":1,"pay_day":10,"date_start":"2025-02-01","date_end":"2026-01-28","billing_submission":1,"description":"Contrato de manutenção","created_at":"2025-01-06 16:12:28","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":171,"name":"Lumen"},"type":{"id":1,"name":"Mensal"},"amount_hours":40,"value":"2.000,00","billing_day":15,"pay_day":15,"date_start":"2026-06-01","date_end":"2027-05-28","billing_submission":0,"description":"Pacote de horas de desenvolvimento","created_at":"2026-05-19 12:56:01","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":171,"name":"Lumen"},"type":{"id":1,"name":"Mensal"},"amount_hours":40,"value":"1.200,00","billing_day":1,"pay_day":15,"date_start":"2026-05-01","date_end":"2027-04-28","billing_submission":0,"description":"Contrato de manutenção","created_at":"2026-04-09 08:49:39","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":183,"name":"Mercúrio"},"type":{"id":2,"name":"Suporte Anual"},"amount_hours":80,"value":"2.800,00","billing_day":1,"pay_day":20,"date_start":"2025-01-01","date_end":"2025-12-31","billing_submission":1,"description":"Contrato de manutenção","created_at":"2024-12-05 17:30:53","reason_disable":"Cancelado a pedido do cliente","disabled_at":"2026-01-15 10:00:00","supplier":{"id":0,"name":""}},{"store":{"id":185,"name":"Nova Era"},"type":{"id":1,"name":"Mensal"},"amount_hours":80,"value":"2.800,00","billing_day":5,"pay_day":15,"date_start":"2025-06-01","date_end":"2026-05-28","billing_submission":0,"description":"Contrato de suporte","created_at":"2025-05-13 15:38:05","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":185,"name":"Nova Era"},"type":{"id":3,"name":"Projeto"},"amount_hours":20,"value":"800,00","billing_day":5,"pay_day":25,"date_start":"2025-01-01","date_end":"2025-12-31","billing_submission":1,"description":"Contrato de manutenção","created_at":"2024-12-20 15:18:33","reason_disable":"Cancelado a pedido do cliente","disabled_at":"2026-01-15 10:00:00","supplier":{"id":0,"name":""}},{"store":{"id":196,"name":"Ouro Verde"},"type":{"id":4,"name":"Bolsa de Horas"},"amount_hours":40,"value":"1.200,00","billing_day":10,"pay_day":15,"date_start":"2025-04-01","date_end":"2026-03-28","billing_submission":0,"description":"Contrato anual","created_at":"2025-03-03 12:26:28","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":200,"name":"Pioneira"},"type":{"id":4,"name":"Bolsa de Horas"},"amount_hours":20,"value":"700,00","billing_day":1,"pay_day":20,"date_start":"2025-03-01","date_end":"2026-02-28","billing_submission":0,"description":"Contrato de manutenção","created_at":"2025-02-11 16:37:08","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":222,"name":"Solaris"},"type":{"id":4,"name":"Bolsa de Horas"},"amount_hours":20,"value":"600,00","billing_day":1,"pay_day":10,"date_start":"2026-03-01","date_end":"2027-02-28","billing_submission":1,"description":"Contrato anual","created_at":"2026-02-10 13:08:04","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}},{"store":{"id":222,"name":"Solaris"},"type":{"id":4,"name":"Bolsa de Horas"},"amount_hours":80,"value":"2.800,00","billing_day":10,"pay_day":20,"date_start":"2026-06-01","date_end":"2027-05-28","billing_submission":0,"description":"Contrato de manutenção","created_at":"2026-05-03 14:50:01","reason_disable":"Cancelado a pedido do cliente","disabled_at":"2027-01-15 10:00:00","supplier":{"id":0,"name":""}},{"store":{"id":232,"name":"Titan"},"type":{"id":4,"name":"Bolsa de Horas"},"amount_hours":100,"value":"3.000,00","billing_day":1,"pay_day":10,"date_start":"2026-04-01","date_end":"2027-03-28","billing_submission":0,"description":"Pacote de horas de desenvolvimento","created_at":"2026-03-14 13:24:59","reason_disable":null,"disabled_at":null,"supplier":{"id":0,"name":""}}]}};
+const Sample = {
+  services() {
+    return { services: [
+      { external_id: 1, name: "Mensal", description: "Valor fixo mensal, independente das horas utilizadas.", price: 2500, unit: "mês", est_units_year: 12, category: "contrato" },
+      { external_id: 2, name: "Suporte Anual", description: "Suporte técnico anual com atendimento e manutenção contínuos.", price: 24000, unit: "ano", est_units_year: 1, category: "contrato" },
+      { external_id: 3, name: "Projeto", description: "Projeto com escopo, prazo e horas definidos.", price: 40000, unit: "projeto", est_units_year: 1, category: "contrato" },
+      { external_id: 4, name: "Bolsa de Horas", description: "Pacote de horas pré-contratadas consumidas sob demanda.", price: 35, unit: "hora", est_units_year: 1200, category: "contrato" },
+      { external_id: 5, name: "Monitoramento de Infraestrutura", description: "Monitoramento 24x7 de servidores e rede (exemplo).", price: 1800, unit: "mês", est_units_year: 12, category: "servico" },
+      { external_id: 6, name: "Backup Gerenciado", description: "Rotinas de backup e restauração testada (exemplo).", price: 1200, unit: "mês", est_units_year: 12, category: "servico" },
+      { external_id: 7, name: "Consultoria de Segurança e LGPD", description: "Diagnóstico e adequação (exemplo).", price: 18000, unit: "projeto", est_units_year: 1, category: "servico" },
+      { external_id: 8, name: "Migração para Nuvem", description: "Planejamento e migração de servidores (exemplo).", price: 45000, unit: "projeto", est_units_year: 1, category: "servico" }] };
+  },
+  /* cs_owner atribuído de forma determinística nos clientes de exemplo */
+  customers(base) {
+    const owners = ["Ana Souza", "Bruno Lima", "Carla Dias"], list = Object.values(base.customers).sort((a, b) => a.id - b.id);
+    list.forEach((c, i) => { c.cs_owner = owners[i % 3]; c.segment = ["Indústria", "Tecnologia", "Logística", "Varejo", "Saúde", "Serviços"][i % 6]; c.size = ["pequeno", "medio", "grande"][i % 3]; if (i === 4 || i === 11) c.status = "inadimplente"; });
+    return { customers: list.map(c => N.customer(Object.assign({}, c, { status: c.status || undefined }))) };
+  },
+  usage(contracts) {
+    const rnd = U.mulberry(42), today = Ctx.today(), ev = []; let n = 0;
+    for (const c of contracts) {
+      if (c.status === "cancelado") continue;
+      const cap = c.end_date < today ? c.end_date : today, len = U.days(c.start_date, cap); if (len < 1 || !c.hours) continue;
+      const profile = [.35, .75, 1.1, .9, .5][n++ % 5], target = c.hours * profile * Math.min(1, len / (U.days(c.start_date, c.end_date) + 1) + .15);
+      const k = Math.max(3, Math.round(len / 6)); let rem = target;
+      for (let i = 0; i < k; i++) { const q = Math.max(.5, Math.round(target / k * (.5 + rnd()) * 2) / 2); ev.push({ external_id: `U-${c.external_id}-${i}`, customer_id: c.customer_id, service_id: c.service_id, date: U.addDays(c.start_date, Math.floor(rnd() * len)), quantity: q, description: "Atendimento (exemplo)" }); rem -= q; }
+    }
+    return { usage_events: ev };
+  },
+  emails(customers) {
+    const t = Ctx.today(), d = n => U.addDays(t, -n), active = customers.filter(c => c.status !== "inativo"), pick = i => active[i % active.length].external_id;
+    const T = [
+      [0, 3, "Horas do pacote", "Boa tarde! Estamos com as horas acabando e precisamos de mais horas para o projeto de integração. Pode nos enviar uma proposta até esta semana?"],
+      [1, 5, "Servidor lento", "Nosso servidor de arquivos ficou fora do ar duas vezes e ninguém avisou. Gostaríamos de ter monitoramento, estamos insatisfeitos com a demora."],
+      [2, 8, "Queda de energia", "Tivemos queda de energia e perdemos arquivos importantes. Precisamos de uma rotina de backup o quanto antes."],
+      [3, 12, "Proposta externa", "Recebemos uma cotação com concorrente Alfa, mais barata, para suporte contínuo. Queremos avaliar com vocês antes de decidir; prazo até dia 20."],
+      [4, 6, "Auditoria", "Teremos auditoria de LGPD em março e precisamos de adequação e segurança da informação. Podem indicar um plano?"],
+      [5, 15, "Migração", "Estamos avaliando migrar o servidor para a nuvem (Azure). Prazo até dezembro. Contato: joao@cliente-exemplo.com.br, (11) 98888-7777."],
+      [6, 4, "Dúvida simples", "Obrigado pelo atendimento de ontem, excelente. Apenas confirmando o horário da próxima visita."],
+      [7, 2, "Resposta automática", "Estou fora do escritório até segunda-feira."],
+      [8, 9, "Chamado demorado", "O chamado demorado da semana passada nos incomodou; precisamos de SLA e suporte mais rápido, caso contrário vamos cancelar."]];
+    const emails = T.map(([i, ago, subj, body], k) => ({ external_id: `msg-${1000 + k}`, customer_id: pick(i + 2), thread_id: `T-${100 + k}`, date: d(ago), from: `contato${k}@cliente-exemplo.com.br`, subject: subj, body }));
+    emails.push({ external_id: "msg-2000", customer_id: pick(1), thread_id: "T-200", date: d(3), from: "cs@helpitech.com.br", subject: "Interno: acompanhamento", body: "Lembrar de tratar backup e nuvem com este cliente.", internal: true });
+    return { emails };
+  }
+};
+function loadSample() {
+  if (!SAMPLE_LEGACY) return toast("Dados de exemplo indisponíveis.");
+  const prevRole = DB.s.settings.role; DB.s.settings.role = "admin";
+  const cust = Sample.customers(JSON.parse(JSON.stringify(SAMPLE_LEGACY.customers))), cons = Object.assign({}, { contracts: JSON.parse(JSON.stringify(SAMPLE_LEGACY.contracts.contracts)) });
+  const first = Importer.plan([...Importer.detect(Sample.services()), ...Importer.detect(cust), ...Importer.detect(cons)], DB.s, Ctx.dict()); Importer.apply(first, DB.s, { file: "exemplo (formato atual + serviços)", role: "admin" });
+  const contracts = DB.list("contracts"), second = Importer.plan([...Importer.detect(Sample.usage(contracts)), ...Importer.detect(Sample.emails(DB.list("customers")))], DB.s, Ctx.dict()); const h = Importer.apply(second, DB.s, { file: "exemplo (consumo + e-mails sintéticos)", role: "admin" });
+  DB.s.settings.role = prevRole; DB.audit("carregar_exemplo", "dados fictícios"); DB.save(); toast("Dados de exemplo carregados."); go(current);
+}
+/* ============================================================
+   12. AUTOTESTES (funções puras)
+   ============================================================ */
+const SelfTest = {
+  run() {
+    const out = [], t = (name, fn) => { try { const r = fn(); out.push({ name, ok: r === true, err: r === true ? "" : String(r) }); } catch (e) { out.push({ name, ok: false, err: e.message }); } };
+    t("parseMoney BR", () => U.parseMoney("4.000,00") === 4000 && U.parseMoney("3.500,50") === 3500.5 && U.parseMoney(12) === 12);
+    t("validate: obrigatórios", () => V.validate({ name: "x" }, SCHEMAS.customers).length >= 2);
+    t("validate: data inválida", () => V.validate({ external_id: 1, customer_id: 1, service_id: 1, value: 1, start_date: "2026-02-30", end_date: "2026-03-01" }, SCHEMAS.contracts).some(e => e.includes("start_date")));
+    t("validate: registro válido", () => V.validate(EXAMPLES.customers[0], SCHEMAS.customers).length === 0);
+    t("normalizador legado de contrato", () => { const c = N.contract({ store: { id: 5 }, type: { id: 4 }, amount_hours: 10, value: "1.000,00", date_start: "2026-01-01", date_end: "2026-12-31", disabled_at: null }); return c.customer_id === 5 && c.value === 1000 && c.hours === 10; });
+    t("períodos e anterior", () => { const r = M.range("7", "2026-10-30"), p = M.previous(r); return r.start === "2026-10-24" && p.end === "2026-10-23" && U.days(p.start, p.end) === 6; });
+    t("delta", () => M.delta(150, 100) === 50 && M.delta(5, 0) === null && M.delta(0, 0) === 0);
+    t("franquia: excesso/baixo", () => { const c = { start_date: "2026-01-01", end_date: "2026-12-31", hours: 100, status: "vigente" }; return M.contractStatus(c, [{ date: "2026-03-01", quantity: 120 }], "2026-06-30").flag === "excesso" && M.contractStatus(c, [{ date: "2026-03-01", quantity: 5 }], "2026-09-30").flag === "baixo"; });
+    t("sinais: backup + urgência", () => { const s = Signals.extract("Perdemos arquivos, precisamos de backup o quanto antes."); return s.hits.some(h => h.service_id === "6") && s.urgent; });
+    t("sinais: PII mascarada no trecho", () => !Signals.extract("Backup. fale com a@b.com.br", DEFAULT_DICT).hits[0].snippet.includes("a@b.com.br"));
+    t("score alta/baixa", () => Opp.level(Opp.score({ nEvid: 2, latest: "2026-10-29", urgency: 19, missing: true, value: 40000 }, "2026-10-30").total) === "alta" && Opp.level(Opp.score({ nEvid: 1, latest: null, urgency: 0, missing: false, value: 0 }, "2026-10-30").total) === "baixa");
+    t("importação idempotente", () => { const st = blank(); const g = [["services", [{ external_id: 1, name: "Svc" }]]]; Importer.apply(Importer.plan(g, st, DEFAULT_DICT), st, { file: "t" }); const r = Importer.plan(g, st, DEFAULT_DICT); return r[0].rows[0].status === "igual" && Object.keys(st.services).length === 1; });
+    t("reverter importação", () => { const st = blank(); const h = Importer.apply(Importer.plan([["services", [{ external_id: 9, name: "Zed" }]]], st, DEFAULT_DICT), st, { file: "t" }); Importer.revert(st, h.id); return !st.services["9"]; });
+    t("integridade referencial", () => Importer.plan([["contracts", [{ external_id: 1, customer_id: 99, service_id: 1, value: 1, start_date: "2026-01-01", end_date: "2026-02-01" }]]], blank(), DEFAULT_DICT)[0].rows[0].status === "erro");
+    t("e-mail interno ignorado", () => Signals.email({ external_id: 1, customer_id: 1, thread_id: "t", date: "2026-10-01", from: "x@helpitech.com.br", subject: "a", body: "backup" }, DEFAULT_DICT).ignored === "interno");
+    t("sem evidência → sem oportunidade", () => Opp.analyze({ customers: [{ external_id: "1", name: "A", status: "ativo", contacts: [] }], services: [{ external_id: "4", name: "B", price: 1 }], contracts: [], usage: [], emails: [], today: "2026-10-30", windowDays: 30, dict: DEFAULT_DICT }).length === 0);
+    return out;
+  }
+};
+/* ============================================================
+   13. SHELL — navegação, tema, perfis
+   ============================================================ */
+let current = "dashboard";
+function go(page) {
+  if (!Acc.role().pages.includes(page)) page = "dashboard"; current = page; location.hash = page;
+  $("#appTitle").textContent = PAGE_META[page][0];
+  $$("#drawer a").forEach(a => a.dataset.page === page ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  Pages[page]($("#main")); closeDrawer(); window.scrollTo(0, 0);
+}
+function buildNav() { $("#drawer").innerHTML = Acc.role().pages.map(p => `<a data-page="${p}" href="#${p}" tabindex="0">${ic(PAGE_META[p][1])}<span>${PAGE_META[p][0]}</span></a>`).join(""); $$("#drawer a").forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.page); }); }
+function closeDrawer() { $("#drawer").classList.remove("open"); $("#scrim").classList.remove("on"); }
+function applyTheme() { const t = DB.s.settings.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); document.documentElement.dataset.theme = t; }
+function applyRole() {
+  const s = DB.s.settings; $("#roleSel").innerHTML = Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${k === s.role ? "selected" : ""}>${v.label}</option>`).join("");
+  const owners = [...new Set(DB.list("customers").map(c => c.cs_owner).filter(Boolean))]; if (!owners.length) owners.push("Ana Souza", "Bruno Lima", "Carla Dias"); if (!owners.includes(s.cs)) s.cs = owners[0];
+  $("#csSel").innerHTML = owners.map(o => `<option ${o === s.cs ? "selected" : ""}>${U.esc(o)}</option>`).join(""); $("#csWrap").hidden = s.role !== "cs";
+  const m = Acc.masked(); $("#maskBtn").setAttribute("aria-pressed", m); $("#maskBtn").textContent = m ? "LGPD: mascarado" : "LGPD: visível"; $("#maskBtn").disabled = s.role === "suporte";
+  buildNav();
+}
+function init() {
+  DB.load(); applyTheme();
+  $("#menuBtn").innerHTML = ic("menu"); $("#themeBtn").innerHTML = ic("theme");
+  $("#menuBtn").onclick = () => { $("#drawer").classList.toggle("open"); $("#scrim").classList.toggle("on"); }; $("#scrim").onclick = closeDrawer;
+  $("#themeBtn").onclick = () => { DB.s.settings.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; applyTheme(); DB.save(); };
+  $("#roleSel").onchange = e => { DB.s.settings.role = e.target.value; DB.audit("trocar_perfil", e.target.value); DB.save(); applyRole(); go(current); };
+  $("#csSel").onchange = e => { DB.s.settings.cs = e.target.value; DB.audit("trocar_cs", e.target.value); DB.save(); go(current); };
+  $("#maskBtn").onclick = () => { DB.s.settings.mask = !DB.s.settings.mask; DB.audit(DB.s.settings.mask ? "mascarar_dados" : "revelar_dados", ""); DB.save(); applyRole(); go(current); };
+  $("#dlg").addEventListener("click", e => { if (e.target.id === "dlg") e.target.close(); });
+  applyRole(); const h = location.hash.slice(1); go(PAGE_META[h] ? h : "dashboard");
+  if (!DB.s.settings.ackLgpd) openDialog(`<h3>Aviso de uso de dados (LGPD)</h3><p>Este é um ambiente de <b>homologação</b>. Os dados ficam <b>somente neste navegador</b> (localStorage) e não são enviados a nenhum servidor. Dados pessoais são mascarados por padrão, e-mails são reduzidos a resumo + referência, e as ações são registradas em auditoria. Use apenas dados anonimizados ou com base legal adequada.</p><div class="dlg-actions"><button class="btn" id="ackB">Entendi</button></div>`);
+  const ack = $("#ackB"); if (ack) ack.onclick = () => { DB.s.settings.ackLgpd = true; DB.save(); $("#dlg").close(); };
+  if (location.search.includes("selftest")) { const r = SelfTest.run(); document.title = "SELFTEST " + r.filter(x => x.ok).length + "/" + r.length; console.log(r.filter(x => !x.ok)); }
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

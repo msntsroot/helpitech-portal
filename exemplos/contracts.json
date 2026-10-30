@@ -1,0 +1,17 @@
+{
+  "contracts": [
+    {
+      "external_id": "K-2001",
+      "customer_id": "C-1001",
+      "service_id": 4,
+      "value": 3500,
+      "hours": 100,
+      "start_date": "2026-04-01",
+      "end_date": "2027-03-28",
+      "auto_renew": true,
+      "billing_day": 1,
+      "description": "Bolsa anual",
+      "status": "vigente"
+    }
+  ]
+}

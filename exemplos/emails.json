@@ -1,0 +1,14 @@
+{
+  "emails": [
+    {
+      "external_id": "msg-0001",
+      "customer_id": "C-1001",
+      "thread_id": "T-77",
+      "date": "2026-10-22",
+      "from": "maria@exemplo.com.br",
+      "subject": "Backup",
+      "body": "Tivemos queda de energia e perdemos arquivos. Precisamos de uma rotina de backup até dezembro.",
+      "internal": false
+    }
+  ]
+}

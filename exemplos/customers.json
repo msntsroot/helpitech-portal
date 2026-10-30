@@ -1,0 +1,25 @@
+{
+  "customers": [
+    {
+      "external_id": "C-1001",
+      "name": "Exemplo Indústria Ltda",
+      "trading_name": "Exemplo",
+      "document": "11.222.333/0001-81",
+      "status": "ativo",
+      "segment": "Indústria",
+      "size": "medio",
+      "cs_owner": "Ana Souza",
+      "city": "São Paulo",
+      "state": "SP",
+      "amount_tickets": 12,
+      "contacts": [
+        {
+          "name": "Maria Contato",
+          "email": "maria@exemplo.com.br",
+          "phone": "11999990000",
+          "role": "TI"
+        }
+      ]
+    }
+  ]
+}

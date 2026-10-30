@@ -1,0 +1,73 @@
+{
+  "customers": [
+    {
+      "external_id": "C-1001",
+      "name": "Exemplo Indústria Ltda",
+      "trading_name": "Exemplo",
+      "document": "11.222.333/0001-81",
+      "status": "ativo",
+      "segment": "Indústria",
+      "size": "medio",
+      "cs_owner": "Ana Souza",
+      "city": "São Paulo",
+      "state": "SP",
+      "amount_tickets": 12,
+      "contacts": [
+        {
+          "name": "Maria Contato",
+          "email": "maria@exemplo.com.br",
+          "phone": "11999990000",
+          "role": "TI"
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "external_id": 5,
+      "name": "Monitoramento de Infraestrutura",
+      "description": "Monitoramento 24x7 de servidores e rede",
+      "price": 1800,
+      "unit": "mês",
+      "est_units_year": 12,
+      "category": "servico"
+    }
+  ],
+  "contracts": [
+    {
+      "external_id": "K-2001",
+      "customer_id": "C-1001",
+      "service_id": 4,
+      "value": 3500,
+      "hours": 100,
+      "start_date": "2026-04-01",
+      "end_date": "2027-03-28",
+      "auto_renew": true,
+      "billing_day": 1,
+      "description": "Bolsa anual",
+      "status": "vigente"
+    }
+  ],
+  "usage_events": [
+    {
+      "external_id": "U-1",
+      "customer_id": "C-1001",
+      "date": "2026-10-20",
+      "quantity": 3.5,
+      "service_id": 4,
+      "description": "Chamado #4521 — ajuste de VPN"
+    }
+  ],
+  "emails": [
+    {
+      "external_id": "msg-0001",
+      "customer_id": "C-1001",
+      "thread_id": "T-77",
+      "date": "2026-10-22",
+      "from": "maria@exemplo.com.br",
+      "subject": "Backup",
+      "body": "Tivemos queda de energia e perdemos arquivos. Precisamos de uma rotina de backup até dezembro.",
+      "internal": false
+    }
+  ]
+}

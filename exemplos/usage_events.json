@@ -1,0 +1,12 @@
+{
+  "usage_events": [
+    {
+      "external_id": "U-1",
+      "customer_id": "C-1001",
+      "date": "2026-10-20",
+      "quantity": 3.5,
+      "service_id": 4,
+      "description": "Chamado #4521 — ajuste de VPN"
+    }
+  ]
+}

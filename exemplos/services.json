@@ -1,0 +1,13 @@
+{
+  "services": [
+    {
+      "external_id": 5,
+      "name": "Monitoramento de Infraestrutura",
+      "description": "Monitoramento 24x7 de servidores e rede",
+      "price": 1800,
+      "unit": "mês",
+      "est_units_year": 12,
+      "category": "servico"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Contrato",
+  "type": "object",
+  "required": [
+    "external_id",
+    "customer_id",
+    "service_id",
+    "value",
+    "start_date",
+    "end_date"
+  ],
+  "properties": {
+    "external_id": {
+      "type": [
+        "string",
+        "integer"
+      ]
+    },
+    "customer_id": {
+      "type": [
+        "string",
+        "integer"
+      ]
+    },
+    "service_id": {
+      "type": [
+        "string",
+        "integer"
+      ]
+    },
+    "value": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Valor em R$ (aceita \"4.000,00\" no formato legado)"
+    },
+    "hours": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Franquia de horas da vigência"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "auto_renew": {
+      "type": "boolean"
+    },
+    "billing_day": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 31
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "vigente",
+        "encerrado",
+        "cancelado"
+      ]
+    },
+    "reason_disable": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Evento de consumo",
+  "type": "object",
+  "required": [
+    "external_id",
+    "customer_id",
+    "date",
+    "quantity"
+  ],
+  "properties": {
+    "external_id": {
+      "type": [
+        "string",
+        "integer"
+      ]
+    },
+    "customer_id": {
+      "type": [
+        "string",
+        "integer"
+      ]
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "quantity": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Horas consumidas"
+    },
+    "service_id": {
+      "type": [
+        "string",
+        "integer"
+      ],
+      "description": "Opcional: se omitido, atribui ao contrato vigente"
+    },
+    "description": {
+      "type": "string"
+    }
+  }
+}

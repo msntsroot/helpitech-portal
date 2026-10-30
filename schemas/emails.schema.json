@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "E-mail do CS (anonimizado)",
+  "type": "object",
+  "required": [
+    "external_id",
+    "customer_id",
+    "thread_id",
+    "date",
+    "from",
+    "subject"
+  ],
+  "description": "Informe body OU summary. O corpo NÃO é armazenado: só resumo, sinais e referência.",
+  "properties": {
+    "external_id": {
+      "type": [
+        "string",
+        "integer"
+      ],
+      "description": "ID/Message-ID do e-mail (referência)"
+    },
+    "customer_id": {
+      "type": [
+        "string",
+        "integer"
+      ]
+    },
+    "thread_id": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "from": {
+      "type": "string"
+    },
+    "to": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "internal": {
+      "type": "boolean",
+      "description": "true = mensagem interna (ignorada)"
+    }
+  }
+}
