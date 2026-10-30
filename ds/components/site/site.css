@@ -1,0 +1,68 @@
+/* ——— Header (corporate, shared by every product) ——— */
+.ht-header{position:sticky;top:0;z-index:var(--z-header);container-type:inline-size;background:var(--surface-header);-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid transparent;transition:background-color var(--dur-base) var(--ease-standard),border-color var(--dur-base) var(--ease-standard),box-shadow var(--dur-base) var(--ease-standard)}
+.ht-header--static{position:relative}
+.ht-header.is-scrolled{background:rgba(248,249,255,.86);border-bottom-color:var(--border-subtle);box-shadow:0 10px 30px -22px rgba(15,23,42,.35)}
+.ht-header__inner{display:flex;align-items:center;gap:1.5rem;height:var(--header-h-mobile);max-width:var(--container-max);margin:0 auto;padding:0 var(--container-pad)}
+.ht-header__brand{display:inline-flex;align-items:center;gap:.625rem;flex-shrink:0;color:var(--text-primary);text-decoration:none;border-radius:var(--radius-sm)}
+.ht-header__brand:hover{color:var(--text-primary);text-decoration:none}
+.ht-header__name{font-size:1.25rem;font-weight:var(--fw-bold);letter-spacing:-.025em;line-height:1}
+.ht-header__logo{height:2.25rem;width:auto}
+.ht-header__nav{display:none}
+.ht-header__link{position:relative;display:inline-flex;align-items:center;height:2.5rem;padding:0 .875rem;border-radius:var(--radius-sm);font-size:.9375rem;font-weight:var(--fw-medium);color:var(--text-secondary);text-decoration:none;white-space:nowrap;transition:color var(--dur-fast) var(--ease-standard),background-color var(--dur-fast) var(--ease-standard)}
+.ht-header__link:hover{color:var(--text-primary);background:var(--state-hover);text-decoration:none}
+.ht-header__link[aria-current="page"]{color:var(--color-primary);font-weight:var(--fw-semibold)}
+.ht-header__link[aria-current="page"]::after{content:"";position:absolute;left:.875rem;right:.875rem;bottom:.25rem;height:2px;border-radius:2px;background:var(--color-primary)}
+.ht-header__actions{margin-left:auto;display:flex;align-items:center;gap:.5rem}
+.ht-header__wide{display:none!important}
+.ht-header__panel{display:flex;flex-direction:column;gap:.125rem;padding:.5rem var(--container-pad) 1.25rem;border-top:1px solid var(--border-subtle);background:rgba(248,249,255,.98);animation:ht-slide-down var(--dur-base) var(--ease-decelerate)}
+.ht-header__panel .ht-header__link{height:3rem;font-size:1rem;padding:0 .75rem;border-radius:var(--radius-md)}
+.ht-header__panel .ht-header__link[aria-current="page"]{background:var(--color-primary-fixed);color:var(--color-on-primary-fixed-variant)}
+.ht-header__panel .ht-header__link[aria-current="page"]::after{display:none}
+.ht-header__panel-actions{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem;padding-top:1rem;border-top:1px solid var(--border-subtle)}
+@container (min-width:960px){
+.ht-header__inner{height:var(--header-h)}
+.ht-header__nav{display:flex;flex:1;justify-content:center;gap:.125rem}
+.ht-header__wide{display:inline-flex!important}
+.ht-header__menu-btn{display:none!important}
+.ht-header__panel{display:none}
+}
+
+/* ——— Footer (corporate, shared by every product) ——— */
+.ht-footer{container-type:inline-size;background:var(--color-ink);color:var(--text-on-dark-muted);font-size:var(--fs-body-sm);line-height:1.6}
+.ht-footer a{color:var(--text-on-dark-muted);text-decoration:none;transition:color var(--dur-fast) var(--ease-standard)}
+.ht-footer a:hover{color:#fff;text-decoration:underline;text-decoration-thickness:1px}
+.ht-footer :focus-visible{outline-color:var(--focus-ring-on-dark)}
+.ht-footer__inner{max-width:var(--container-max);margin:0 auto;padding:4rem var(--container-pad) 0}
+.ht-footer__grid{display:grid;grid-template-columns:minmax(0,1fr);gap:2.5rem}
+.ht-footer__name{display:inline-block;font-size:1.375rem;font-weight:var(--fw-bold);letter-spacing:-.025em;line-height:1.1;color:#fff}
+.ht-footer__brand-logo{height:2.5rem;width:auto}
+.ht-footer__desc{margin:.875rem 0 0;max-width:24rem}
+.ht-footer__group{margin-top:1.75rem;display:flex;flex-direction:column;align-items:flex-start;gap:.75rem}
+.ht-footer__group-label{font-size:.75rem;font-weight:var(--fw-semibold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--slate-400)}
+.ht-footer a.ht-footer__plate{display:inline-flex;align-items:center;padding:.625rem .875rem;background:transparent;color:#fff;border-radius:var(--radius-md);transition:box-shadow var(--dur-base) var(--ease-standard)}
+.ht-footer a.ht-footer__plate:hover{box-shadow:0 0 0 3px rgba(99,173,222,.35)}
+.ht-footer__plate img{height:2.25rem;width:auto}
+.ht-footer__group-text{font-weight:var(--fw-semibold);color:#fff}
+.ht-footer a.ht-footer__ext{display:inline-flex;align-items:center;gap:.25rem;color:var(--color-accent-sky);font-weight:var(--fw-medium)}
+.ht-footer a.ht-footer__ext:hover{color:#fff}
+.ht-footer__ext .ms{font-size:1rem}
+.ht-footer__title{margin:0 0 1rem;font-size:.8125rem;font-weight:var(--fw-semibold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:#fff}
+.ht-footer__list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.625rem}
+.ht-footer__contact li{display:flex;gap:.625rem;align-items:flex-start}
+.ht-footer__contact .ms{font-size:1.125rem;color:var(--color-accent-sky);margin-top:.1875rem}
+.ht-footer__contact-label{display:block;font-size:.75rem;color:var(--slate-500)}
+.ht-footer__social{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.25rem}
+.ht-footer a.ht-footer__chip{display:inline-flex;align-items:center;height:2rem;padding:0 .75rem;border:1px solid var(--border-on-dark);border-radius:var(--radius-full);font-size:.8125rem;font-weight:var(--fw-medium);color:var(--slate-300)}
+.ht-footer a.ht-footer__chip:hover{border-color:rgba(255,255,255,.4);color:#fff;text-decoration:none}
+.ht-footer__bottom{margin-top:3.5rem;padding:1.5rem 0 2rem;border-top:1px solid var(--border-on-dark);display:flex;flex-direction:column;gap:1rem;font-size:.8125rem;color:var(--slate-400)}
+.ht-footer__bottom p{margin:0}
+.ht-footer__bottom-links{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem}
+@container (min-width:640px){
+.ht-footer__grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ht-footer__brandcol{grid-column:1/-1}
+}
+@container (min-width:1000px){
+.ht-footer__grid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr);gap:3rem}
+.ht-footer__brandcol{grid-column:auto}
+.ht-footer__bottom{flex-direction:row;justify-content:space-between;align-items:center}
+}
