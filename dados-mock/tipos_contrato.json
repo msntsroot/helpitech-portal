@@ -1,0 +1,24 @@
+{
+  "contract_types": [
+    {
+      "id": 1,
+      "name": "Mensal",
+      "description": "Contrato com valor fixo cobrado mensalmente, independente da quantidade de horas utilizadas."
+    },
+    {
+      "id": 2,
+      "name": "Suporte Anual",
+      "description": "Contrato de suporte técnico com vigência anual, cobrindo atendimento e manutenção contínuos."
+    },
+    {
+      "id": 3,
+      "name": "Projeto",
+      "description": "Contrato voltado a um projeto específico, com escopo, prazo e horas previamente definidos."
+    },
+    {
+      "id": 4,
+      "name": "Bolsa de Horas",
+      "description": "Pacote de horas pré-contratadas que o cliente consome conforme a demanda ao longo da vigência."
+    }
+  ]
+}

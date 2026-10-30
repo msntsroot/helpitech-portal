@@ -1102,6 +1102,7 @@ function init() {
   $("#csSel").onchange = e => { DB.s.settings.cs = e.target.value; DB.audit("trocar_cs", e.target.value); DB.save(); go(current); };
   $("#maskBtn").onclick = () => { DB.s.settings.mask = !DB.s.settings.mask; DB.audit(DB.s.settings.mask ? "mascarar_dados" : "revelar_dados", ""); DB.save(); applyRole(); go(current); };
   $("#dlg").addEventListener("click", e => { if (e.target.id === "dlg") e.target.close(); });
+  if (!DB.s.settings.seeded && !DB.list("customers").length) { DB.s.settings.seeded = true; loadSample(); }
   applyRole(); const h = location.hash.slice(1); go(PAGE_META[h] ? h : "dashboard");
   if (!DB.s.settings.ackLgpd) openDialog(`<h3>Aviso de uso de dados (LGPD)</h3><p>Este é um ambiente de <b>homologação</b>. Os dados ficam <b>somente neste navegador</b> (localStorage) e não são enviados a nenhum servidor. Dados pessoais são mascarados por padrão, e-mails são reduzidos a resumo + referência, e as ações são registradas em auditoria. Use apenas dados anonimizados ou com base legal adequada.</p><div class="dlg-actions"><button class="btn" id="ackB">Entendi</button></div>`);
   const ack = $("#ackB"); if (ack) ack.onclick = () => { DB.s.settings.ackLgpd = true; DB.save(); $("#dlg").close(); };

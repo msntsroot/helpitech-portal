@@ -9,7 +9,7 @@ Arquivo único `index.html` (HTML + CSS + JS, sem build/backend), Material Desig
 - **Chat local** por regras (sem inventar; informa quando não encontra), com ponto de extensão para LLM.
 - LGPD: dados só no navegador, máscara de PII, e-mail reduzido a resumo + referência, log de auditoria.
 
-Abra `index.html` (ou a página do GitHub Pages) e use **Importar JSON → Carregar dados de exemplo**.
+Abra `index.html` (ou a página do GitHub Pages): na primeira visita os **dados fictícios (mock)** são carregados automaticamente. Os arquivos de origem estão em [`dados-mock/`](dados-mock) (`clientes.json`, `contratos.json`, `tipos_contrato.json`) e podem ser importados em **Importar JSON**. Para recarregar: **Importar JSON → Carregar dados de exemplo**.
 
 ## Como importar
 1. **Importar JSON**: cole ou envie o arquivo. Aceita o **formato atual** (`clientes`: `{"customers":{id:{...}}}`, `contratos`: `{"contracts":[{store,type,...}]}`, `{"contract_types":[...]}`) e o **formato canônico** (`schemas/`).

@@ -1,0 +1,404 @@
+{
+  "contracts": [
+    {
+      "store": {
+        "id": 123,
+        "name": "Estrela"
+      },
+      "type": {
+        "id": 3,
+        "name": "Projeto"
+      },
+      "amount_hours": 80,
+      "value": "4.000,00",
+      "billing_day": 5,
+      "pay_day": 10,
+      "date_start": "2025-02-01",
+      "date_end": "2026-01-28",
+      "billing_submission": 1,
+      "description": "Pacote de horas de desenvolvimento",
+      "created_at": "2025-01-05 09:34:51",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 131,
+        "name": "Fênix"
+      },
+      "type": {
+        "id": 4,
+        "name": "Bolsa de Horas"
+      },
+      "amount_hours": 100,
+      "value": "3.500,00",
+      "billing_day": 1,
+      "pay_day": 10,
+      "date_start": "2026-04-01",
+      "date_end": "2027-03-28",
+      "billing_submission": 0,
+      "description": "Contrato anual",
+      "created_at": "2026-03-07 11:38:01",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 131,
+        "name": "Fênix"
+      },
+      "type": {
+        "id": 3,
+        "name": "Projeto"
+      },
+      "amount_hours": 60,
+      "value": "2.100,00",
+      "billing_day": 10,
+      "pay_day": 25,
+      "date_start": "2026-05-01",
+      "date_end": "2027-04-28",
+      "billing_submission": 0,
+      "description": "Contrato anual",
+      "created_at": "2026-04-15 12:26:35",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 154,
+        "name": "Ipê"
+      },
+      "type": {
+        "id": 2,
+        "name": "Suporte Anual"
+      },
+      "amount_hours": 60,
+      "value": "1.800,00",
+      "billing_day": 1,
+      "pay_day": 25,
+      "date_start": "2025-05-01",
+      "date_end": "2026-04-28",
+      "billing_submission": 0,
+      "description": "Pacote de horas de desenvolvimento",
+      "created_at": "2025-04-13 09:01:54",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 158,
+        "name": "Jaguar"
+      },
+      "type": {
+        "id": 4,
+        "name": "Bolsa de Horas"
+      },
+      "amount_hours": 40,
+      "value": "2.000,00",
+      "billing_day": 15,
+      "pay_day": 10,
+      "date_start": "2025-01-01",
+      "date_end": "2025-12-31",
+      "billing_submission": 0,
+      "description": "Pacote de horas de desenvolvimento",
+      "created_at": "2024-12-11 09:19:21",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 158,
+        "name": "Jaguar"
+      },
+      "type": {
+        "id": 4,
+        "name": "Bolsa de Horas"
+      },
+      "amount_hours": 80,
+      "value": "2.400,00",
+      "billing_day": 1,
+      "pay_day": 10,
+      "date_start": "2025-02-01",
+      "date_end": "2026-01-28",
+      "billing_submission": 1,
+      "description": "Contrato de manutenção",
+      "created_at": "2025-01-06 16:12:28",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 171,
+        "name": "Lumen"
+      },
+      "type": {
+        "id": 1,
+        "name": "Mensal"
+      },
+      "amount_hours": 40,
+      "value": "2.000,00",
+      "billing_day": 15,
+      "pay_day": 15,
+      "date_start": "2026-06-01",
+      "date_end": "2027-05-28",
+      "billing_submission": 0,
+      "description": "Pacote de horas de desenvolvimento",
+      "created_at": "2026-05-19 12:56:01",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 171,
+        "name": "Lumen"
+      },
+      "type": {
+        "id": 1,
+        "name": "Mensal"
+      },
+      "amount_hours": 40,
+      "value": "1.200,00",
+      "billing_day": 1,
+      "pay_day": 15,
+      "date_start": "2026-05-01",
+      "date_end": "2027-04-28",
+      "billing_submission": 0,
+      "description": "Contrato de manutenção",
+      "created_at": "2026-04-09 08:49:39",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 183,
+        "name": "Mercúrio"
+      },
+      "type": {
+        "id": 2,
+        "name": "Suporte Anual"
+      },
+      "amount_hours": 80,
+      "value": "2.800,00",
+      "billing_day": 1,
+      "pay_day": 20,
+      "date_start": "2025-01-01",
+      "date_end": "2025-12-31",
+      "billing_submission": 1,
+      "description": "Contrato de manutenção",
+      "created_at": "2024-12-05 17:30:53",
+      "reason_disable": "Cancelado a pedido do cliente",
+      "disabled_at": "2026-01-15 10:00:00",
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 185,
+        "name": "Nova Era"
+      },
+      "type": {
+        "id": 1,
+        "name": "Mensal"
+      },
+      "amount_hours": 80,
+      "value": "2.800,00",
+      "billing_day": 5,
+      "pay_day": 15,
+      "date_start": "2025-06-01",
+      "date_end": "2026-05-28",
+      "billing_submission": 0,
+      "description": "Contrato de suporte",
+      "created_at": "2025-05-13 15:38:05",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 185,
+        "name": "Nova Era"
+      },
+      "type": {
+        "id": 3,
+        "name": "Projeto"
+      },
+      "amount_hours": 20,
+      "value": "800,00",
+      "billing_day": 5,
+      "pay_day": 25,
+      "date_start": "2025-01-01",
+      "date_end": "2025-12-31",
+      "billing_submission": 1,
+      "description": "Contrato de manutenção",
+      "created_at": "2024-12-20 15:18:33",
+      "reason_disable": "Cancelado a pedido do cliente",
+      "disabled_at": "2026-01-15 10:00:00",
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 196,
+        "name": "Ouro Verde"
+      },
+      "type": {
+        "id": 4,
+        "name": "Bolsa de Horas"
+      },
+      "amount_hours": 40,
+      "value": "1.200,00",
+      "billing_day": 10,
+      "pay_day": 15,
+      "date_start": "2025-04-01",
+      "date_end": "2026-03-28",
+      "billing_submission": 0,
+      "description": "Contrato anual",
+      "created_at": "2025-03-03 12:26:28",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 200,
+        "name": "Pioneira"
+      },
+      "type": {
+        "id": 4,
+        "name": "Bolsa de Horas"
+      },
+      "amount_hours": 20,
+      "value": "700,00",
+      "billing_day": 1,
+      "pay_day": 20,
+      "date_start": "2025-03-01",
+      "date_end": "2026-02-28",
+      "billing_submission": 0,
+      "description": "Contrato de manutenção",
+      "created_at": "2025-02-11 16:37:08",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 222,
+        "name": "Solaris"
+      },
+      "type": {
+        "id": 4,
+        "name": "Bolsa de Horas"
+      },
+      "amount_hours": 20,
+      "value": "600,00",
+      "billing_day": 1,
+      "pay_day": 10,
+      "date_start": "2026-03-01",
+      "date_end": "2027-02-28",
+      "billing_submission": 1,
+      "description": "Contrato anual",
+      "created_at": "2026-02-10 13:08:04",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 222,
+        "name": "Solaris"
+      },
+      "type": {
+        "id": 4,
+        "name": "Bolsa de Horas"
+      },
+      "amount_hours": 80,
+      "value": "2.800,00",
+      "billing_day": 10,
+      "pay_day": 20,
+      "date_start": "2026-06-01",
+      "date_end": "2027-05-28",
+      "billing_submission": 0,
+      "description": "Contrato de manutenção",
+      "created_at": "2026-05-03 14:50:01",
+      "reason_disable": "Cancelado a pedido do cliente",
+      "disabled_at": "2027-01-15 10:00:00",
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    },
+    {
+      "store": {
+        "id": 232,
+        "name": "Titan"
+      },
+      "type": {
+        "id": 4,
+        "name": "Bolsa de Horas"
+      },
+      "amount_hours": 100,
+      "value": "3.000,00",
+      "billing_day": 1,
+      "pay_day": 10,
+      "date_start": "2026-04-01",
+      "date_end": "2027-03-28",
+      "billing_submission": 0,
+      "description": "Pacote de horas de desenvolvimento",
+      "created_at": "2026-03-14 13:24:59",
+      "reason_disable": null,
+      "disabled_at": null,
+      "supplier": {
+        "id": 0,
+        "name": ""
+      }
+    }
+  ]
+}
