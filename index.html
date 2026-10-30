@@ -212,6 +212,7 @@ pre.code{margin:0;padding:14px 16px;border-radius:var(--radius-md);background:va
 .msg-a .tile .ms{font-size:18px}
 .msg-a>div{padding:12px 16px;border-radius:4px 16px 16px 16px;background:var(--color-surface);border:1px solid var(--border-subtle);font-size:14px;box-shadow:var(--shadow-xs)}
 .msg-a ul{margin:6px 0 0;padding-left:18px}
+.msg-a>div{min-width:0}.msg-a .tw{margin:8px 0;overflow:auto;border:1px solid var(--border-subtle);border-radius:var(--radius-md)}.msg-a table{border-collapse:collapse;font-size:13px;width:100%}.msg-a th,.msg-a td{padding:6px 10px;text-align:left;border-bottom:1px solid var(--border-subtle);white-space:nowrap}.msg-a th{background:var(--surface-sunken);font-weight:600}.msg-a .mt{margin:8px 0 0}.msg-a code{font-size:12.5px}
 .chat__sugg{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px 0;border-top:1px solid var(--border-subtle)}
 .chat__form{display:flex;gap:8px;padding:12px 20px 16px}
 .chat__form .ht-control{flex:1}
@@ -1217,22 +1218,44 @@ Pages.opps = el => {
 
 /* Assistente (chat) */
 Pages.chat = el => {
-  const prov = Chat.providers.llm.answer ? Chat.providers.llm : Chat.providers.rules, cn = Acc.customers().map(c => c.trading_name || c.name)[0] || "X";
-  const sugg = ["Quais contratos vencem este mês?", "Quem mais consumiu na última semana?", ...(Acc.role().opps ? ["Quais oportunidades altas existem?"] : []), "Quais clientes estão inadimplentes?", "Alertas de franquia"];
-  const faq = [[`situação do cliente ${cn}`, "person_search"], ["contratos que vencem em 15 dias", "event"], ["quem menos consumiu nos últimos 30 dias", "trending_down"], ["quantos clientes temos", "groups"], ["consumo total no mês", "schedule"]];
-  el.innerHTML = pageHead("Assistente", "Pergunte em linguagem natural — as respostas usam somente os dados carregados neste navegador.") + `<div class="chatwrap">
-  <div class="ht-card ht-card--pad-none chat"><div class="chat__head"><span class="tile tile--brand">${ic("smart_toy")}</span><div><b>Assistente do Portal CS</b><small>${U.esc(prov.name)} · cita apenas dados locais</small></div><span class="sp"></span><button type="button" class="ht-btn ht-btn--ghost ht-btn--sm" id="chClr" ${ChatLog.length ? "" : "hidden"}>${ic("delete_sweep")}Limpar</button></div>
+  const aiOn = AI.ready(), aiCfg = AI.get(), prov = aiOn ? Chat.providers.llm : Chat.providers.rules, cn = Acc.customers().map(c => c.trading_name || c.name)[0] || "X", canSet = Acc.role().pages.includes("settings");
+  const sugg = aiOn ? ["Liste os clientes inadimplentes", `Relatório dos contratos da ${cn}`, "Ranking dos maiores consumidores nos últimos 30 dias", "Quais clientes estão com baixo uso de franquia?"] : ["Quais contratos vencem este mês?", "Quem mais consumiu na última semana?", ...(Acc.role().opps ? ["Quais oportunidades altas existem?"] : []), "Quais clientes estão inadimplentes?", "Alertas de franquia"];
+  const faq = aiOn ? [[`detalhes do cliente ${cn}`, "person_search"], ["compare os 3 maiores clientes em consumo", "compare_arrows"], ["contratos que vencem nos próximos 30 dias", "event"], ["clientes com excesso de franquia", "warning"], ["quantos clientes ativos temos por UF", "map"]] : [[`situação do cliente ${cn}`, "person_search"], ["contratos que vencem em 15 dias", "event"], ["quem menos consumiu nos últimos 30 dias", "trending_down"], ["quantos clientes temos", "groups"], ["consumo total no mês", "schedule"]];
+  const note = aiOn
+    ? `<div class="ht-alert ht-alert--success">${ic("auto_awesome")}<div class="ht-alert__content"><p class="ht-alert__title">IA ativa — Microsoft Foundry</p><p class="ht-alert__body">Deployment <code>${U.esc(aiCfg.deployment)}</code>. Perguntas, histórico e resultados das consultas (sem CPF/CNPJ/contatos, respeitando seu perfil) são enviados ao endpoint configurado.</p></div></div>`
+    : `<div class="ht-alert">${ic("info")}<div class="ht-alert__content"><p class="ht-alert__title">Respostas por regras locais</p><p class="ht-alert__body">Nada sai do navegador; cada pergunta é registrada em auditoria.${aiCfg.endpoint ? " Há configuração de IA, mas “Usar IA no Assistente” está desmarcado." : ""} ${canSet ? `<a href="#settings" data-iacfg>Configurar IA (Microsoft Foundry)</a>` : "Peça a um administrador para configurar a IA."}</p></div></div>`;
+  el.innerHTML = pageHead("Assistente", aiOn ? "Pergunte em linguagem natural — a IA consulta os dados do portal com as permissões do seu perfil." : "Pergunte em linguagem natural — as respostas usam somente os dados carregados neste navegador.") + `<div class="chatwrap">
+  <div class="ht-card ht-card--pad-none chat"><div class="chat__head"><span class="tile tile--brand">${ic(aiOn ? "auto_awesome" : "smart_toy")}</span><div><b>Assistente do Portal CS</b><small>${U.esc(prov.name)}${aiOn ? " · " + U.esc(aiCfg.deployment) : " · cita apenas dados locais"}</small></div><span class="sp"></span>${aiOn ? badge("IA ativa", "success", { sm: true }) : ""}<button type="button" class="ht-btn ht-btn--ghost ht-btn--sm" id="chClr" ${ChatLog.length ? "" : "hidden"}>${ic("delete_sweep")}Limpar</button></div>
   <div class="chat__msgs" id="msgs" aria-live="polite"></div>
   <div class="chat__sugg">${sugg.map(s => `<button type="button" class="ht-btn ht-btn--secondary ht-btn--sm" data-s="${U.esc(s)}">${U.esc(s)}</button>`).join("")}</div>
-  <form class="chat__form" id="cf"><div class="ht-control">${ic("chat")}<input class="ht-input ht-input--lead" id="cq" autocomplete="off" placeholder="Ex.: situação do cliente ${U.esc(cn)}" aria-label="Pergunta ao assistente"></div><button class="ht-btn ht-btn--primary" type="submit">${ic("send")}Enviar</button></form></div>
+  <form class="chat__form" id="cf"><div class="ht-control">${ic("chat")}<input class="ht-input ht-input--lead" id="cq" autocomplete="off" placeholder="Ex.: ${aiOn ? "relatório dos contratos da " : "situação do cliente "}${U.esc(cn)}" aria-label="Pergunta ao assistente"></div><button class="ht-btn ht-btn--primary" type="submit" id="cbtn">${ic("send")}Enviar</button></form></div>
   <div class="stack"><div class="ht-card"><h2 class="h5">Perguntas frequentes</h2><p class="desc">Clique para perguntar</p><ul class="list list--click">${faq.map(([q, i]) => `<li data-s="${U.esc(q)}" tabindex="0" role="button"><span class="tile">${ic(i)}</span><div class="list__main"><b>${U.esc(q[0].toUpperCase() + q.slice(1))}</b></div></li>`).join("")}</ul></div>
   <div class="ht-card"><h2 class="h5">Escopo dos dados</h2><p class="desc">O que o assistente enxerga com o seu perfil</p><ul class="list">${[["groups", "Clientes", Acc.customers().length], ["description", "Contratos", Acc.scoped("contracts").length], ["schedule", "Eventos de uso", Acc.scoped("usage_events").length], ["mail", "E-mails analisados", Acc.scoped("emails").length]].map(([i, l, n]) => `<li><span class="tile">${ic(i)}</span><div class="list__main"><b>${l}</b></div><b>${n}</b></li>`).join("")}</ul></div>
-  <div class="ht-alert">${ic("info")}<div class="ht-alert__content"><p class="ht-alert__title">Respostas por regras locais</p><p class="ht-alert__body">Camada pronta para LLM (<code>Chat.providers.llm</code>). Nada sai do navegador; cada pergunta é registrada em auditoria.</p></div></div></div></div>`;
-  const box = $("#msgs"), draw = () => { box.innerHTML = (ChatLog.length ? ChatLog : [{ r: "a", t: "Olá! Posso responder sobre clientes, contratos, consumo e oportunidades — somente com base nos dados importados. Quando não houver dado, eu aviso." }]).map(m => m.r === "u" ? `<div class="msg-u">${U.esc(m.t)}</div>` : `<div class="msg-a"><span class="tile tile--brand">${ic("smart_toy")}</span><div>${m.t}</div></div>`).join(""); box.scrollTop = 1e9; $("#chClr").hidden = !ChatLog.length; };
-  const ask = q => { if (!q.trim()) return; ChatLog.push({ r: "u", t: q }); let a; try { a = prov.answer(q); } catch (e) { a = "Erro ao processar a consulta."; } ChatLog.push({ r: "a", t: a }); DB.audit("chat", q.slice(0, 120)); DB.save(); draw(); };
+  ${note}</div></div>`;
+  const hello = aiOn ? "Olá! Sou o assistente de IA do Portal CS. Posso consultar clientes, gerar relatórios de contratos e comparar clientes com métricas." : "Olá! Posso responder sobre clientes, contratos, consumo e oportunidades — somente com base nos dados importados. Quando não houver dado, eu aviso.";
+  const draw = () => {
+    const box = $("#msgs"); if (!box) return;
+    box.innerHTML = (ChatLog.length ? ChatLog : [{ r: "a", t: hello }]).map((m, i) => m.r === "u" ? `<div class="msg-u">${U.esc(m.t)}</div>` : `<div class="msg-a"><span class="tile tile--brand">${ic(m.err ? "error" : "smart_toy")}</span><div>${m.t}${m.tools?.length ? `<p class="small muted mt">${ic("build")} Dados consultados: ${Chat.toolsLabel(m.tools)}</p>` : ""}${m.raw && m.tools?.length ? `<div class="mt"><button type="button" class="ht-btn ht-btn--ghost ht-btn--sm" data-dl="${i}">${ic("download")}Baixar .md</button></div>` : ""}</div></div>`).join("");
+    box.scrollTop = 1e9; $("#chClr").hidden = !ChatLog.length || Chat.busy;
+    $$("[data-dl]", box).forEach(b => b.onclick = () => { const m = ChatLog[+b.dataset.dl]; DB.audit("exportar", "resposta do chat (.md)"); DB.save(); U.download(`helpitech-chat-${U.today()}.md`, m.raw, "text/markdown"); });
+  };
+  $("#cbtn").disabled = !!Chat.busy;
+  const ask = async q => {
+    if (!q.trim() || Chat.busy) return;
+    const llm = Chat.providers.llm.answer, history = ChatLog.filter(m => !m.pending && !m.err);
+    ChatLog.push({ r: "u", t: q });
+    if (!llm) { let a; try { a = Chat.providers.rules.answer(q); } catch (e) { a = "Erro ao processar a consulta."; } ChatLog.push({ r: "a", t: a }); DB.audit("chat", q.slice(0, 120)); DB.save(); draw(); return; }
+    Chat.busy = true; if ($("#cbtn")) $("#cbtn").disabled = true;
+    const pend = { r: "a", t: `<i class="muted">Pensando…</i>`, pending: true }; ChatLog.push(pend); draw();
+    try { const a = await llm.call(Chat.providers.llm, q, history, used => { pend.t = `<i class="muted">Consultando dados: ${Chat.toolsLabel(used)}…</i>`; draw(); }); Object.assign(pend, { t: a.html, raw: a.raw, tools: a.tools, pending: false }); }
+    catch (e) { Object.assign(pend, { t: "Erro ao consultar a IA: " + U.esc(e.message || String(e)) + (e instanceof TypeError ? " (verifique endpoint, rede e CORS)" : ""), pending: false, err: true }); }
+    Chat.busy = false; if ($("#cbtn")) $("#cbtn").disabled = false;
+    DB.audit("chat-ia", q.slice(0, 120)); DB.save(); draw();
+  };
   $("#cf").onsubmit = e => { e.preventDefault(); ask($("#cq").value); $("#cq").value = ""; };
   $$("[data-s]", el).forEach(b => { b.onclick = () => ask(b.dataset.s); b.onkeydown = e => { if (e.key === "Enter" && b.tagName === "LI") ask(b.dataset.s); }; });
-  $("#chClr").onclick = () => { ChatLog.length = 0; draw(); };
+  const cfg = $("[data-iacfg]", el); if (cfg) cfg.onclick = e => { e.preventDefault(); SetTab = "ia"; go("settings"); };
+  $("#chClr").onclick = () => { if (Chat.busy) return; ChatLog.length = 0; draw(); };
   draw(); if (chatPending) { const q = chatPending; chatPending = null; ask(q); } $("#cq").focus();
 };
 const Chat = {
@@ -1282,8 +1305,151 @@ Chat.providers.rules = {
     return "Não encontrei essa informação nos dados carregados. Tente: <i>situação do cliente X</i>, <i>contratos que vencem este mês</i>, <i>quem mais consumiu Suporte na última semana</i>, <i>oportunidades altas do cliente X</i>, <i>clientes inadimplentes</i>, <i>alertas de franquia</i>.";
   }
 };
-/* ponto de extensão para LLM: implementar answer(q, tools) e registrar em Chat.providers.llm */
-Chat.providers.llm = { name: "LLM (não configurado)", answer: null };
+/* LLM via Microsoft Foundry (Azure OpenAI chat completions). Config fica em chave própria do localStorage (fora de backups/exportações). */
+const AI_KEY = "helpitech.ai.v1";
+const AI = {
+  defaults: { enabled: false, endpoint: "", deployment: "", apiKey: "", apiVersion: "2024-10-21" },
+  get() { try { return Object.assign({}, AI.defaults, JSON.parse(localStorage.getItem(AI_KEY)) || {}); } catch (e) { return Object.assign({}, AI.defaults); } },
+  set(c) { localStorage.setItem(AI_KEY, JSON.stringify(c)); },
+  ready(c = AI.get()) { return !!(c.enabled && c.endpoint && c.deployment); },
+  url(c) {
+    const ep = c.endpoint.trim();
+    if (/\/chat\/completions/.test(ep)) return ep;
+    const origin = new URL(ep).origin;
+    return `${origin}/openai/deployments/${encodeURIComponent(c.deployment.trim())}/chat/completions?api-version=${encodeURIComponent(c.apiVersion || AI.defaults.apiVersion)}`;
+  },
+  system: "Você é o assistente do HelpiTech Portal, um portal interno de gestão de clientes, contratos, métricas de uso e oportunidades de uma empresa de serviços de TI. Responda sempre em português do Brasil, de forma objetiva.",
+  async chat(messages, { tools, c = AI.get() } = {}) {
+    const headers = { "Content-Type": "application/json" }; if (c.apiKey.trim()) headers["api-key"] = c.apiKey.trim();
+    const body = { model: c.deployment.trim(), messages }; if (tools?.length) Object.assign(body, { tools, tool_choice: "auto" });
+    const r = await fetch(AI.url(c), { method: "POST", headers, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error?.message || `HTTP ${r.status}`);
+    return j.choices?.[0]?.message || { content: "" };
+  },
+  async complete(messages, c = AI.get()) { return (await AI.chat(messages, { c })).content || ""; },
+  md(t) {
+    const inl = s => s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
+    const lines = U.esc(t).split("\n"), cells = l => l.trim().replace(/^\||\|$/g, "").split("|").map(x => inl(x.trim()));
+    let out = "", inList = false;
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      if (/^\s*\|.*\|\s*$/.test(l) && /^\s*\|?\s*:?-{2,}/.test(lines[i + 1] || "")) {
+        if (inList) { out += "</ul>"; inList = false; }
+        let tb = `<div class="tw"><table><thead><tr>${cells(l).map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>`; i += 2;
+        for (; i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i]); i++) tb += `<tr>${cells(lines[i]).map(c => `<td>${c}</td>`).join("")}</tr>`;
+        out += tb + "</tbody></table></div>"; i--; continue;
+      }
+      const li = l.match(/^\s*(?:[-*]|\d+[.)])\s+(.*)/);
+      if (li) { if (!inList) { out += "<ul>"; inList = true; } out += `<li>${inl(li[1])}</li>`; continue; }
+      if (inList) { out += "</ul>"; inList = false; }
+      const h = l.match(/^#{1,6}\s+(.*)/); out += h ? `<b>${inl(h[1])}</b><br>` : l.trim() ? inl(l) + "<br>" : "<br>";
+    }
+    return (inList ? out + "</ul>" : out).replace(/(<br>)+$/, "");
+  }
+};
+/* Tools do assistente: leem os dados locais respeitando o perfil (Acc) e sem PII (sem documento/contatos). */
+const AITools = {
+  r1: n => Math.round((Number(n) || 0) * 10) / 10,
+  period(dias) { const n = Math.min(365, Math.max(1, Math.round(+dias || 30))), t = Ctx.today(), r = { start: U.addDays(t, -(n - 1)), end: t }; return { r, prev: M.previous(r), label: `últimos ${n} dias (${U.fmtDate(r.start)} a ${U.fmtDate(r.end)})` }; },
+  resolve(ref) {
+    const list = Acc.customers(), q = U.norm(String(ref ?? "").trim()); if (!q) return { erro: "Informe o nome ou ID do cliente." };
+    const exact = list.find(c => U.norm(c.external_id) === q) || list.find(c => [c.trading_name, c.name].some(n => n && U.norm(n) === q)); if (exact) return { c: exact };
+    const part = list.filter(c => [c.trading_name, c.name].some(n => n && (U.norm(n).includes(q) || q.includes(U.norm(n)))));
+    if (part.length === 1) return { c: part[0] };
+    return part.length ? { erro: `Mais de um cliente corresponde a "${ref}". Especifique.`, candidatos: part.slice(0, 10).map(c => ({ id: c.external_id, nome: c.trading_name || c.name })) } : { erro: `Cliente "${ref}" não encontrado (ou fora do escopo do seu perfil).` };
+  },
+  base: c => ({ id: c.external_id, nome: c.name, nome_fantasia: c.trading_name || null, status: c.status, segmento: c.segment || null, porte: c.size || null, cidade: c.city || null, uf: c.state || null, cs_responsavel: c.cs_owner || null, chamados: c.amount_tickets ?? 0 }),
+  contractRow(k, ev, today, vals) {
+    const s = M.contractStatus(k, ev, today), ativo = M.isActive(k, today);
+    return Object.assign({ id: k.external_id, servico: Ctx.sname(String(k.service_id)), descricao: k.description || null, status: ativo ? "vigente" : (k.status === "cancelado" ? "cancelado" : k.end_date < today ? "encerrado" : k.start_date > today ? "futuro" : k.status), inicio: k.start_date, fim: k.end_date, dias_para_vencer: ativo ? U.days(today, k.end_date) : null, renovacao_automatica: !!k.auto_renew, franquia_horas: k.hours || 0, horas_usadas: AITools.r1(s.used), uso_franquia_pct: s.pct != null ? Math.round(s.pct * 100) : null, vigencia_decorrida_pct: Math.round(s.elapsed * 100), alerta: s.flag === "excesso" ? "excesso de franquia" : s.flag === "baixo" ? "baixo uso (risco de churn)" : s.flag === "atencao" ? "franquia acima de 80%" : null }, vals ? { valor: k.value || 0 } : {}, k.reason_disable ? { motivo_cancelamento: k.reason_disable } : {});
+  },
+  metrics(c, p) {
+    const today = Ctx.today(), vals = Acc.role().values, ks = Ctx.contractsIdx().get(c.external_id) || [], ev = Ctx.usageIdx().get(c.external_id) || [], act = ks.filter(k => M.isActive(k, today));
+    const cur = M.total(ev, p.r), prev = M.total(ev, p.prev), fr = U.sum(act, k => k.hours || 0), used = U.sum(act, k => M.contractStatus(k, ev, today).used);
+    const frProRata = U.sum(act, k => (k.hours || 0) * (Math.min(U.days(p.r.start, p.r.end) + 1, U.days(k.start_date, k.end_date) + 1) / (U.days(k.start_date, k.end_date) + 1)));
+    const opps = Acc.role().opps ? Ctx.opps().filter(o => o.customer_id === c.external_id && (o.status === "nova" || o.status === "em andamento")) : null;
+    return Object.assign({ cliente: c.trading_name || c.name, id: c.external_id, status: c.status, contratos_total: ks.length, contratos_vigentes: act.length, servicos_vigentes: [...new Set(act.map(k => Ctx.sname(String(k.service_id))))], franquia_vigente_horas: fr, horas_usadas_vigencia: AITools.r1(used), uso_franquia_vigencia_pct: fr ? Math.round(used / fr * 100) : null, consumo_periodo_horas: AITools.r1(cur), consumo_periodo_anterior_horas: AITools.r1(prev), variacao_consumo_pct: M.delta(cur, prev) == null ? null : Math.round(M.delta(cur, prev)), franquia_pro_rata_periodo_horas: AITools.r1(frProRata), uso_franquia_periodo_pct: frProRata ? Math.round(cur / frProRata * 100) : null, chamados: c.amount_tickets ?? 0, proximo_vencimento: act.length ? act.map(k => k.end_date).sort()[0] : null, alertas: act.map(k => ({ k, s: M.contractStatus(k, ev, today) })).filter(x => x.s.flag && x.s.flag !== "atencao").map(x => `${Ctx.sname(String(x.k.service_id))}: ${x.s.flag === "excesso" ? "excesso de franquia" : "baixo uso"}`) },
+      vals ? { valor_contratos_vigentes: U.sum(act, k => k.value || 0) } : {}, opps ? { oportunidades_abertas: opps.length, maior_score_oportunidade: opps.length ? Math.max(...opps.map(o => o.score)) : null } : {});
+  },
+  defs: [
+    { type: "function", function: { name: "listar_clientes", description: "Lista/busca clientes da carteira visível ao usuário, com filtros. Use para descobrir clientes, contar, filtrar por status, cidade, UF, segmento ou responsável de CS.", parameters: { type: "object", properties: { busca: { type: "string", description: "Trecho do nome/nome fantasia ou ID" }, status: { type: "string", enum: ["ativo", "inativo", "inadimplente"] }, uf: { type: "string", description: "Sigla do estado, ex.: SP" }, cidade: { type: "string" }, segmento: { type: "string" }, cs_responsavel: { type: "string" }, limite: { type: "integer", description: "Máximo de itens (padrão 50)" } } } } },
+    { type: "function", function: { name: "detalhes_cliente", description: "Dados cadastrais (sem PII), resumo de contratos, consumo no período, alertas e oportunidades abertas de UM cliente.", parameters: { type: "object", properties: { cliente: { type: "string", description: "Nome, nome fantasia ou ID do cliente" }, periodo_dias: { type: "integer", description: "Janela de consumo em dias (padrão 30)" } }, required: ["cliente"] } } },
+    { type: "function", function: { name: "relatorio_contratos", description: "Relatório detalhado dos contratos de UM cliente: serviço, vigência, dias para vencer, franquia, horas usadas, % de uso, alertas e valores (se o perfil permitir), com totais.", parameters: { type: "object", properties: { cliente: { type: "string", description: "Nome, nome fantasia ou ID do cliente" }, incluir_encerrados: { type: "boolean", description: "Incluir contratos encerrados/cancelados (padrão true)" } }, required: ["cliente"] } } },
+    { type: "function", function: { name: "comparar_clientes", description: "Compara 2 a 10 clientes lado a lado com métricas (contratos, franquia, consumo no período e variação vs período anterior, % de uso, chamados, valor, oportunidades) e rankings.", parameters: { type: "object", properties: { clientes: { type: "array", items: { type: "string" }, description: "Nomes ou IDs dos clientes" }, periodo_dias: { type: "integer", description: "Janela de consumo em dias (padrão 30)" } }, required: ["clientes"] } } },
+    { type: "function", function: { name: "ranking_clientes", description: "Ranqueia toda a carteira visível por uma métrica, para comparar clientes entre si (ex.: maiores consumidores, maior uso de franquia, maior valor, mais chamados).", parameters: { type: "object", properties: { metrica: { type: "string", enum: ["consumo_periodo_horas", "uso_franquia_periodo_pct", "uso_franquia_vigencia_pct", "valor_contratos_vigentes", "chamados", "contratos_vigentes", "variacao_consumo_pct", "oportunidades_abertas"] }, ordem: { type: "string", enum: ["desc", "asc"], description: "Padrão desc (maiores primeiro)" }, periodo_dias: { type: "integer", description: "Padrão 30" }, limite: { type: "integer", description: "Padrão 10" }, status: { type: "string", enum: ["ativo", "inativo", "inadimplente"] } }, required: ["metrica"] } } }
+  ],
+  fns: {
+    listar_clientes(a) {
+      if (!DB.list("customers").length) return { erro: "Não há dados carregados." };
+      const f = (v, q) => !q || U.norm(v).includes(U.norm(q)), idx = Ctx.contractsIdx(), today = Ctx.today();
+      const l = Acc.customers().filter(c => (!a.busca || f(c.name, a.busca) || f(c.trading_name, a.busca) || U.norm(c.external_id) === U.norm(a.busca)) && (!a.status || c.status === a.status) && (!a.uf || U.norm(c.state) === U.norm(a.uf)) && f(c.city, a.cidade) && f(c.segment, a.segmento) && f(c.cs_owner, a.cs_responsavel));
+      return { total: l.length, clientes: l.slice(0, Math.min(200, a.limite || 50)).map(c => Object.assign(AITools.base(c), { contratos_vigentes: (idx.get(c.external_id) || []).filter(k => M.isActive(k, today)).length })) };
+    },
+    detalhes_cliente(a) {
+      const x = AITools.resolve(a.cliente); if (!x.c) return x;
+      const p = AITools.period(a.periodo_dias), c = x.c, m = AITools.metrics(c, p);
+      const opps = Acc.role().opps ? Ctx.opps().filter(o => o.customer_id === c.external_id && (o.status === "nova" || o.status === "em andamento")).slice(0, 10).map(o => ({ servico: o.service, score: o.score, nivel: o.level, status: o.status, evidencia: PII.scrub(o.evidence?.[0]?.text || "").slice(0, 200) })) : "sem acesso (perfil)";
+      return { periodo: p.label, data_hoje: Ctx.today(), cadastro: AITools.base(c), metricas: m, oportunidades: opps };
+    },
+    relatorio_contratos(a) {
+      const x = AITools.resolve(a.cliente); if (!x.c) return x;
+      const c = x.c, today = Ctx.today(), vals = Acc.role().values, ev = Ctx.usageIdx().get(c.external_id) || [];
+      let rows = (Ctx.contractsIdx().get(c.external_id) || []).map(k => AITools.contractRow(k, ev, today, vals));
+      if (a.incluir_encerrados === false) rows = rows.filter(r => r.status === "vigente" || r.status === "futuro");
+      rows.sort((p, q) => (p.status === "vigente" ? 0 : 1) - (q.status === "vigente" ? 0 : 1) || q.fim.localeCompare(p.fim));
+      const v = rows.filter(r => r.status === "vigente");
+      return { cliente: c.trading_name || c.name, id: c.external_id, status_cliente: c.status, data_hoje: today, valores_visiveis: vals, totais: Object.assign({ contratos: rows.length, vigentes: v.length, franquia_vigente_horas: U.sum(v, r => r.franquia_horas), horas_usadas_vigentes: AITools.r1(U.sum(v, r => r.horas_usadas)), vencem_em_30_dias: v.filter(r => r.dias_para_vencer <= 30).length, com_alerta: rows.filter(r => r.alerta).length }, vals ? { valor_vigente: U.sum(v, r => r.valor), valor_total_historico: U.sum(rows, r => r.valor) } : {}), contratos: rows };
+    },
+    comparar_clientes(a) {
+      const refs = [...new Set((a.clientes || []).map(String))].slice(0, 10); if (refs.length < 2) return { erro: "Informe ao menos 2 clientes." };
+      const p = AITools.period(a.periodo_dias), res = refs.map(r => ({ r, x: AITools.resolve(r) })), ok = res.filter(z => z.x.c), ms = ok.map(z => AITools.metrics(z.x.c, p));
+      const rank = k => ms.filter(m => m[k] != null).sort((p, q) => q[k] - p[k]).map(m => `${m.cliente} (${m[k]})`);
+      const rk = { maior_consumo_periodo: rank("consumo_periodo_horas"), maior_uso_franquia_periodo: rank("uso_franquia_periodo_pct"), mais_chamados: rank("chamados") }; if (Acc.role().values) rk.maior_valor_vigente = rank("valor_contratos_vigentes");
+      return { periodo: p.label, data_hoje: Ctx.today(), clientes: ms, rankings: rk, nao_encontrados: res.filter(z => !z.x.c).map(z => ({ ref: z.r, erro: z.x.erro, candidatos: z.x.candidatos })) };
+    },
+    ranking_clientes(a) {
+      if (a.metrica === "valor_contratos_vigentes" && !Acc.role().values) return { erro: "Seu perfil não tem acesso a valores." };
+      if (a.metrica === "oportunidades_abertas" && !Acc.role().opps) return { erro: "Seu perfil não tem acesso a oportunidades." };
+      const p = AITools.period(a.periodo_dias), asc = a.ordem === "asc", k = a.metrica;
+      const ms = Acc.customers().filter(c => !a.status || c.status === a.status).map(c => AITools.metrics(c, p)).filter(m => m[k] != null).sort((x, y) => asc ? x[k] - y[k] : y[k] - x[k]);
+      return { metrica: k, ordem: asc ? "asc" : "desc", periodo: p.label, total_clientes: ms.length, media: ms.length ? AITools.r1(U.sum(ms, m => m[k]) / ms.length) : null, ranking: ms.slice(0, Math.min(50, a.limite || 10)).map((m, i) => ({ posicao: i + 1, cliente: m.cliente, id: m.id, status: m.status, valor_metrica: m[k], consumo_periodo_horas: m.consumo_periodo_horas, contratos_vigentes: m.contratos_vigentes })) };
+    }
+  },
+  run(name, argsJson) {
+    let a; try { a = JSON.parse(argsJson || "{}"); } catch (e) { return { erro: "Argumentos inválidos." }; }
+    const f = AITools.fns[name]; if (!f) return { erro: `Tool desconhecida: ${name}` };
+    try { return f(a); } catch (e) { return { erro: "Falha ao executar: " + e.message }; }
+  }
+};
+Chat.providers.llm = {
+  name: "Microsoft Foundry",
+  get answer() { return AI.ready() ? this._answer : null; },
+  sys() {
+    const r = Acc.role();
+    return `${AI.system}\nData de hoje: ${Ctx.today()}. Perfil do usuário: ${r.label}${Acc.cs() ? " (" + Acc.cs() + ")" : ""}; valores financeiros ${r.values ? "permitidos" : "NÃO permitidos"}; oportunidades ${r.opps ? "permitidas" : "NÃO permitidas"}.
+Você tem tools que consultam os dados locais do portal (clientes, contratos, consumo de horas, oportunidades). Regras:
+- Para qualquer pergunta sobre clientes, contratos, consumo, métricas ou comparações, USE as tools; nunca invente dados nem nomes. Se a tool retornar erro ou candidatos, informe/peça para especificar.
+- Relatórios de contratos: use relatorio_contratos e apresente tabela markdown (serviço, vigência, franquia, usadas, % uso, alerta${r.values ? ", valor" : ""}) + totais + pontos de atenção.
+- Comparações: use comparar_clientes (clientes específicos) ou ranking_clientes (carteira toda); apresente tabela markdown com as métricas lado a lado e um resumo com destaques e recomendações.
+- Valores em R$ no formato brasileiro; datas dd/mm/aaaa; informe o período considerado. Não exponha CPF/CNPJ/contatos.`;
+  },
+  async _answer(q, history = [], onStep) {
+    const msgs = [{ role: "system", content: this.sys() }, ...history.slice(-10).map(m => ({ role: m.r === "u" ? "user" : "assistant", content: m.raw ?? m.t })), { role: "user", content: q }], used = [];
+    for (let i = 0; i < 6; i++) {
+      const m = await AI.chat(msgs, { tools: AITools.defs });
+      if (!m.tool_calls?.length) return { raw: m.content || "", html: AI.md(m.content || "(resposta vazia)"), tools: used };
+      msgs.push({ role: "assistant", content: m.content || null, tool_calls: m.tool_calls });
+      for (const tc of m.tool_calls) {
+        let args = {}; try { args = JSON.parse(tc.function.arguments || "{}"); } catch (e) { }
+        used.push({ name: tc.function.name, args }); onStep?.(used);
+        msgs.push({ role: "tool", tool_call_id: tc.id, content: JSON.stringify(AITools.run(tc.function.name, tc.function.arguments)) });
+      }
+    }
+    throw new Error("Limite de chamadas de ferramentas atingido.");
+  }
+};
+Chat.toolsLabel = used => used.map(u => `${u.name}(${U.esc(Object.values(u.args).map(v => Array.isArray(v) ? v.join(", ") : v).join("; "))})`).join(" · ");
 const ChatLog = [];
 
 /* Documentação */
@@ -1335,7 +1501,7 @@ Pages.audit = el => {
 /* Configurações */
 let SetTab = "an";
 Pages.settings = el => {
-  const s = DB.s.settings;
+  const s = DB.s.settings, ai = AI.get();
   const body = {
     an: `<div class="ht-card"><h2 class="h5">Análise de oportunidades</h2><p class="desc">Janela de leitura de e-mails e dicionário de sinais usado pelo agente</p><div class="fgrid">${fieldHtml({ k: "win", label: "Janela de e-mails (dias)", type: "number", attrs: 'min="1" max="365"' }, { win: s.windowDays }).replace('id="f_win"', 'id="win"')}</div>
       <div class="ht-field" style="margin-top:16px"><label class="ht-field__label" for="dict">Dicionário de sinais (JSON)</label><textarea class="ht-input" style="height:auto;padding:12px;font:12.5px/1.55 ui-monospace,Consolas,monospace" id="dict" rows="14" spellcheck="false">${U.esc(JSON.stringify(s.dict, null, 2))}</textarea><p class="ht-field__hint">Alterações valem para e-mails importados depois — o corpo não é guardado para reprocessar.</p></div>
@@ -1348,10 +1514,16 @@ Pages.settings = el => {
       <div class="row" style="gap:8px;flex-wrap:wrap">${btn("Exportar tudo (JSON)", { kind: "secondary", icon: "download", id: "expAll" })}<label class="ht-btn ht-btn--secondary" tabindex="0">${ic("upload")}Restaurar backup<input type="file" id="rest" accept=".json" class="sr"></label>${btn("Recarregar dados de exemplo", { kind: "secondary", icon: "restart_alt", attrs: "data-load" })}</div>
       <div class="ht-alert ht-alert--error" style="margin-top:20px;align-items:center">${ic("warning")}<div class="ht-alert__content"><p class="ht-alert__title">Zona de risco</p><p class="ht-alert__body">Apagar remove clientes, contratos, consumo, e-mails e auditoria deste navegador.</p></div>${btn("Limpar todos os dados", { kind: "danger", icon: "delete", sm: true, id: "clr" })}</div></div>
       <div class="ht-card"><h2 class="h5">Autotestes</h2><p class="desc">Valida schemas, importação, métricas e regras do agente</p>${btn("Executar autotestes", { kind: "secondary", icon: "science", id: "tst" })}<pre class="code" id="tout" style="margin-top:12px" hidden></pre></div>`,
-    in: `<div class="ht-card"><h2 class="h5">Integrações</h2><p class="desc">Conectores previstos no plano de evolução</p><ul class="list">${[["support_agent", "Helpdesk (chamados e horas)", "Webhooks/sincronização"], ["mail", "E-mail (Microsoft Graph / Gmail)", "OAuth com minimização"], ["key", "SSO corporativo (OIDC)", "Autenticação e RBAC no servidor"], ["smart_toy", "Provedor LLM", "Chat.providers.llm"]].map(([i, t, d]) => `<li><span class="tile">${ic(i)}</span><div class="list__main"><b>${t}</b><span class="small muted">${d}</span></div>${badge("Não configurado", "neutral", { sm: true })}</li>`).join("")}</ul></div>`,
+    in: `<div class="ht-card"><h2 class="h5">Integrações</h2><p class="desc">Conectores previstos no plano de evolução</p><ul class="list">${[["support_agent", "Helpdesk (chamados e horas)", "Webhooks/sincronização"], ["mail", "E-mail (Microsoft Graph / Gmail)", "OAuth com minimização"], ["key", "SSO corporativo (OIDC)", "Autenticação e RBAC no servidor"], ["smart_toy", "Microsoft Foundry (LLM)", "Assistente com IA e tools — aba IA", 1]].map(([i, t, d, llm]) => `<li><span class="tile">${ic(i)}</span><div class="list__main"><b>${t}</b><span class="small muted">${d}</span></div>${llm && AI.ready() ? badge("Ativo", "success", { sm: true }) : badge("Não configurado", "neutral", { sm: true })}</li>`).join("")}</ul></div>`,
+    ia: `<div class="ht-card"><h2 class="h5">IA — Microsoft Foundry</h2><p class="desc">Conecta o Assistente a um modelo (Azure OpenAI chat completions) com tools que consultam os dados do portal</p>
+      <div class="swrow" style="margin-bottom:16px"><div><b>Usar IA no Assistente</b><p class="small muted" style="margin:2px 0 0">${AI.ready(ai) ? "Ativa — o Assistente responde via Foundry." : "Desativada — o Assistente responde por regras locais."}</p></div><label class="ht-choice ht-choice--switch"><span class="ht-switch-wrap"><input type="checkbox" class="ht-switch" id="aiOn" ${ai.enabled ? "checked" : ""}><span class="ht-switch__thumb"></span></span><span class="sr">Usar IA no Assistente</span></label></div>
+      <div class="fgrid"><div class="ht-field"><label class="ht-field__label" for="aiEp">Endpoint</label><input class="ht-input" id="aiEp" type="url" value="${U.esc(ai.endpoint)}" placeholder="https://meu-recurso.openai.azure.com" autocomplete="off" spellcheck="false"><p class="ht-field__hint">https://&lt;recurso&gt;.openai.azure.com, https://&lt;recurso&gt;.services.ai.azure.com ou URL completa terminando em /chat/completions (ex.: proxy local http://localhost:8787/chat/completions)</p></div><div class="ht-field"><label class="ht-field__label" for="aiDep">Deployment</label><input class="ht-input" id="aiDep" type="text" value="${U.esc(ai.deployment)}" placeholder="gpt-4o-mini" autocomplete="off" spellcheck="false"><p class="ht-field__hint">Nome do modelo implantado</p></div><div class="ht-field"><label class="ht-field__label" for="aiKey">API key</label><input class="ht-input" id="aiKey" type="password" value="${U.esc(ai.apiKey)}" placeholder="" autocomplete="off" spellcheck="false"><p class="ht-field__hint">Em branco ao usar o proxy local com Entra ID (server/foundry-proxy.js)</p></div><div class="ht-field"><label class="ht-field__label" for="aiVer">API version</label><input class="ht-input" id="aiVer" type="text" value="${U.esc(ai.apiVersion)}" placeholder="2024-10-21" autocomplete="off" spellcheck="false"></div></div>
+      <p class="small muted" id="aiOut" style="margin:16px 0 0" aria-live="polite"></p>
+      <div class="cfoot">${btn("Testar conexão", { kind: "secondary", icon: "lan", id: "aiTst" })}${btn("Salvar", { icon: "check", id: "aiSv" })}</div></div>
+      <div class="ht-alert ht-alert--warning">${ic("shield")}<div class="ht-alert__content"><p class="ht-alert__title">Homologação apenas</p><p class="ht-alert__body">A chave fica só neste navegador (localStorage, fora de backups/exportações). Com a IA ativa, perguntas, histórico e resultados das consultas são enviados ao endpoint. Em produção, use um backend/proxy com Entra ID.</p></div></div>`,
     pf: `<div class="ht-card ht-card--pad-none"><div style="padding:20px 20px 0"><h2 class="h5">Perfis de acesso</h2><p class="desc">Perfis simulados nesta fase — troque pelo seletor no topo</p></div><div class="ht-table-wrap"><table class="ht-table"><thead><tr><th>Perfil</th><th>Páginas</th><th>Edita</th><th>Valores</th><th>Oportunidades</th><th>Importa</th></tr></thead><tbody>${Object.entries(ROLES).map(([k, r]) => `<tr><td><span class="ht-table__primary">${U.esc(r.label)}</span>${k === s.role ? badge("Atual", "primary", { sm: true }) : ""}</td><td class="small">${r.pages.map(p => PAGE_META[p][0]).join(", ")}</td>${[r.edit, r.values, r.opps].map(v => `<td>${v ? `<span style="color:var(--color-success)">${ic("check_circle")}</span>` : ic("remove", "muted")}</td>`).join("")}<td class="small">${r.imp.length ? r.imp.map(e => ENTITY_LABEL[e] || e).join(", ") : "—"}</td></tr>`).join("")}</tbody></table></div></div>`
   };
-  el.innerHTML = `<div class="narrow">${pageHead("Configurações", "Parâmetros do agente, privacidade e dados locais")}${tabs("set", [["an", "Análise"], ["pr", "Privacidade"], ["da", "Dados"], ["in", "Integrações"], ["pf", "Perfis"]], SetTab)}<div class="stack" style="margin-top:20px">${body[SetTab]}</div></div>`;
+  el.innerHTML = `<div class="narrow">${pageHead("Configurações", "Parâmetros do agente, privacidade, IA e dados locais")}${tabs("set", [["an", "Análise"], ["pr", "Privacidade"], ["da", "Dados"], ["ia", "IA"], ["in", "Integrações"], ["pf", "Perfis"]], SetTab)}<div class="stack" style="margin-top:20px">${body[SetTab]}</div></div>`;
   $$("[data-tabs=set] [data-tab]", el).forEach(b => b.onclick = () => { SetTab = b.dataset.tab; Pages.settings(el); });
   const on = (id, f, ev = "onclick") => { const n = $("#" + id); if (n) n[ev] = f; };
   on("svS", () => { try { const d = JSON.parse($("#dict").value); if (!Array.isArray(d.rules)) throw new Error("rules[] ausente"); s.dict = d; s.windowDays = Math.max(1, +$("#win").value || 30); DB.audit("config", "dicionário/janela"); DB.save(); toast("Configurações salvas."); } catch (e) { toast("JSON inválido: " + e.message); } });
@@ -1361,6 +1533,10 @@ Pages.settings = el => {
   on("expAll", () => { DB.audit("exportar", "backup completo"); DB.save(); U.download(`backup-helpitech-${U.today()}.json`, JSON.stringify(DB.s)); });
   on("rest", async e => { try { const j = JSON.parse(await e.target.files[0].text()); DB.s = Object.assign(blank(), j); DB.audit("restaurar", "backup"); DB.save(); toast("Backup restaurado."); applyRole(); go("dashboard"); } catch (x) { toast("Backup inválido."); } }, "onchange");
   on("clr", () => confirmDlg("Apagar TODOS os dados locais (clientes, contratos, consumo, e-mails, auditoria)?", () => { DB.reset(); DB.save(); toast("Dados apagados."); applyRole(); go("dashboard"); }));
+  const aiRead = () => ({ enabled: $("#aiOn").checked, endpoint: $("#aiEp").value.trim(), deployment: $("#aiDep").value.trim(), apiKey: $("#aiKey").value.trim(), apiVersion: $("#aiVer").value.trim() || AI.defaults.apiVersion });
+  const aiValid = c => { try { new URL(c.endpoint); } catch (e) { return "Endpoint inválido."; } return !c.deployment ? "Informe o deployment." : !c.apiKey && !/\/chat\/completions/.test(c.endpoint) ? "Informe a API key (ou use o proxy local: http://localhost:8787/chat/completions)." : ""; };
+  on("aiSv", () => { const c = aiRead(), err = aiValid(c); if (c.enabled && err) return toast(err); AI.set(c); DB.audit("config", "IA Foundry " + (c.enabled ? "ativada" : "desativada")); DB.save(); toast(c.enabled ? "Configuração de IA salva — IA ativa no Assistente." : "Configuração salva (IA desativada)."); Pages.settings(el); });
+  on("aiTst", async () => { const c = aiRead(), err = aiValid(c), o = $("#aiOut"); if (err) return toast(err); o.textContent = "Testando…"; try { const r = await AI.complete([{ role: "user", content: "Responda apenas: OK" }], c); $("#aiOn").checked = true; o.textContent = "✔ Conexão OK. Resposta: " + r.slice(0, 120) + " — clique em Salvar para ativar no Assistente."; } catch (e) { o.textContent = "✘ Falha: " + (e.message || e) + (e instanceof TypeError ? " (verifique endpoint, rede e CORS)" : ""); } });
   on("tst", () => { const r = SelfTest.run(), o = $("#tout"); o.hidden = false; o.textContent = `${r.filter(x => x.ok).length}/${r.length} aprovados\n\n` + r.map(x => (x.ok ? "✔ " : "✘ ") + x.name + (x.ok ? "" : " — " + x.err)).join("\n"); });
 };
 /* ============================================================
