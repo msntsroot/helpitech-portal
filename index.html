@@ -23,6 +23,12 @@
   --bg:#0e1514;--sf:#0e1514;--sf1:#161d1d;--sf2:#1a2121;--sf3:#252b2b;--on:#dde4e3;--onv:#bec8c8;--ol:#899392;--olv:#3f4948;
   --c1:#4cdadc;--c2:#ffb867;--c3:#cfbcff;--c4:#ffb4ab;
 }
+:root[data-theme=black]{
+  --p:#4cdadc;--on-p:#003737;--pc:#004f50;--on-pc:#9cf1f2;--s:#b0cccc;--sc:#243838;--on-sc:#cce8e8;
+  --err:#ffb4ab;--on-err:#690005;--errc:#93000a;--warn:#ffb867;--warnc:#693c00;--ok:#9adaad;--okc:#00522a;
+  --bg:#000;--sf:#000;--sf1:#0b0b0b;--sf2:#121212;--sf3:#1c1c1c;--on:#e6e6e6;--onv:#c4c4c4;--ol:#8c8c8c;--olv:#2e2e2e;
+  --c1:#4cdadc;--c2:#ffb867;--c3:#cfbcff;--c4:#ffb4ab;
+}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 body{font-family:"Noto Sans",sans-serif;background:var(--bg);color:var(--on);font-size:14px;line-height:1.5}
@@ -117,7 +123,7 @@ ul.clean{list-style:none;padding:0;margin:0}ul.clean li{padding:8px 0;border-bot
   <label class="tf" style="min-width:170px"><span>Perfil simulado</span><select id="roleSel"></select></label>
   <label class="tf" id="csWrap" style="min-width:150px"><span>Analista de CS</span><select id="csSel"></select></label>
   <button class="chip" id="maskBtn" aria-pressed="true" title="Mascarar dados pessoais (LGPD)">LGPD: mascarado</button>
-  <button class="ib" id="themeBtn" aria-label="Alternar tema claro/escuro"></button>
+  <button class="ib" id="themeBtn" aria-label="Alternar tema: claro, escuro, preto"></button>
 </header>
 <nav class="drawer" id="drawer" aria-label="Navegação principal"></nav>
 <div class="scrim" id="scrim"></div>
@@ -1074,7 +1080,7 @@ function init() {
   DB.load(); applyTheme();
   $("#menuBtn").innerHTML = ic("menu"); $("#themeBtn").innerHTML = ic("theme");
   $("#menuBtn").onclick = () => { $("#drawer").classList.toggle("open"); $("#scrim").classList.toggle("on"); }; $("#scrim").onclick = closeDrawer;
-  $("#themeBtn").onclick = () => { DB.s.settings.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; applyTheme(); DB.save(); };
+  $("#themeBtn").onclick = () => { const o = ["light", "dark", "black"], c = document.documentElement.dataset.theme; DB.s.settings.theme = o[(o.indexOf(c) + 1) % 3]; applyTheme(); DB.save(); toast("Tema: " + { light: "claro", dark: "escuro", black: "preto (OLED)" }[DB.s.settings.theme]); };
   $("#roleSel").onchange = e => { DB.s.settings.role = e.target.value; DB.audit("trocar_perfil", e.target.value); DB.save(); applyRole(); go(current); };
   $("#csSel").onchange = e => { DB.s.settings.cs = e.target.value; DB.audit("trocar_cs", e.target.value); DB.save(); go(current); };
   $("#maskBtn").onclick = () => { DB.s.settings.mask = !DB.s.settings.mask; DB.audit(DB.s.settings.mask ? "mascarar_dados" : "revelar_dados", ""); DB.save(); applyRole(); go(current); };
