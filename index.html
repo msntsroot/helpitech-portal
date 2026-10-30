@@ -230,9 +230,9 @@ const ENTITY_LABEL = { customers: "Clientes", services: "Serviços", contracts: 
 const IMPORT_ORDER = ["services", "customers", "contracts", "usage_events", "emails"];
 const EXAMPLES = {
   customers: [{ external_id: "C-1001", name: "Exemplo Indústria Ltda", trading_name: "Exemplo", document: "11.222.333/0001-81", status: "ativo", segment: "Indústria", size: "medio", cs_owner: "Ana Souza", city: "São Paulo", state: "SP", amount_tickets: 12, contacts: [{ name: "Maria Contato", email: "maria@exemplo.com.br", phone: "11999990000", role: "TI" }] }],
-  services: [{ external_id: 5, name: "Monitoramento de Infraestrutura", description: "Monitoramento 24x7 de servidores e rede", price: 1800, unit: "mês", est_units_year: 12, category: "servico" }],
-  contracts: [{ external_id: "K-2001", customer_id: "C-1001", service_id: 4, value: 3500, hours: 100, start_date: "2026-04-01", end_date: "2027-03-28", auto_renew: true, billing_day: 1, description: "Bolsa anual", status: "vigente" }],
-  usage_events: [{ external_id: "U-1", customer_id: "C-1001", date: "2026-10-20", quantity: 3.5, service_id: 4, description: "Chamado #4521 — ajuste de VPN" }],
+  services: [{ external_id: 4, name: "NOC", description: "Monitoramento 24x7 de servidores e rede", price: 1800, unit: "mês", est_units_year: 12, category: "Operação" }],
+  contracts: [{ external_id: "K-2001", customer_id: "C-1001", service_id: 1, value: 3500, hours: 100, start_date: "2026-04-01", end_date: "2027-03-28", auto_renew: true, billing_day: 1, description: "Contrato anual de suporte", status: "vigente" }],
+  usage_events: [{ external_id: "U-1", customer_id: "C-1001", date: "2026-10-20", quantity: 3.5, service_id: 1, description: "Chamado #4521 — ajuste de VPN" }],
   emails: [{ external_id: "msg-0001", customer_id: "C-1001", thread_id: "T-77", date: "2026-10-22", from: "maria@exemplo.com.br", subject: "Backup", body: "Tivemos queda de energia e perdemos arquivos. Precisamos de uma rotina de backup até dezembro.", internal: false }]
 };
 /* ============================================================
@@ -297,7 +297,18 @@ const N = {
   contract(r) {
     if (!(r && r.store && r.type)) return r;
     const ok = !r.disabled_at;
-    return { external_id: r.external_id || `L-${r.store.id}-${r.type.id}-${r.date_start}`, customer_id: r.store.id, service_id: r.type.id, value: U.parseMoney(r.value), hours: r.amount_hours, start_date: r.date_start, end_date: r.date_end, billing_day: r.billing_day, description: r.description || undefined, status: ok ? undefined : "cancelado", reason_disable: r.reason_disable || undefined };
+    return { external_id: r.external_id || `L-${r.store.id}-${r.type.id}-${r.date_start}`, customer_id: r.store.id, service_id: N.serviceOf(r), value: U.parseMoney(r.value), hours: r.amount_hours, start_date: r.date_start, end_date: r.date_end, billing_day: r.billing_day, description: r.description || undefined, status: ok ? undefined : "cancelado", reason_disable: r.reason_disable || undefined };
+  },
+  /* `type` do formato atual é apenas o tipo de cobrança (mensal, anual, bolsa…); o serviço é inferido da descrição/natureza do contrato */
+  serviceOf(r) {
+    const d = U.norm ? U.norm(r.description || "") : String(r.description || "").toLowerCase();
+    if (/desenvolv/.test(d)) return 3;
+    if (/manuten/.test(d)) return 7;
+    if (/backup/.test(d)) return 2;
+    if (/noc|monitor/.test(d)) return 4;
+    if (/soc|seguranca/.test(d)) return 5;
+    if (/projeto/.test(d) || (r.type && /projeto/i.test(r.type.name || ""))) return 6;
+    return 1;
   },
   clean(o) { const x = {}; for (const [k, v] of Object.entries(o || {})) if (v !== undefined && v !== null && v !== "") x[k] = v; return x; }
 };
@@ -306,14 +317,17 @@ const N = {
    ============================================================ */
 const DEFAULT_DICT = {
   rules: [
-    { key: "mais-horas", service_id: "4", kind: "necessidade", weight: 1, terms: ["mais horas", "pacote de horas", "horas acabando", "horas acabaram", "estourou a franquia", "ampliar o pacote", "bolsa de horas"] },
-    { key: "suporte-sla", service_id: "2", kind: "dor", weight: 1, terms: ["sla", "suporte 24", "atendimento urgente", "chamado demorado", "demora no atendimento", "suporte mais rapido", "suporte continuo"] },
-    { key: "projeto-novo", service_id: "3", kind: "projeto", weight: 1, terms: ["novo sistema", "implantar", "implantacao", "desenvolvimento de", "novo projeto", "integracao com"] },
-    { key: "custo-fixo", service_id: "1", kind: "necessidade", weight: .8, terms: ["valor fixo", "previsibilidade", "custo mensal fixo", "mensalidade"] },
-    { key: "monitoramento", service_id: "5", kind: "dor", weight: 1, terms: ["fora do ar", "ficou fora", "indisponibilidade", "ninguem avisou", "monitoramento", "monitorar", "alertas de servidor", "lentidao"] },
-    { key: "backup", service_id: "6", kind: "dor", weight: 1, terms: ["backup", "perdemos dados", "perdemos arquivos", "restaurar", "ransomware", "recuperacao de desastre"] },
-    { key: "seguranca-lgpd", service_id: "7", kind: "necessidade", weight: 1, terms: ["lgpd", "auditoria", "seguranca da informacao", "vazamento", "phishing", "iso 27001", "adequacao"] },
-    { key: "nuvem", service_id: "8", kind: "projeto", weight: 1, terms: ["nuvem", "cloud", "migrar o servidor", "migracao para", "aws", "azure"] }
+    { key: "suporte-horas", service_id: "1", kind: "necessidade", weight: 1, terms: ["mais horas", "pacote de horas", "horas acabando", "horas acabaram", "estourou a franquia", "ampliar o pacote", "bolsa de horas"] },
+    { key: "suporte-sla", service_id: "1", kind: "dor", weight: 1, terms: ["sla", "suporte 24", "atendimento urgente", "chamado demorado", "demora no atendimento", "suporte mais rapido", "suporte continuo"] },
+    { key: "desenvolvimento", service_id: "3", kind: "projeto", weight: 1, terms: ["novo sistema", "desenvolvimento de", "integracao com", "automatizar", "automacao", "customizacao", "sistema sob medida"] },
+    { key: "projetos", service_id: "6", kind: "projeto", weight: 1, terms: ["implantar", "implantacao", "novo projeto", "cronograma", "novo escritorio", "nova filial", "troca de servidor"] },
+    { key: "noc", service_id: "4", kind: "dor", weight: 1, terms: ["fora do ar", "ficou fora", "indisponibilidade", "ninguem avisou", "monitoramento", "monitorar", "alertas de servidor", "lentidao", "link caiu"] },
+    { key: "soc", service_id: "5", kind: "dor", weight: 1, terms: ["phishing", "invasao", "ataque", "malware", "vazamento", "acesso suspeito", "incidente de seguranca", "siem"] },
+    { key: "backup", service_id: "2", kind: "dor", weight: 1, terms: ["backup", "perdemos dados", "perdemos arquivos", "restaurar", "ransomware", "recuperacao de desastre"] },
+    { key: "manutencao", service_id: "7", kind: "necessidade", weight: .9, terms: ["manutencao preventiva", "atualizar os servidores", "atualizacao de servidor", "patch", "servidor desatualizado"] },
+    { key: "seguranca-lgpd", service_id: "8", kind: "necessidade", weight: 1, terms: ["lgpd", "auditoria", "seguranca da informacao", "iso 27001", "adequacao"] },
+    { key: "nuvem", service_id: "9", kind: "projeto", weight: 1, terms: ["nuvem", "cloud", "migrar o servidor", "migracao para", "aws", "azure"] },
+    { key: "licencas", service_id: "10", kind: "necessidade", weight: .9, terms: ["licenca", "microsoft 365", "office 365", "antivirus", "renovar licencas"] }
   ],
   complaint: ["reclam", "insatisf", "demora", "demorou", "fora do ar", "parou", "falha", "problema", "queda", "pessimo", "inaceitavel", "cancelar"],
   positive: ["obrigad", "excelente", "parabens", "satisfeit", "otimo", "agradec"],
@@ -440,7 +454,7 @@ const Opp = {
         if (st.pct >= .8) push(cust, c.service_id, "franquia", [{ type: "uso", date: today, text: `Consumo de ${U.num(st.used)}h de ${c.hours}h (${U.num(st.pct * 100, 0)}%) na vigência`, ref: c.external_id }], st.pct > 1 ? 25 : 12);
       }
       const hasActive = cs.some(c => M.isActive(c, today));
-      if (!hasActive && (cust.amount_tickets || 0) >= 20 && svcs.has("4")) push(cust, "4", "semcontrato", [{ type: "uso", date: today, text: `${cust.amount_tickets} chamados registrados e nenhum contrato vigente`, ref: cust.external_id }], Math.min(12, Math.round(cust.amount_tickets / 5)));
+      if (!hasActive && (cust.amount_tickets || 0) >= 20 && svcs.has("1")) push(cust, "1", "semcontrato", [{ type: "uso", date: today, text: `${cust.amount_tickets} chamados registrados e nenhum contrato vigente`, ref: cust.external_id }], Math.min(12, Math.round(cust.amount_tickets / 5)));
     }
     return out.sort((a, b) => b.score - a.score);
   }
@@ -468,7 +482,6 @@ const Importer = {
     if (Array.isArray(j)) { const r = j[0] || {}; const ent = ("store" in r) ? "contracts" : ("is_active" in r || "cnpj" in r) ? "customers" : ("body" in r || "thread_id" in r) ? "emails" : ("quantity" in r) ? "usage_events" : ("customer_id" in r && "start_date" in r) ? "contracts" : ("price" in r || "unit" in r) ? "services" : ("status" in r || "name" in r) ? "customers" : null; return ent ? [[ent, j]] : []; }
     if (j && j.entity && Array.isArray(j.records)) return [[j.entity, j.records]];
     for (const ent of IMPORT_ORDER) if (j && j[ent] != null) out.push([ent, Array.isArray(j[ent]) ? j[ent] : Object.values(j[ent])]);
-    if (j && Array.isArray(j.contract_types)) out.push(["services", j.contract_types]);
     return out.sort((a, b) => IMPORT_ORDER.indexOf(a[0]) - IMPORT_ORDER.indexOf(b[0]));
   },
   norm(ent, raw) { return ent === "customers" ? N.customer(raw) : ent === "services" ? N.service(raw) : ent === "contracts" ? N.contract(raw) : raw; },
@@ -524,12 +537,12 @@ const Importer = {
    8. ACESSO — perfis simulados, escopo e máscara
    ============================================================ */
 const ROLES = {
-  admin: { label: "Administrador", pages: ["dashboard", "customers", "contracts", "services", "import", "metrics", "opps", "chat", "docs", "audit", "settings"], edit: true, values: true, opps: true, imp: ["customers", "services", "contracts", "usage_events", "emails"] },
+  admin: { label: "Administrador", pages: ["dashboard", "customers", "contracts", "services", "metrics", "opps", "chat", "docs", "audit", "settings"], edit: true, values: true, opps: true, imp: ["customers", "services", "contracts", "usage_events", "emails"] },
   comercial: { label: "Comercial", pages: ["dashboard", "customers", "contracts", "services", "metrics", "opps", "chat", "docs"], edit: true, values: true, opps: true, imp: [] },
   suporte: { label: "Suporte", pages: ["dashboard", "customers", "contracts", "metrics", "chat", "docs"], edit: false, values: false, opps: false, imp: [] },
-  cs: { label: "Customer Success", pages: ["dashboard", "customers", "contracts", "metrics", "import", "opps", "chat", "docs"], edit: false, values: true, opps: true, imp: ["usage_events", "emails"] }
+  cs: { label: "Customer Success", pages: ["dashboard", "customers", "contracts", "metrics", "opps", "chat", "docs"], edit: false, values: true, opps: true, imp: ["usage_events", "emails"] }
 };
-const PAGE_META = { dashboard: ["Dashboard", "dashboard"], customers: ["Clientes", "people"], contracts: ["Contratos", "doc"], services: ["Catálogo de serviços", "work"], import: ["Importar JSON", "upload"], metrics: ["Métricas de uso", "chart"], opps: ["Oportunidades", "bulb"], chat: ["Chat de consulta", "chat"], docs: ["Documentação", "book"], audit: ["Auditoria", "shield"], settings: ["Configurações", "gear"] };
+const PAGE_META = { dashboard: ["Dashboard", "dashboard"], customers: ["Clientes", "people"], contracts: ["Contratos", "doc"], services: ["Catálogo de serviços", "work"], metrics: ["Métricas de uso", "chart"], opps: ["Oportunidades", "bulb"], chat: ["Chat de consulta", "chat"], docs: ["Documentação", "book"], audit: ["Auditoria", "shield"], settings: ["Configurações", "gear"] };
 const Acc = {
   role: () => ROLES[DB.s.settings.role],
   cs: () => DB.s.settings.role === "cs" ? DB.s.settings.cs : null,
@@ -641,7 +654,7 @@ const Charts = {
    10. PÁGINAS
    ============================================================ */
 const Pages = {};
-const empty = () => `<div class="card"><h3>Nenhum dado carregado</h3><p class="muted">Este ambiente de homologação começa vazio. Carregue os dados de exemplo ou importe seus JSONs.</p><div class="row"><button class="btn" data-go="import">${ic("upload")} Importar JSON</button><button class="btn tonal" id="loadSample">Carregar dados de exemplo</button></div></div>`;
+const empty = () => `<div class="card"><h3>Nenhum dado carregado</h3><p class="muted">Este ambiente de homologação começa vazio. Carregue os dados de exemplo.</p><div class="row"><button class="btn tonal" id="loadSample">Carregar dados de exemplo</button></div></div>`;
 function bindEmpty() { const b = $("#loadSample"); if (b) b.onclick = loadSample; $$("[data-go]").forEach(x => x.onclick = () => go(x.dataset.go)); }
 
 Pages.dashboard = el => {
@@ -752,7 +765,7 @@ Pages.contracts = el => {
 };
 Pages.services = el => {
   const can = Acc.role().edit;
-  el.innerHTML = `<h2 class="pt">Catálogo de serviços</h2><div class="banner">Serviços 5–8 e preços dos dados de exemplo são <b>fictícios</b> — substitua pelo catálogo real (importe ou edite).</div><div id="tbl"></div>${can ? `<button class="btn fab" id="newS">${ic("add")} Novo serviço</button>` : ""}`;
+  el.innerHTML = `<h2 class="pt">Catálogo de serviços</h2><div class="banner">Os serviços e preços dos dados de exemplo são <b>fictícios</b> — substitua pelo catálogo real (edite).</div><div id="tbl"></div>${can ? `<button class="btn fab" id="newS">${ic("add")} Novo serviço</button>` : ""}`;
   const form = rec => formDialog({
     title: rec ? "Editar serviço" : "Novo serviço", values: rec || { external_id: String(Math.max(0, ...DB.list("services").map(s => +s.external_id || 0)) + 1), unit: "mês", est_units_year: 12 },
     fields: [{ k: "external_id", label: "ID externo", required: true }, { k: "name", label: "Nome", required: true }, { k: "description", label: "Descrição", full: true }, { k: "price", label: "Preço (R$)", type: "number", step: "0.01" }, { k: "unit", label: "Unidade de medida" }, { k: "est_units_year", label: "Unidades/ano (estimativa)", type: "number" }, { k: "category", label: "Categoria" }],
@@ -765,44 +778,6 @@ Pages.services = el => {
     onAction(a, id) { if (a === "edit") form(DB.s.services[id]); if (a === "del") confirmDlg("Excluir serviço do catálogo?", () => { delete DB.s.services[id]; DB.audit("excluir_servico", id); DB.save(); go("services"); }); }
   });
   if (can) $("#newS").onclick = () => form(null);
-};
-
-/* Importação */
-const ImpState = { text: "", file: "colado", report: null };
-Pages.import = el => {
-  const allowed = Acc.role().imp;
-  el.innerHTML = `<h2 class="pt">Importar JSON</h2>
-  <div class="grid g2"><div class="card"><h3>1. Informe o JSON</h3><p class="muted small">Aceita o formato canônico (documentado em <a href="#" data-go="docs">Documentação</a>) e o formato atual do sistema (clientes, contratos e tipos de contrato). Entidades permitidas ao seu perfil: <b>${allowed.map(e => ENTITY_LABEL[e]).join(", ") || "nenhuma"}</b>.</p>
-  <label class="tf"><span>Cole o JSON aqui</span><textarea id="jtxt" rows="8" spellcheck="false">${U.esc(ImpState.text)}</textarea></label>
-  <div class="row" style="margin-top:8px"><label class="btn tonal" tabindex="0">${ic("upload")} Enviar arquivo<input type="file" id="jfile" accept=".json,.txt,application/json,text/plain" class="sr" multiple></label><button class="btn" id="vBtn">Validar (dry-run)</button></div></div>
-  <div class="card"><h3>Modelos de exemplo</h3><p class="muted small">Baixe, edite e reimporte. O mesmo <code>external_id</code> atualiza o registro (upsert), sem duplicar.</p><div class="row">${Object.keys(EXAMPLES).map(e => `<button class="btn out sm" data-ex="${e}">${ic("download")} ${ENTITY_LABEL[e]}</button>`).join("")}<button class="btn out sm" data-ex="bundle">${ic("download")} Pacote completo</button></div>
-  <p style="margin-top:16px"><button class="btn tonal" id="loadSample">Carregar dados de exemplo (formato atual + consumo + e-mails)</button></p></div></div>
-  <div id="rep" style="margin-top:16px"></div><div class="card" style="margin-top:16px"><h3>Histórico de importações</h3><div id="hist"></div></div>`;
-  $$("[data-go]").forEach(x => x.onclick = e => { e.preventDefault(); go(x.dataset.go); }); $("#loadSample").onclick = loadSample;
-  $("#jtxt").oninput = e => { ImpState.text = e.target.value; ImpState.file = "colado"; };
-  $("#jfile").onchange = async e => { const fs = [...e.target.files]; if (!fs.length) return; const parts = []; for (const f of fs) { const t = await f.text(); const p = Importer.parse(t); if (p.error) { toast(f.name + ": " + p.error); continue; } parts.push(p.json); } ImpState.file = fs.map(f => f.name).join(", "); ImpState.text = parts.length === 1 ? JSON.stringify(parts[0]).length > 400000 ? JSON.stringify(parts[0]) : JSON.stringify(parts[0], null, 1) : JSON.stringify({ __multi: parts }); $("#jtxt").value = ImpState.text.length > 400000 ? ImpState.text.slice(0, 400000) + "…" : ImpState.text; if (ImpState.text.length > 400000) ImpState._big = ImpState.text; run(); };
-  $$("[data-ex]").forEach(b => b.onclick = () => { const k = b.dataset.ex; U.download(k === "bundle" ? "exemplo-pacote.json" : `exemplo-${k}.json`, JSON.stringify(k === "bundle" ? EXAMPLES : { [k]: EXAMPLES[k] }, null, 2)); });
-  const run = () => {
-    const text = ImpState._big && $("#jtxt").value.endsWith("…") ? ImpState._big : $("#jtxt").value; ImpState.text = text;
-    const p = Importer.parse(text); if (p.error) { $("#rep").innerHTML = `<div class="card"><div class="banner">${U.esc(p.error)}</div></div>`; return; }
-    const jsons = p.json.__multi || [p.json]; let groups = jsons.flatMap(j => Importer.detect(j)); groups.sort((a, b) => IMPORT_ORDER.indexOf(a[0]) - IMPORT_ORDER.indexOf(b[0]));
-    if (!groups.length) { $("#rep").innerHTML = `<div class="card"><div class="banner">Nenhuma entidade reconhecida. Use chaves: ${IMPORT_ORDER.join(", ")}.</div></div>`; return; }
-    const denied = groups.filter(g => !allowed.includes(g[0])); groups = groups.filter(g => allowed.includes(g[0]));
-    ImpState.report = Importer.plan(groups, DB.s, Ctx.dict()); renderReport(denied);
-  };
-  const renderReport = denied => {
-    const rep = ImpState.report, tot = s => U.sum(rep, g => g.rows.filter(r => r.status === s).length), errs = tot("erro"), ok = tot("novo") + tot("atualizado");
-    $("#rep").innerHTML = `<div class="card"><h3>2. Relatório de validação</h3>${denied.length ? `<div class="banner">Ignorado por permissão do perfil: ${denied.map(g => ENTITY_LABEL[g[0]]).join(", ")}</div>` : ""}
-    <div class="row">${chip(tot("novo") + " novos", "ok")}${chip(tot("atualizado") + " atualizados", "info")}${chip(tot("igual") + " inalterados")}${chip(errs + " com erro", errs ? "err" : "")}<span class="sp"></span>
-    <button class="btn" id="applyBtn" ${ok ? "" : "disabled"}>Importar ${ok} registro(s) válido(s)</button></div>
-    <p class="small muted">Dry-run: nada foi gravado. Registros com erro são ignorados; os válidos são importados (upsert por external_id).</p>
-    ${rep.map(g => `<h3 style="margin-top:12px">${ENTITY_LABEL[g.entity]} (${g.rows.length})</h3><div class="tw"><table><thead><tr><th>#</th><th>ID externo</th><th>Resultado</th><th>Detalhes</th></tr></thead><tbody>${g.rows.filter(r => r.status === "erro").concat(g.rows.filter(r => r.status !== "erro").slice(0, 50)).slice(0, 200).map(r => `<tr><td>${r.idx}</td><td>${U.esc(r.id ?? "—")}</td><td>${chip(r.status, r.status === "erro" ? "err" : r.status === "novo" ? "ok" : r.status === "igual" ? "" : "info")}</td><td class="small">${r.errors.map(U.esc).join("<br>")}${g.entity === "emails" && r.rec ? `${r.rec.ignored ? chip("ignorado: " + r.rec.ignored, "warn") : chip(r.rec.signals.hits.length + " sinal(is)", "info")}` : ""}</td></tr>`).join("")}</tbody></table></div>`).join("")}</div>`;
-    $("#applyBtn").onclick = () => { const h = Importer.apply(rep, DB.s, { file: ImpState.file, role: DB.s.settings.role }); DB.audit("importar", `${h.file}: +${h.created} ~${h.updated} =${h.same} ✗${h.errors}`); DB.save(); toast(`Importado: ${h.created} novos, ${h.updated} atualizados, ${h.errors} erros.`); ImpState.report = null; Pages.import(el); };
-  };
-  $("#vBtn").onclick = run;
-  const hist = DB.s.imports;
-  $("#hist").innerHTML = hist.length ? `<div class="tw"><table><thead><tr><th>Data</th><th>Arquivo</th><th>Entidades</th><th>Novos</th><th>Atual.</th><th>Erros</th><th></th></tr></thead><tbody>${hist.map(h => `<tr><td>${new Date(h.at).toLocaleString("pt-BR")}</td><td>${U.esc(h.file)}</td><td class="small">${U.esc(h.entities)}</td><td>${h.created}</td><td>${h.updated}</td><td>${h.errors}</td><td>${h.reverted ? chip("revertida") : `<button class="btn out sm" data-rev="${h.id}">Reverter</button>`}</td></tr>`).join("")}</tbody></table></div>` : `<p class="muted">Nenhuma importação realizada.</p>`;
-  $$("[data-rev]").forEach(b => b.onclick = () => confirmDlg("Reverter esta importação? Registros criados serão removidos e os atualizados voltarão ao valor anterior.", () => { Importer.revert(DB.s, b.dataset.rev); DB.audit("reverter_importacao", b.dataset.rev); DB.save(); toast("Importação revertida."); Pages.import(el); }));
 };
 
 /* Métricas */
@@ -908,7 +883,7 @@ Chat.providers.rules = {
   name: "Regras locais",
   answer(q) {
     const n = U.norm(q), today = Ctx.today(), cust = Chat.findCustomer(n), svc = Chat.findService(n), usage = Acc.scoped("usage_events"), cons = Acc.scoped("contracts"), vals = Acc.role().values;
-    if (!DB.list("customers").length) return "Não há dados carregados. Importe JSONs ou carregue os dados de exemplo.";
+    if (!DB.list("customers").length) return "Não há dados carregados. Carregue os dados de exemplo.";
     if (/oportunidad/.test(n)) {
       if (!Acc.role().opps) return "Seu perfil não tem acesso às oportunidades.";
       const lvl = /alta/.test(n) ? "alta" : /media/.test(n) ? "media" : /baixa/.test(n) ? "baixa" : null; let l = Ctx.opps().filter(o => o.status === "nova" || o.status === "em andamento"); if (cust) l = l.filter(o => o.customer_id === cust.external_id); if (lvl) l = l.filter(o => o.level === lvl);
@@ -936,7 +911,7 @@ Chat.providers.rules = {
     }
     if (/(quantos|total).*(cliente)/.test(n)) return `Há <b>${Acc.customers().length}</b> cliente(s) visíveis ao seu perfil.`;
     if (/(consumo|horas)/.test(n)) { const p = Chat.period(n); return `Consumo total nos ${p.l}: <b>${U.num(M.total(usage, p.r))} h</b>.`; }
-    return "Não encontrei essa informação nos dados carregados. Tente: <i>situação do cliente X</i>, <i>contratos que vencem este mês</i>, <i>quem mais consumiu Bolsa de Horas na última semana</i>, <i>oportunidades altas do cliente X</i>, <i>clientes inadimplentes</i>, <i>alertas de franquia</i>.";
+    return "Não encontrei essa informação nos dados carregados. Tente: <i>situação do cliente X</i>, <i>contratos que vencem este mês</i>, <i>quem mais consumiu Suporte na última semana</i>, <i>oportunidades altas do cliente X</i>, <i>clientes inadimplentes</i>, <i>alertas de franquia</i>.";
   }
 };
 /* ponto de extensão para LLM: implementar answer(q, tools) e registrar em Chat.providers.llm */
@@ -956,15 +931,15 @@ Pages.chat = el => {
 Pages.docs = el => {
   const ent = Object.keys(SCHEMAS);
   el.innerHTML = `<h2 class="pt">Documentação</h2><div class="tabs" role="tablist">${["Como usar", "Schemas e exemplos", "Sinais e pontuação", "Limitações e evolução"].map((t, i) => `<button role="tab" aria-selected="${i === 0}" data-tab="${i}">${t}</button>`).join("")}</div>
-  <div data-p="0" class="card"><h3>Como importar</h3><ol><li>Em <b>Importar JSON</b>, cole o conteúdo ou envie o(s) arquivo(s). Aceita o formato canônico e o formato atual (clientes/contratos/tipos de contrato).</li><li>Clique em <b>Validar (dry-run)</b>: o relatório mostra, por registro, novo/atualizado/inalterado/erro, sem gravar.</li><li>Clique em <b>Importar</b>. Reimportar o mesmo <code>external_id</code> atualiza (upsert) e nunca duplica.</li><li>Use <b>Reverter</b> no histórico para desfazer uma importação.</li></ol>
-  <p>Ordem recomendada: serviços → clientes → contratos → consumo → e-mails (contratos/consumo/e-mails exigem que cliente e serviço já existam).</p><p><b>LGPD:</b> dados ficam somente neste navegador (localStorage). Documentos e contatos são mascarados por padrão; o corpo dos e-mails <b>não é armazenado</b> — apenas resumo (sem e-mails/CPF/CNPJ/telefones), sinais e referência. Ações são registradas em Auditoria.</p>
+  <div data-p="0" class="card"><h3>Como usar</h3><ol><li>Na primeira visita os <b>dados fictícios (mock)</b> são carregados automaticamente; para recarregá-los, use <b>Configurações</b>.</li><li>Navegue por Clientes, Contratos, Catálogo, Métricas e Oportunidades; o Chat responde apenas com base nos dados carregados.</li><li>Os formatos de entrada (JSON Schema e exemplos) estão na aba <b>Schemas e exemplos</b> e na pasta <code>schemas/</code> do repositório.</li></ol>
+  <p><b>LGPD:</b> dados ficam somente neste navegador (localStorage). Documentos e contatos são mascarados por padrão; o corpo dos e-mails <b>não é armazenado</b> — apenas resumo (sem e-mails/CPF/CNPJ/telefones), sinais e referência. Ações são registradas em Auditoria.</p>
   <p><b>Perfis:</b> Admin (tudo) · Comercial (edita cadastros e vê oportunidades) · Suporte (somente leitura, sem valores/oportunidades, sempre mascarado) · CS (vê apenas clientes em que <code>cs_owner</code> = seu nome; importa consumo e e-mails).</p></div>
   <div data-p="1" class="card" hidden><div class="row"><label class="tf"><span>Entidade</span><select id="se">${ent.map(e => `<option value="${e}">${ENTITY_LABEL[e]}</option>`).join("")}</select></label><button class="btn out sm" id="dlS">${ic("download")} Baixar schema</button><button class="btn out sm" id="dlE">${ic("download")} Baixar exemplo</button><button class="btn out sm" id="dlO">${ic("download")} Exemplo de saída de oportunidades</button></div><h3 style="margin-top:12px">JSON Schema</h3><pre class="code" id="sp"></pre><h3>Exemplo</h3><pre class="code" id="ep"></pre></div>
   <div data-p="2" class="card" hidden><h3>Dicionário de sinais → serviço (editável em Configurações)</h3><div class="tw"><table><thead><tr><th>Regra</th><th>Serviço</th><th>Tipo</th><th>Termos</th></tr></thead><tbody>${Ctx.dict().rules.map(r => `<tr><td>${U.esc(r.key)}</td><td>${U.esc(Ctx.sname(String(r.service_id)))}</td><td>${U.esc(r.kind)}</td><td class="small">${r.terms.map(U.esc).join(", ")}</td></tr>`).join("")}</tbody></table></div>
   <h3 style="margin-top:16px">Pontuação (0–100)</h3><ul><li><b>Evidência (0–30):</b> 10 por evidência distinta + bônus de recência (≤7 dias: +6; ≤15: +3).</li><li><b>Urgência (0–25):</b> e-mail: prazo/urgência +12, reclamação +6, concorrente +7; contrato: vencimento ≤7d 25, ≤15d 20, ≤30d 14, ≤60d 6; franquia: &gt;100% 25, ≥80% 12.</li><li><b>Aderência (0–25):</b> serviço ainda não contratado 25; upsell em serviço contratado 12.</li><li><b>Receita (0–20):</b> preço × unidades/ano do catálogo, proporcional a R$ 50 mil.</li><li><b>Nível:</b> Alta ≥70 · Média ≥45 · Baixa &lt;45.</li></ul>
   <h3>Origens de oportunidade</h3><p><b>email</b> (sinal no e-mail → serviço), <b>renovacao</b> (vence ≤60 dias sem renovação automática), <b>franquia</b> (consumo ≥80%), <b>semcontrato</b> (≥20 chamados sem contrato vigente).</p>
   <p>Guardrails: sem evidência não há oportunidade; e-mails internos/automáticos são ignorados; descartadas/perdidas só reaparecem com <i>nova evidência</i> posterior; nada é enviado nem alterado automaticamente.</p></div>
-  <div data-p="3" class="card" hidden><h3>Limitações desta fase</h3><ul><li>Persistência em localStorage (~5 MB): suporta alguns milhares de registros; consumo/e-mails grandes exigem IndexedDB/backend.</li><li>Sem API, sem e-mail direto, perfis simulados (não é segurança real).</li><li>Análise por palavras-chave (sem compreensão semântica); catálogo 5–8 de exemplo é fictício.</li><li>Franquia de horas é por vigência do contrato; sem rateio entre contratos simultâneos do mesmo cliente.</li></ul>
+  <div data-p="3" class="card" hidden><h3>Limitações desta fase</h3><ul><li>Persistência em localStorage (~5 MB): suporta alguns milhares de registros; consumo/e-mails grandes exigem IndexedDB/backend.</li><li>Sem API, sem e-mail direto, perfis simulados (não é segurança real).</li><li>Análise por palavras-chave (sem compreensão semântica); catálogo de exemplo é fictício.</li><li>Franquia de horas é por vigência do contrato; sem rateio entre contratos simultâneos do mesmo cliente.</li></ul>
   <h3>Plano de evolução</h3><ol><li><b>Backend + API REST</b> (Node/.NET + PostgreSQL): mesmas entidades/IDs externos; endpoints <code>/customers, /contracts, /services, /usage-events, /emails, /opportunities</code>; módulos <code>DB</code>, <code>Importer</code>, <code>V</code>, <code>M</code>, <code>Opp</code> migram quase sem mudança.</li><li><b>Webhooks e sincronização</b> com o helpdesk (chamados/horas) substituindo a importação manual.</li><li><b>Autenticação real</b> (OIDC/SSO), RBAC no servidor e auditoria imutável.</li><li><b>Conectores de e-mail</b> (Microsoft Graph/Gmail via OAuth), com minimização e retenção configurável.</li><li><b>LLM</b>: implementar <code>Chat.providers.llm</code> e um extrator de sinais com saída JSON validada pelos schemas, sempre citando evidências e mantendo human-in-the-loop.</li></ol></div>`;
   $$("[data-tab]").forEach(b => b.onclick = () => { $$("[data-tab]").forEach(x => x.setAttribute("aria-selected", x === b)); $$("[data-p]").forEach(p => p.hidden = p.dataset.p !== b.dataset.tab); });
   const upd = () => { const e = $("#se").value; $("#sp").textContent = JSON.stringify(SCHEMAS[e], null, 2); $("#ep").textContent = JSON.stringify({ [e]: EXAMPLES[e] }, null, 2); }; $("#se").onchange = upd; upd();
@@ -997,14 +972,16 @@ const SAMPLE_LEGACY = {"customers":{"customers":{"103":{"id":103,"name":"ACME In
 const Sample = {
   services() {
     return { services: [
-      { external_id: 1, name: "Mensal", description: "Valor fixo mensal, independente das horas utilizadas.", price: 2500, unit: "mês", est_units_year: 12, category: "contrato" },
-      { external_id: 2, name: "Suporte Anual", description: "Suporte técnico anual com atendimento e manutenção contínuos.", price: 24000, unit: "ano", est_units_year: 1, category: "contrato" },
-      { external_id: 3, name: "Projeto", description: "Projeto com escopo, prazo e horas definidos.", price: 40000, unit: "projeto", est_units_year: 1, category: "contrato" },
-      { external_id: 4, name: "Bolsa de Horas", description: "Pacote de horas pré-contratadas consumidas sob demanda.", price: 35, unit: "hora", est_units_year: 1200, category: "contrato" },
-      { external_id: 5, name: "Monitoramento de Infraestrutura", description: "Monitoramento 24x7 de servidores e rede (exemplo).", price: 1800, unit: "mês", est_units_year: 12, category: "servico" },
-      { external_id: 6, name: "Backup Gerenciado", description: "Rotinas de backup e restauração testada (exemplo).", price: 1200, unit: "mês", est_units_year: 12, category: "servico" },
-      { external_id: 7, name: "Consultoria de Segurança e LGPD", description: "Diagnóstico e adequação (exemplo).", price: 18000, unit: "projeto", est_units_year: 1, category: "servico" },
-      { external_id: 8, name: "Migração para Nuvem", description: "Planejamento e migração de servidores (exemplo).", price: 45000, unit: "projeto", est_units_year: 1, category: "servico" }] };
+      { external_id: 1, name: "Suporte", description: "Atendimento técnico a usuários e ambiente (chamados, remoto e presencial).", price: 35, unit: "hora", est_units_year: 1200, category: "Operação" },
+      { external_id: 2, name: "Backup", description: "Rotinas de backup, retenção e restauração testada.", price: 1200, unit: "mês", est_units_year: 12, category: "Segurança" },
+      { external_id: 3, name: "Desenvolvimento", description: "Desenvolvimento, integrações e automações sob demanda.", price: 50, unit: "hora", est_units_year: 800, category: "Projetos" },
+      { external_id: 4, name: "NOC", description: "Monitoramento 24x7 de servidores, rede e links, com abertura de incidentes.", price: 1800, unit: "mês", est_units_year: 12, category: "Operação" },
+      { external_id: 5, name: "SOC", description: "Monitoramento e resposta a eventos de segurança.", price: 3500, unit: "mês", est_units_year: 12, category: "Segurança" },
+      { external_id: 6, name: "Projetos", description: "Projetos de infraestrutura com escopo, prazo e horas definidos.", price: 40000, unit: "projeto", est_units_year: 1, category: "Projetos" },
+      { external_id: 7, name: "Manutenção e Sustentação", description: "Manutenção preventiva, atualizações e correções contínuas.", price: 40, unit: "hora", est_units_year: 600, category: "Operação" },
+      { external_id: 8, name: "Consultoria de Segurança e LGPD", description: "Diagnóstico, adequação à LGPD e política de segurança da informação.", price: 18000, unit: "projeto", est_units_year: 1, category: "Segurança" },
+      { external_id: 9, name: "Migração para Nuvem", description: "Planejamento e migração de servidores e aplicações para a nuvem.", price: 45000, unit: "projeto", est_units_year: 1, category: "Projetos" },
+      { external_id: 10, name: "Gestão de Licenças", description: "Gestão e renovação de licenças (Microsoft 365, antivírus e outras).", price: 900, unit: "mês", est_units_year: 12, category: "Operação" }] };
   },
   /* cs_owner atribuído de forma determinística nos clientes de exemplo */
   customers(base) {
@@ -1062,7 +1039,7 @@ const SelfTest = {
     t("períodos e anterior", () => { const r = M.range("7", "2026-10-30"), p = M.previous(r); return r.start === "2026-10-24" && p.end === "2026-10-23" && U.days(p.start, p.end) === 6; });
     t("delta", () => M.delta(150, 100) === 50 && M.delta(5, 0) === null && M.delta(0, 0) === 0);
     t("franquia: excesso/baixo", () => { const c = { start_date: "2026-01-01", end_date: "2026-12-31", hours: 100, status: "vigente" }; return M.contractStatus(c, [{ date: "2026-03-01", quantity: 120 }], "2026-06-30").flag === "excesso" && M.contractStatus(c, [{ date: "2026-03-01", quantity: 5 }], "2026-09-30").flag === "baixo"; });
-    t("sinais: backup + urgência", () => { const s = Signals.extract("Perdemos arquivos, precisamos de backup o quanto antes."); return s.hits.some(h => h.service_id === "6") && s.urgent; });
+    t("sinais: backup + urgência", () => { const s = Signals.extract("Perdemos arquivos, precisamos de backup o quanto antes."); return s.hits.some(h => h.service_id === "2") && s.urgent; });
     t("sinais: PII mascarada no trecho", () => !Signals.extract("Backup. fale com a@b.com.br", DEFAULT_DICT).hits[0].snippet.includes("a@b.com.br"));
     t("score alta/baixa", () => Opp.level(Opp.score({ nEvid: 2, latest: "2026-10-29", urgency: 19, missing: true, value: 40000 }, "2026-10-30").total) === "alta" && Opp.level(Opp.score({ nEvid: 1, latest: null, urgency: 0, missing: false, value: 0 }, "2026-10-30").total) === "baixa");
     t("importação idempotente", () => { const st = blank(); const g = [["services", [{ external_id: 1, name: "Svc" }]]]; Importer.apply(Importer.plan(g, st, DEFAULT_DICT), st, { file: "t" }); const r = Importer.plan(g, st, DEFAULT_DICT); return r[0].rows[0].status === "igual" && Object.keys(st.services).length === 1; });
@@ -1102,7 +1079,7 @@ function init() {
   $("#csSel").onchange = e => { DB.s.settings.cs = e.target.value; DB.audit("trocar_cs", e.target.value); DB.save(); go(current); };
   $("#maskBtn").onclick = () => { DB.s.settings.mask = !DB.s.settings.mask; DB.audit(DB.s.settings.mask ? "mascarar_dados" : "revelar_dados", ""); DB.save(); applyRole(); go(current); };
   $("#dlg").addEventListener("click", e => { if (e.target.id === "dlg") e.target.close(); });
-  if (!DB.s.settings.seeded && !DB.list("customers").length) { DB.s.settings.seeded = true; loadSample(); }
+  if (DB.s.settings.seeded !== 2) { DB.s.settings.seeded = 2; loadSample(); }
   applyRole(); const h = location.hash.slice(1); go(PAGE_META[h] ? h : "dashboard");
   if (!DB.s.settings.ackLgpd) openDialog(`<h3>Aviso de uso de dados (LGPD)</h3><p>Este é um ambiente de <b>homologação</b>. Os dados ficam <b>somente neste navegador</b> (localStorage) e não são enviados a nenhum servidor. Dados pessoais são mascarados por padrão, e-mails são reduzidos a resumo + referência, e as ações são registradas em auditoria. Use apenas dados anonimizados ou com base legal adequada.</p><div class="dlg-actions"><button class="btn" id="ackB">Entendi</button></div>`);
   const ack = $("#ackB"); if (ack) ack.onclick = () => { DB.s.settings.ackLgpd = true; DB.save(); $("#dlg").close(); };
