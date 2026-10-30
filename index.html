@@ -16,6 +16,22 @@ body{overflow:hidden}
 .col{height:100vh;overflow-y:auto;display:flex;flex-direction:column;min-width:0}
 .topbar{position:sticky;top:0;z-index:30;min-height:64px;padding:10px 32px;display:flex;align-items:center;gap:12px;background:rgba(248,249,255,.78);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle)}
 .topbar .ht-breadcrumbs{flex:1;min-width:0}
+:root[data-theme=dark],:root[data-theme=black]{color-scheme:dark;
+--color-primary:#a2c9ff;--color-primary-hover:#b9d7ff;--color-primary-active:#d3e4ff;--color-on-primary:#00315a;--color-primary-container:#2e6fb3;--color-on-primary-container:#fff;
+--color-primary-fixed:#12365c;--color-primary-fixed-dim:#a2c9ff;--color-on-primary-fixed:#d3e4ff;--color-on-primary-fixed-variant:#a2c9ff;
+--color-secondary:#a8c8ff;--color-on-secondary:#0b2f58;--color-secondary-container:#1f3f66;--color-on-secondary-container:#d4e3ff;
+--color-tertiary:#bcc6de;--color-tertiary-container:#2f374a;--color-on-tertiary-container:#dae2fd;
+--color-error:#ffb4ab;--color-error-hover:#ffcbc4;--color-on-error:#690005;--color-error-container:#6b0b0f;--color-on-error-container:#ffdad6;
+--color-success:#8bd99d;--color-success-container:#0f3a1c;--color-on-success-container:#d3f5d9;
+--color-warning:#ffb867;--color-warning-container:#4a2b00;--color-on-warning-container:#ffe2c2;
+--color-outline:#8b919d;--color-outline-variant:#414751;
+--color-background:#0b1220;--color-on-background:#e4ecfb;--color-surface:#111a2b;--color-on-surface:#e4ecfb;--color-on-surface-variant:#b4bdcc;
+--color-surface-container-lowest:#0b1220;--color-surface-container-low:#141e30;--color-surface-container:#182339;--color-surface-container-high:#1f2b43;--color-surface-container-highest:#26344f;
+--text-muted:#9aa4b5;--text-disabled:rgba(228,236,251,.38);--surface-disabled:rgba(228,236,251,.08);--surface-header:rgba(11,18,32,.8);
+--state-hover:rgba(162,201,255,.08);--state-pressed:rgba(162,201,255,.16);--border-subtle:#25314a;--focus-halo:rgba(162,201,255,.25);
+--gradient-surface-tint:linear-gradient(180deg,#0b1220 0%,#141e30 100%);}
+:root[data-theme=black]{--color-background:#000;--color-surface:#0a0a0a;--color-surface-container-lowest:#000;--color-surface-container-low:#0f0f0f;--color-surface-container:#151515;--color-surface-container-high:#1c1c1c;--color-surface-container-highest:#252525;--surface-header:rgba(0,0,0,.8);--border-subtle:#242424;--color-outline-variant:#333;--gradient-surface-tint:#000}
+:root[data-theme=dark] .topbar,:root[data-theme=black] .topbar{background:var(--surface-header)}
 .topbar .ht-breadcrumbs a{cursor:pointer}
 #menuBtn{display:none}
 main{padding:28px 32px 56px;display:flex;flex-direction:column;gap:24px;width:100%;max-width:1440px;margin:0 auto}
@@ -285,6 +301,7 @@ dialog.ht-modal::backdrop{background:var(--surface-scrim);-webkit-backdrop-filte
       <div class="ht-control" style="width:168px" id="csWrap"><span class="ms">person</span><select class="ht-select ht-select--sm ht-input--lead" id="csSel" aria-label="Responsável de CS"></select><span class="ms ht-control__chev">expand_more</span></div>
       <button class="ht-btn ht-btn--sm ht-btn--tonal" id="maskBtn" aria-pressed="true"></button>
       <button class="ht-icon-btn ht-icon-btn--standard" id="notifBtn" aria-label="Alertas de uso"><span class="ms">notifications</span></button>
+      <button class="ht-icon-btn ht-icon-btn--standard" id="themeBtn" aria-label="Alternar tema: claro, escuro, preto"><span class="ms">light_mode</span></button>
     </header>
     <div class="lgpd-banner" id="lgpdBanner" hidden></div>
     <main id="main" tabindex="-1"></main>
@@ -1665,8 +1682,13 @@ function lgpdAck() {
   const d = modal({ title: "Aviso de uso de dados (LGPD)", icon: "shield_person", desc: "Ambiente de homologação", body: `<p style="margin:0 0 12px">Os dados ficam <b>somente neste navegador</b> (localStorage) e não são enviados a nenhum servidor.</p><ul style="margin:0;padding-left:20px;display:grid;gap:6px"><li>Dados pessoais são <b>mascarados por padrão</b>.</li><li>E-mails são reduzidos a <b>resumo + referência</b> — o corpo não é guardado.</li><li>Ações são registradas em <b>auditoria</b>.</li></ul><p style="margin:12px 0 0" class="small muted">Use apenas dados anonimizados ou com base legal adequada.</p>`, foot: `<button type="button" class="ht-btn ht-btn--primary" id="ackB">${ic("check")}Entendi</button>` });
   $("#ackB").onclick = () => { DB.s.settings.ackLgpd = true; DB.save(); $("#dlg").close(); };
 }
+function applyTheme() {
+  const t = DB.s.settings.theme || "light", L = { light: ["light_mode", "claro"], dark: ["dark_mode", "escuro"], black: ["contrast", "preto"] };
+  document.documentElement.dataset.theme = t; const b = $("#themeBtn"); b.innerHTML = `<span class="ms">${L[t][0]}</span>`; b.title = `Tema ${L[t][1]} (clique para alternar)`;
+}
 function init() {
-  DB.load();
+  DB.load(); applyTheme();
+  $("#themeBtn").onclick = () => { const o = ["light", "dark", "black"]; DB.s.settings.theme = o[(o.indexOf(DB.s.settings.theme || "light") + 1) % 3]; applyTheme(); DB.save(); toast("Tema: " + { light: "claro", dark: "escuro", black: "preto (OLED)" }[DB.s.settings.theme]); };
   $("#menuBtn").onclick = () => { const o = $("#drawer").classList.toggle("open"); $("#scrim").classList.toggle("on", o); $("#menuBtn").setAttribute("aria-expanded", o); };
   $("#scrim").onclick = closeNav;
   $("#crumbs").onclick = e => { const a = e.target.closest("[data-nav]"); if (a) go(a.dataset.nav); };
