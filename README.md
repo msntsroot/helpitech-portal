@@ -1,6 +1,6 @@
 # HelpiTech Portal — Clientes, Métricas e Oportunidades (homologação)
 
-Arquivo único `index.html` (HTML + CSS + JS, sem build/backend), Material Design 3 + Noto Sans, com:
+Arquivo único `index.html` (HTML + CSS + JS, sem build/backend), no **Design System Grupo Helpitech** (Hanken Grotesk + Material Symbols, componentes `.ht-*` e tokens em [`ds/`](ds), logo em [`assets/`](assets)), com:
 
 - **Gestão de clientes e contratos** (CRUD, catálogo de serviços, histórico, alertas 30/15/7 dias, perfis simulados).
 - **Importação por JSON** (motor de validação/upsert idempotente por `external_id`; sem tela dedicada nesta versão).
@@ -10,6 +10,9 @@ Arquivo único `index.html` (HTML + CSS + JS, sem build/backend), Material Desig
 - LGPD: dados só no navegador, máscara de PII, e-mail reduzido a resumo + referência, log de auditoria.
 
 Abra `index.html` (ou a página do GitHub Pages): na primeira visita os **dados fictícios (mock)** são carregados automaticamente a partir dos dados de origem em [`dados-mock/`](dados-mock). A tela de importação manual foi removida; o motor de importação (upsert por `external_id`, validação por schema) segue no código para a carga dos dados.
+
+## Interface
+Layout com menu lateral, breadcrumbs e seletor de perfil; Dashboard com prioridades do dia, **Cliente 360**, drawer de oportunidade (evidência, composição do score, rascunho e triagem), Assistente em chat, Auditoria com filtros LGPD e Configurações em abas. O DS é carregado de `ds/styles.css` (fontes locais em `ds/fonts/`) — abra via servidor HTTP ou GitHub Pages.
 
 ## Catálogo e mapeamento dos dados
 Catálogo: Suporte, Backup, Desenvolvimento, NOC, SOC, Projetos, Manutenção e Sustentação, Consultoria de Segurança e LGPD, Migração para Nuvem e Gestão de Licenças (preços fictícios).
